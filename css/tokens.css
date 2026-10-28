@@ -1,0 +1,67 @@
+/* Liquid · tokens do DS EstrelaGames (Rjx31bgpOt4m1U8DVKyWtd · modo Liquid), valores resolvidos 1:1 */
+:root{
+  color-scheme: dark;
+  /* background */
+  --bg-default:#111113; --bg-subtle:#19191b; --bg-strong:#222325; --bg-raised:#292a2e; --bg-inset:#010101; --bg-highlight:#ffffff14; --bg-chrome:#19191b; --bg-divider:#292a2e; --bg-band:#00000052;
+  --bga-default-50:#11111380; --bga-default-75:#111113bf; --bga-subtle-50:#19191b80; --bga-subtle-75:#19191bbf;
+  --bga-strong-25:#22232540; --bga-strong-50:#22232580; --bga-strong-75:#222325bf;
+  --bga-secondary-16:#5fc8eb29; --bga-secondary-32:#5fc8eb52; --bga-accent-12:#ffc8411f;
+  /* border */
+  --border-muted:#ffffff14; --border-default:#222325; --border-strong:#393a40; --border-focus:#2ba4c8;
+  --border-hl-top:#ffffff29; --border-gold-top:#bceafbe5; --border-gold-bottom:#2ba4c85c;
+  /* text */
+  --text-default:#eeeef0; --text-muted:#b2b3bd; --text-link:#5fc8eb; --text-subtle:#5f606a; --text-disabled:#46484f;
+  --text-brand:#5fc8eb; --text-success:#52de7e; --text-error:#ff6b6e; --text-prize:#ffc841;
+  --text-on-color:#ffffff; --text-on-color-muted:#ffffffd9; --text-on-color-subtle:#ffffffb2; --text-on-light:#111113;
+  /* system */
+  --sys-info:#3bb0d4; --sys-success:#2cc160; --sys-success-strong:#8cf0a9; --sys-warning:#ffbe2e; --sys-error:#ef4452;
+  --sysa-success-25:#2cc16040; --sysa-error-25:#ef445240; --sysa-info-25:#3b74f540;
+  --notification-error:#ef4452;
+  /* effects */
+  --hl-subtle:#ffffff29; --hl:#ffffff52; --hl-strong:#ffffff7a;
+  --shadow-faint:#0000001f; --shadow-subtle:#0000003d; --shadow:#00000066; --shadow-strong:#00000080;
+  --glow-info:#2ba4c852; --glow-accent:#ffbe2e52; --glow-success:#52de7ea3; --glow-gold:#5fc8eb52; --glow-blue:#5fc8eb; --glow-red:#ff6b6e;
+  /* surfaces */
+  --surface-card-top:#19191b; --surface-card-bottom:#111113; --surface-elevated-top:#292a2e; --surface-elevated-bottom:#19191b;
+  /* buttons */
+  --btn-primary-top:#2ba4c8; --btn-primary-bg:#207f9b; --btn-secondary-border:#3bb0d4;
+  --btn-disabled-top:#292a2e; --btn-disabled-bg:#292a2e; --btn-disabled-text:#46484f;
+  /* tabs */
+  --tab-default-text:#b2b3bd; --tab-container:#222325; --input-border:#222325;
+  --tab-padrao:#2ba4c8; --tab-padrao-tint:#2ba4c83d; --tab-rosa:#e93d82; --tab-rosa-tint:#e93d823d;
+  /* games */
+  --game-truco:#e5484d; --game-paulista:#3b74f5; --game-cacheta:#8752f2; --game-tranca:#2cc160; --game-buraco:#1f9a4a;
+  --game-poker:#0fa968; --game-sinuca:#2fa35a; --game-todos:#3bb0d4; --game-domino:#14b8a6; --game-dama:#f76b15; --game-xadrez:#5b6cff;
+  --game-paulista-tint:#3b74f53d; --game-truco-tint:#e5484d3d; --game-cacheta-tint:#8752f23d; --game-buraco-tint:#1f9a4a3d;
+  /* crew */
+  --crew-engenheiro:#4fb3ff; --crew-comandante:#f5c542; --crew-piloto:#ff5a36; --crew-navegador:#e86bff; --crew-explorador:#4dffb8;
+  --crew-bar:#ff9f43; --crew-reis:#34d399; --crew-nobru:#3d8bff; --crew-inhui:#ff4fb0;
+  /* stake / table */
+  --stake-padrao-top:#0e5467; --stake-padrao-bottom:#0a2b36; --stake-iniciante-top:#1f9a4a; --stake-iniciante-bottom:#1f502c;
+  --table-card-top:#1f5a4a; --table-card-bottom:#0f2e2a; --table-stake:#ffc841;
+  --plus-bg:#52de7e; --plus-icon:#111113;
+  /* cards */
+  --card-face:#ffffff; --card-border:#9ea2a4; --suit-red:#c72c3d; --suit-black:#141922; --back-top:#1b667d; --back-bottom:#003848;
+  /* seat timer */
+  --seat-timer-track:#ffffff1f; --seat-timer:#3bb0d4;
+  /* type */
+  --f-display:"Sora", "Inter", system-ui, sans-serif;
+  --f-ui:"Inter", system-ui, -apple-system, sans-serif;
+  --f-call:"Industry", "Sora", sans-serif;
+  /* marca · Liquid (sobrescreve) */
+  --back-top:#207f9b; --back-bottom:#0a2b36; --btn-primary-text:#111113; --btn-primary-bg:#5fc8eb; --crew-nobru:#3BB0D4; --crew-inhui:#3BB0D4; --crew-barbara:#5FC8EB;
+}
+/* estilos de texto do DS */
+.t-d3xl{font:700 64px/1.2 var(--f-display);letter-spacing:-.02em}
+.t-d2xl{font:700 48px/1.2 var(--f-display);letter-spacing:-.02em}
+.t-dxl{font:700 40px/1.2 var(--f-display);letter-spacing:-.02em}
+.t-dl{font:700 32px/1.2 var(--f-display);letter-spacing:-.02em}
+.t-dm{font:700 24px/1.2 var(--f-display);letter-spacing:-.01em}
+.t-ds{font:700 20px/1.2 var(--f-display);letter-spacing:-.01em}
+.t-dxs{font:600 16px/1.2 var(--f-display)}
+.t-d2xs{font:600 14px/1.2 var(--f-display)}
+.t-d3xs{font:600 12px/1.2 var(--f-display)}
+.t-hm{font:700 20px/1.2 var(--f-ui)}
+.t-ll{font:500 16px/1 var(--f-ui)} .t-lm{font:500 14px/1 var(--f-ui)} .t-ls{font:500 12px/1 var(--f-ui)} .t-lxs{font:500 10px/1 var(--f-ui)} .t-l2xs{font:500 8px/1 var(--f-ui)}
+.t-link{font:700 12px/1.5 var(--f-ui)}
+.t-p2xl{font:400 20px/1.5 var(--f-ui)} .t-pm{font:400 14px/1.5 var(--f-ui)} .t-ps{font:400 12px/1.5 var(--f-ui)}

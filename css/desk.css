@@ -1,0 +1,93 @@
+/* EstrelaGames · desktop (computador com tela ≥ 1024 px na horizontal · js/desk.js liga body.dk; celular e tablet ficam no mobile)
+   Header largo em cima, menu à esquerda, chat ao vivo à direita. As telas e os jogos seguem numa coluna 9:16 no meio
+   (o mesmo app do celular, sem o header e a navbar de dentro). Larguras: menu 256 (trilho 88 abaixo de 1280), chat 336. */
+.dkh,.dkl,.dkr{display:none}
+body.dk{--dkl:256px;--dkr:336px;--dkh:72px;--dk-gc:var(--game-truco);background:var(--bg-default)}
+body.dk.dk-rail{--dkl:88px;--dkr:0px}
+body.dk.dk-ob{--dkl:0px;--dkr:0px}
+
+/* ---------- coluna 9:16 ---------- */
+body.dk .stage-wrap{inset:var(--dkh) var(--dkr) 0 var(--dkl)}
+body.dk .phone{width:396px;height:704px;border-radius:24px;box-shadow:0 0 0 1px var(--border-default),0 0 0 2px #ffffff0a,0 32px 80px var(--shadow-strong)}
+body.dk .status{display:none}
+/* o header e a navbar da tela saem da coluna: viram o header e o menu do desktop */
+body.dk #view .hdr,body.dk #view .nav{display:none}
+body.dk #view.home{padding-top:8px}
+body.dk #view .content,body.dk #view .pcontent{padding-bottom:24px}
+body.dk .home .stage{margin-bottom:8px}
+body.dk .home .stage .ct{padding-bottom:8px}
+body.dk #view.chat .composer{padding-bottom:16px}
+body.dk .toast,body.dk .home .rw-hint{top:16px}
+body.dk .gtoast-card{top:16px}
+
+/* ---------- header ---------- */
+body.dk .dkh{position:fixed;left:0;right:0;top:0;height:var(--dkh);z-index:100;display:flex;align-items:center;gap:16px;padding:0 24px 0 0;background:var(--bg-subtle);box-shadow:inset 0 -1px 0 var(--border-muted);overflow:hidden}
+.dkh::before{content:"";position:absolute;left:50%;top:-90px;width:640px;height:160px;margin-left:-320px;border-radius:50%;background:var(--glow-blue);filter:blur(80px);opacity:.12;pointer-events:none}
+.dkh .brand{position:relative;flex:none;width:256px;height:100%;display:flex;align-items:center;gap:8px;padding:0 24px}
+.dkh .brand img{width:32px;height:32px}
+.dkh .brand b{font:700 20px/1.2 var(--f-display);letter-spacing:-.01em;color:var(--text-default)}
+.dkh .brand b span{color:var(--text-brand)}
+.dkh .mid{position:relative;flex:1;min-width:0;display:flex;align-items:center;justify-content:center;gap:8px}
+.dkh .cpill{flex:none;width:200px;height:40px;padding:4px 6px 4px 6px}
+.dkh .cpill .ic{width:28px;height:28px}
+.dkh .cpill .t small{font-size:10px}
+.dkh .cpill .t b{font:700 14px/1 var(--f-ui)}
+.dkh .cpill .plus{width:24px;height:24px;border-radius:12px}
+.dkh .cpill.bonus{width:168px;padding-right:12px}
+.dkh .right{position:relative;flex:none;display:flex;align-items:center;gap:12px}
+.dkh .hbell{width:40px;height:40px;border-radius:20px}
+.dkh .hbell i{left:30px;top:2px}
+.dkh .me{display:flex;align-items:center;gap:8px;height:48px;padding:0 16px 0 4px;border-radius:24px;background:var(--bga-strong-50);box-shadow:inset 0 0 0 1px var(--border-muted)}
+.dkh .me .tx{display:flex;flex-direction:column;gap:4px;text-align:left}
+.dkh .me .tx b{font:600 14px/1 var(--f-display);color:var(--text-default);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dkh .me .tx small{font:500 10px/1 var(--f-ui);color:var(--text-muted);white-space:nowrap}
+body.dk-ob .dkh .mid,body.dk-ob .dkh .right{visibility:hidden}
+
+/* ---------- menu (um só para o produto todo: os itens da navbar + conta) ---------- */
+body.dk .dkl{position:fixed;left:0;top:var(--dkh);bottom:0;width:var(--dkl);z-index:90;display:flex;flex-direction:column;gap:8px;padding:16px;background:var(--bg-subtle);box-shadow:inset -1px 0 0 var(--border-muted);overflow-y:auto;scrollbar-width:none}
+body.dk-ob .dkl{display:none}
+.dkl::-webkit-scrollbar{display:none}
+.dkl .lb{padding:8px 12px 4px;font:500 10px/1 var(--f-ui);letter-spacing:.06em;text-transform:uppercase;color:var(--text-subtle)}
+.dkl .it{position:relative;width:100%;height:48px;display:flex;align-items:center;gap:12px;padding:0 12px;border-radius:16px;font:500 14px/1 var(--f-ui);color:var(--text-muted);transition:background .15s,color .15s}
+.dkl .it .ic{width:32px;height:32px;opacity:.75}
+.dkl .it:hover{background:var(--bga-strong-50);color:var(--text-default)}
+.dkl .it.on{background:var(--bga-secondary-16);box-shadow:inset 0 0 0 1px var(--hl-subtle),0 0 20px var(--glow-info);color:var(--text-on-color);font-weight:600}
+.dkl .it.on .ic{opacity:1}
+.dkl hr{width:100%;height:1px;margin:8px 0;border:0;background:var(--border-muted)}
+.dkl .ft{margin-top:auto;padding:16px 12px 0;font:500 10px/1.5 var(--f-ui);color:var(--text-subtle)}
+.dkl .busy{display:none;align-items:center;gap:8px;padding:12px;border-radius:12px;background:var(--sysa-success-25);font:500 12px/1.2 var(--f-ui);color:var(--text-default)}
+.dkl .busy i{width:8px;height:8px;border-radius:50%;background:var(--sys-success);box-shadow:0 0 8px var(--glow-success);flex:none}
+/* trilho (1024–1279): só ícone + rótulo curto, como a navbar do celular */
+body.dk-rail .dkl{padding:16px 8px;align-items:center}
+body.dk-rail .dkl .it{flex-direction:column;justify-content:center;gap:4px;height:64px;padding:0;font-size:10px}
+body.dk-rail .dkl .lb,body.dk-rail .dkl .ft{display:none}
+body.dk-rail .dkl .busy span{display:none}
+body.dk-rail .dkh .brand{width:auto}
+/* em partida, menu e header esperam: sair é pelo Voltar do jogo */
+body.dk-busy .dkl .busy{display:flex}
+body.dk-busy .dkl .it,body.dk-busy .dkh .mid,body.dk-busy .dkh .right,body.dk-busy .dkh .brand{opacity:.4;pointer-events:none}
+
+/* ---------- chat ao vivo (lado direito) ---------- */
+body.dk .dkr{position:fixed;right:0;top:var(--dkh);bottom:0;width:var(--dkr);z-index:90;display:flex;flex-direction:column;background:var(--bg-subtle);box-shadow:inset 1px 0 0 var(--border-muted)}
+body.dk-rail .dkr,body.dk-ob .dkr{display:none}
+.dkr .dkc-h{flex:none;display:flex;align-items:center;gap:12px;padding:16px 16px 12px}
+.dkr .dkc-h .ic{width:40px;height:40px}
+.dkr .dkc-h .tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.dkr .dkc-h b{font:600 16px/1.2 var(--f-display)}
+.dkr .dkc-h small{display:flex;align-items:center;gap:6px;font:500 12px/1.2 var(--f-ui);color:var(--text-muted)}
+.dkr .dkc-h small i{width:8px;height:8px;border-radius:50%;background:var(--sys-success);box-shadow:0 0 8px var(--glow-success);flex:none}
+.dkr .dkc-tabs{flex:none;display:flex;gap:4px;padding:8px 12px 4px}
+.dkr .dkc-tabs .gb.mini{height:56px;border-radius:12px}
+.dkr .dkc-tabs .gb.mini .ic{width:32px;height:32px}
+.dkr .dkc-tabs[hidden]{display:none}
+.dkr .feed{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;padding:8px 0;scrollbar-width:none;box-shadow:inset 0 1px 0 var(--border-muted)}
+.dkr .feed::-webkit-scrollbar{display:none}
+.dkr .feed>*{flex-shrink:0}
+.dkr .feed .spacer{flex:1}
+.dkr .feed .sys{padding:4px 0 8px;text-align:center;font:500 10px/1 var(--f-ui);color:var(--text-subtle)}
+.dkr .composer{padding:12px 12px 16px;box-shadow:inset 0 1px 0 var(--border-muted)}
+.dkr.flash .composer .in{box-shadow:inset 0 0 0 1.5px var(--btn-secondary-border),0 0 12px var(--glow-info)}
+
+/* ---------- notificações: o painel cai do sino do header ---------- */
+body.dk .ndrop{position:fixed;inset:var(--dkh) 0 0 0;z-index:120;background:transparent}
+body.dk .ndrop .panel{left:auto;right:16px;top:8px;width:400px;max-height:calc(100% - 32px)}
