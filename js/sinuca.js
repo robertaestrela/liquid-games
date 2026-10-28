@@ -10,7 +10,7 @@ function startSinuca(tableId) {
   const q = new URLSearchParams({nick: ST.nick, crew: ST.crew, g: ST.g, opp: OPP.n, mesa: tableId, q: '0'});
   const w = document.createElement('section');
   w.className = 'scr sinuca-scr'; w.id = 'sinucaWrap';
-  w.innerHTML = `<iframe id="sinucaFrame" title="Sinuca · Bola 8" allow="autoplay; fullscreen" src="sinuca/index.html?v=liquid-10281302#embed=${ST.stake}&${q}"></iframe>`;
+  w.innerHTML = `<iframe id="sinucaFrame" title="Sinuca · Bola 8" allow="autoplay; fullscreen" src="sinuca/index.html?v=liquid-10281619#embed=${ST.stake}&${q}"></iframe>`;
   closeSheet(); closeNotifs(); pauseViewVideos();
   $('#view').hidden = true; $('#scr-game').hidden = true;
   $('#app').appendChild(w);

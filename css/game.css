@@ -302,7 +302,7 @@
 #scr-game .pkraise .mm{display:flex;justify-content:space-between;font:500 10px/1 var(--f-ui);color:var(--text-subtle);margin-top:-6px}
 #scr-game .pkraise .row{display:flex;gap:8px} .pkraise .row .btn{flex:1;min-width:0;padding:0 8px;white-space:nowrap;font-size:14px} .pkraise .row .btn.primary{flex:1.6}
 
-.hud .timer:not(:has(.rounds)):not(:has(.label))::after{content:"tempo";font:500 10px/1 var(--f-ui);color:var(--text-muted)}
+.hud .timer:not(:has(.rounds)):not(:has(.label))::after{content:"time";font:500 10px/1 var(--f-ui);color:var(--text-muted)}
 .ctile.on .mini::after{content:"";position:absolute;inset:0;border-radius:12px;box-shadow:inset 0 0 0 2px var(--btn-secondary-border);pointer-events:none}
 
 /* Liquid: logo da marca no centro do pano de todas as mesas */
