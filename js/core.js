@@ -72,7 +72,7 @@ const ST = {
   crew: 'nenhum', g: 'ela', owned: {nobru: false, magia: false, reis: false, estelar: false}, pack: 'nobru',
   mesaChoice: 'vermelha', mesaPaulista: 'azul', deck: 'estrela', mic: false,
   unread: 2, reward: null, rewardsWon: 18, series: null, training: false,
-  diamonds: 0 // moeda da Loja (só cosmético) · comprada em Loja › Diamantes
+  diamonds: 1000 // moeda da Loja (só cosmético) · comprada em Loja › Diamantes · protótipo começa com 1.000 para mostrar as liberações nas reuniões
 };
 const hasSkin = () => ST.crew !== 'nenhum';
 
