@@ -160,7 +160,7 @@ function stakeCarousel() {
 const fmtLabel = () => formatOf(ST.game, ST.variant, ST.trucoMode);
 function soonNote() {
   const g = game();
-  if (g.soon) return `A ${g.name} chega em breve. Por enquanto, jogue Truco, Cacheta, Buraco, Tranca ou Poker.`;
+  if (g.soon) return `A ${g.name} chega em breve. Por enquanto, jogue Truco, Cacheta, Buraco ou Poker.`;
   if (g.id === 'sinuca') return 'A Sinuca brasileira chega em breve. Por enquanto, jogue a Bola 8.';
   return `O ${ST.variant} chega em breve. Por enquanto, jogue Pif-Paf ou Cacheta.`;
 }

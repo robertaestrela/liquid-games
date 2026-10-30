@@ -288,7 +288,7 @@ window.addEventListener('pageshow', e => {
    RANKING · geral (M01) e por jogo (R01/R02, aberto pelo troféu do lobby)
    ====================================================================== */
 const RANK_TOP = [['af.dutra', 'piloto', 'ela', '11.900'], ['dutra77', 'comandante', 'ele', '12.480'], ['alfonso_d', 'navegador', 'ele', '10.350']];
-const RANK_ROWS = [['dutra.bet', 'Truco · 480 vitórias', '9.870', '+1'], ['af_07', 'Cacheta · 443 vitórias', '9.120', '–'], ['capitao.lu', 'Tranca · 406 vitórias', '8.450', '+3'], ['mari_truco', 'Buraco · 369 vitórias', '8.100', '-2'], ['joao.poker', 'Poker · 332 vitórias', '7.980', '+1'], ['lu.reis', 'Truco · 301 vitórias', '7.420', '+2'], ['caio.s', 'Cacheta · 288 vitórias', '6.990', '-1']];
+const RANK_ROWS = [['dutra.bet', 'Truco · 480 vitórias', '9.870', '+1'], ['af_07', 'Cacheta · 443 vitórias', '9.120', '–'], ['capitao.lu', 'Buraco · 406 vitórias', '8.450', '+3'], ['mari_truco', 'Buraco · 369 vitórias', '8.100', '-2'], ['joao.poker', 'Poker · 332 vitórias', '7.980', '+1'], ['lu.reis', 'Truco · 301 vitórias', '7.420', '+2'], ['caio.s', 'Cacheta · 288 vitórias', '6.990', '-1']];
 const RK = {period: 'semana', geral: 'semanal', gfilter: 'todos', variant: null};
 const rowHTML = (r, i, gname) => { const d = r[3]; return `<button class="rrow" data-a="playerCard:${r[0]}"><em>${i}</em>${av(PEOPLE[i % PEOPLE.length][1], PEOPLE[i % PEOPLE.length][2], 's')}<span class="tx"><b>@${r[0]}</b><small>${gname ? r[1].replace(/^\w+/, gname) : r[1]}</small></span><span class="pts"><b>${r[2]}</b><small class="${d.startsWith('-') ? 'dn' : d === '–' ? 'eq' : ''}">${d}</small></span></button>`; };
 // podium-estrela-games (ranking do jogo) e rank-race (ranking geral)

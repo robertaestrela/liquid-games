@@ -9,7 +9,7 @@ const BATTLES = [
   {id: 'B102', name: 'Pif da firma', owner: 'dutra77', game: 'cacheta', variant: 'Pif-Paf', fmt: '1x1', rounds: 5, buyin: 10, state: 'Aguardando', players: [['dutra77', 'comandante', 'ele']]},
   {id: 'B103', name: 'Sexta do truco', owner: 'luana.m', game: 'truco', variant: 'Paulista', fmt: '2x2', rounds: 5, buyin: 25, state: 'Em jogo', players: [['luana.m', 'explorador', 'ela'], ['marcao', 'navegador', 'ele'], ['rafa_10', 'piloto', 'ele'], ['lu.reis', 'engenheiro', 'ela']]},
   {id: 'B104', name: 'Buraco dos amigos', owner: 'amanda.s', game: 'buraco', variant: 'Aberto', fmt: '2x2', rounds: 1, buyin: 2, state: 'Em jogo', locked: true, pass: '1357', players: [['amanda.s', 'engenheiro', 'ela'], ['caio.s', 'explorador', 'ele'], ['dutra77', 'comandante', 'ele'], ['af_07', 'piloto', 'ela']]},
-  {id: 'B105', name: 'Desafio relâmpago', owner: 'rafa_10', game: 'tranca', variant: 'Clássica', fmt: '2x2', rounds: 3, buyin: 1, state: 'Aguardando', players: [['rafa_10', 'piloto', 'ele'], ['luana.m', 'explorador', 'ela'], ['marcao', 'navegador', 'ele']]},
+  {id: 'B105', name: 'Desafio relâmpago', owner: 'rafa_10', game: 'buraco', variant: 'Aberto', fmt: '2x2', rounds: 3, buyin: 1, state: 'Aguardando', players: [['rafa_10', 'piloto', 'ele'], ['luana.m', 'explorador', 'ela'], ['marcao', 'navegador', 'ele']]},
   {id: 'B107', name: 'Bola 8 de sexta', owner: 'joao.sinuca', game: 'sinuca', variant: 'Bola 8', fmt: '1x1', rounds: 3, buyin: 5, state: 'Aguardando', players: [['marcao', 'navegador', 'ele']]},
   {id: 'B106', name: 'All-in da madrugada', owner: 'caio.s', game: 'poker', variant: '1x1', fmt: '1x1', rounds: 3, buyin: 5, state: 'Aguardando', players: [['caio.s', 'explorador', 'ele']]}
 ];
@@ -29,7 +29,7 @@ SCREENS.batalhas = {cls: 'bat', render: () => {
   return `${header()}<div class="scroll"><div class="content">
     <div class="ttl"><h1>Batalhas</h1><p>Entre numa batalha aberta ou crie a sua. Todas valem dinheiro.</p></div>
     <label class="search">${svg('i-search')}<input id="bSearch" placeholder="Buscar sala ou criador" value="${esc(BL.q)}" autocomplete="off"></label>
-    <div class="hscroll">${gameBlock('todos', BL.filter === 'todos', 'data-bf="todos"')}${['truco', 'cacheta', 'buraco', 'tranca', 'poker', 'sinuca'].map(id => gameBlock(id, BL.filter === id, `data-bf="${id}"`)).join('')}</div>
+    <div class="hscroll">${gameBlock('todos', BL.filter === 'todos', 'data-bf="todos"')}${['truco', 'cacheta', 'buraco', 'poker', 'sinuca'].map(id => gameBlock(id, BL.filter === id, `data-bf="${id}"`)).join('')}</div>
     ${btn(`${ic('plus')}Criar batalha`, 'pri', 'l', 'data-a="cbStart"', 'wide')}
     ${stitle('Batalhas abertas', '', btn('Ver tudo', 'sec', 's', 'data-a="bAll"'))}
     <div class="blist" id="bList">${list.length ? list.map(battleCard).join('') : `<div class="empty-st">Nenhuma batalha${q ? ` com “${esc(BL.q)}”` : ''}. Que tal criar a sua?</div>`}</div>
@@ -92,7 +92,7 @@ const STEP_NAMES = ['Jogo', 'Modo e formato', 'Rodadas', 'Buy-in', 'Quem pode en
 function cbFormatFix() { const g = gameById(CB.game); if (!g.variants.includes(CB.variant) || (g.soonV || []).includes(CB.variant)) CB.variant = g.def; CB.fmt = CB.game === 'truco' ? (CB.fmt === '1x1' ? '1x1' : '2x2') : formatOf(CB.game, CB.variant); }
 SCREENS.cbattle = {cls: 'cflow', render: () => {
   const s = CB.step, g = gameById(CB.game); let body = '', cta = 'Continuar';
-  if (s === 1) body = `<h2>Qual jogo vai ser?</h2><div class="ggrid">${['truco', 'cacheta', 'buraco', 'tranca', 'poker', 'sinuca'].map(id => gameBlock(id, CB.game === id, `data-cbg="${id}"`)).join('')}</div>
+  if (s === 1) body = `<h2>Qual jogo vai ser?</h2><div class="ggrid">${['truco', 'cacheta', 'buraco', 'poker', 'sinuca'].map(id => gameBlock(id, CB.game === id, `data-cbg="${id}"`)).join('')}</div>
     <p class="help">Todas as batalhas valem dinheiro: cada jogador entra com o buy-in e quem vencer leva o prêmio.</p>`;
   if (s === 2) {
     const vs = g.variants.map(v => (g.soonV || []).includes(v) ? [v, v, 'em breve'] : v);

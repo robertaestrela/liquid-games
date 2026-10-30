@@ -35,11 +35,10 @@ const packOf = c => ['gamer', 'barbara'].includes(c) ? 'nobru' : c === 'bar' ? '
 const photo = (crew, g) => crew === 'nenhum' ? A + 'ui/avatar_empty.webp' : `${A}photo/${crew}_${g}.webp`;
 
 /* ---------- jogos ---------- */
-// ordem da linha de jogos do lobby (Figma L01): Cacheta · Truco · Tranca · Buraco · Poker · Sinuca
+// ordem da linha de jogos do lobby: Cacheta · Truco · Buraco · Poker · Sinuca (Tranca saiu do protótipo em 30/10)
 const GAMES = [
   {id: 'cacheta', name: 'Cacheta', color: 'var(--game-cacheta)', tabs: 'roxa', variants: ['Cachetão', 'Pif-Paf', 'Cacheta'], soonV: ['Cachetão'], def: 'Pif-Paf', pfx: 'C', pts: v => v === 'Pif-Paf' ? '2 batidas' : '5 vidas'},
   {id: 'truco', name: 'Truco', color: 'var(--game-truco)', tabs: v => v === 'Paulista' ? 'azul' : 'vermelha', variants: ['Paulista', 'Mineiro'], def: 'Mineiro', pfx: 'T', pts: () => '12 pontos'},
-  {id: 'tranca', name: 'Tranca', color: 'var(--game-tranca)', tabs: 'verde', variants: ['Clássica'], def: 'Clássica', pfx: 'R', pts: () => '3.000 pontos'},
   {id: 'buraco', name: 'Buraco', color: 'var(--game-buraco)', tabs: 'verde', variants: ['Aberto', 'Fechado'], def: 'Aberto', pfx: 'B', pts: () => '3.000 pontos'},
   {id: 'poker', name: 'Poker', color: 'var(--game-poker)', tabs: 'verde', variants: ['1x1', 'Mesa de 6'], def: '1x1', pfx: 'P', pts: () => 'Sit & Go'},
   {id: 'sinuca', name: 'Sinuca', color: 'var(--game-sinuca)', tabs: 'verde', variants: ['Bola 8', 'Brasileira'], soonV: ['Brasileira'], def: 'Bola 8', pfx: 'S', pts: () => 'Bola 8 · 1x1'}
