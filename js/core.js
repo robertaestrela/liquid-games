@@ -64,12 +64,13 @@ const STAKE_ORDER = [.25, 1, 5, 10, 20];
 const PEOPLE = [['dutra77', 'comandante', 'ele'], ['amanda.s', 'engenheiro', 'ela'], ['rafa_10', 'piloto', 'ele'], ['af_07', 'piloto', 'ela'], ['luana.m', 'explorador', 'ela'], ['marcao', 'navegador', 'ele'], ['lu.reis', 'engenheiro', 'ela'], ['caio.s', 'explorador', 'ele']];
 
 /* ---------- estado ---------- */
-// o app sempre abre plano (sem skin): as skins vêm da Loja e cada escolha é herdada pelo resto do app
+// regras do protótipo (30/10): o app abre com o 1º personagem homem do pacote principal da marca já liberado e ativo
+// (Liquid: Nobru · nas marcas, o 1º personagem delas) e o Truco abre sempre na mesa do bar até a pessoa escolher outra em Personalizar
 const ST = {
   onboarded: false, nick: 'betinh4', phone: '', saldo: 1250, bonus: 35,
   game: 'truco', variant: 'Mineiro', trucoMode: '2x2', stake: 1,
-  crew: 'nenhum', g: 'ela', owned: {nobru: false, magia: false, reis: false, estelar: false}, pack: 'nobru',
-  mesaChoice: 'vermelha', mesaPaulista: 'azul', deck: 'estrela', mic: false,
+  crew: 'gamer', g: 'ele', owned: {nobru: true, magia: false, reis: false, estelar: false}, pack: 'nobru',
+  mesaChoice: 'vermelha', mesaPaulista: 'azul', mesaPicked: false, deck: 'estrela', mic: false,
   unread: 2, reward: null, rewardsWon: 18, series: null, training: false,
   diamonds: 1000 // moeda da Loja (só cosmético) · comprada em Loja › Diamantes · protótipo começa com 1.000 para mostrar as liberações nas reuniões
 };

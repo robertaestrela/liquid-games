@@ -133,7 +133,7 @@ Object.assign(ACT, {
 });
 function finishOnboarding(nick) {
   ST.nick = nick; ST.phone = OB.phone; ST.onboarded = true;
-  go('lobby', {}, {noHist: true, reset: true});
+  go(hasSkin() ? 'jogos' : 'lobby', {}, {noHist: true, reset: true});
   toast(OB.mode === 'login' ? `Que bom te ver de novo, ${nick}!` : `Conta criada · bem-vindo, ${nick}!`);
 }
 

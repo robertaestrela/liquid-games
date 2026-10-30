@@ -16,8 +16,10 @@ function syncNick() {
 // mesas: Truco usa o tampo quadrado (truco-*); os outros jogos usam a cápsula da cor do jogo ou a skin especial escolhida
 const SPECIAL_MESAS = ['bar', 'reis', 'gamer'];
 const capsuleMesa = def => SPECIAL_MESAS.includes(ST.mesaChoice) ? ST.mesaChoice : def;
+// Truco: abre sempre na mesa do bar até a pessoa escolher outra mesa em Personalizar
+const trucoMesa = paulista => ST.mesaPicked ? (paulista ? ST.mesaPaulista || 'azul' : ST.mesaChoice || 'vermelha') : 'bar';
 function tableArt(gid, v) {
-  if (gid === 'truco') return 'truco-' + (v === 'Paulista' ? ST.mesaPaulista : ST.mesaChoice);
+  if (gid === 'truco') return 'truco-' + trucoMesa(v === 'Paulista');
   return capsuleMesa(gid === 'cacheta' ? 'roxa' : 'verde');
 }
 function currentMesaImg() { if (G) return mesaImg(); if (PF) return `${A}mesa/${capsuleMesa('roxa')}.webp`; return `${A}mesa/${capsuleMesa('verde')}.webp`; }
@@ -271,7 +273,7 @@ function endMatch() {
 }
 
 /* ---------- GAME RENDER ---------- */
-const mesaKey = () => G && G.variant === 'Paulista' ? (ST.mesaPaulista || 'azul') : (ST.mesaChoice || 'vermelha');
+const mesaKey = () => trucoMesa(!!(G && G.variant === 'Paulista'));
 function mesaImg() { return `${A}mesa/truco-${mesaKey()}.webp`; }
 // felt print: manilhas of the hand (fixed in Mineiro, from the vira in Paulista) + the order of the other cards
 function renderSeq() {
@@ -1382,7 +1384,7 @@ function personalizar() {
   const avs = [['nenhum', 'ela', null]];
   PACK_ORDER.forEach(pk => { const p = PACKS[pk]; const list = pk === 'estelar' ? p.roles.map(r => [r, hasSkin() && packOf(ST.crew) === 'estelar' ? ST.g : 'ela']) : [[p.roles[0], 'ele'], [p.roles[0], 'ela']]; list.forEach(([c, g]) => avs.push([c, g, ST.owned[pk] ? null : pk])); });
   avs.sort((a, b) => (a[2] ? 1 : 0) - (b[2] ? 1 : 0));
-  const curMesa = G && G.variant === 'Paulista' ? ST.mesaPaulista : ST.mesaChoice;
+  const curMesa = ST.mesaPicked ? (G && G.variant === 'Paulista' ? ST.mesaPaulista : ST.mesaChoice) : 'bar';
   const inner = `${sheetHead('gear', 'Personalizar', 'Toque para escolher · muda na hora')}
     <div class="cgrp"><b>Avatar</b><div class="hscroll copts">${avs.map(([c, g, lock]) => tile(!lock && ST.crew === c && (c === 'nenhum' || ST.g === g), lock, c === 'nenhum' ? hex('nenhum', 'ela', 'm', 0, false) : hex(c, g, 'm', 0, false), crewName(c, g), lock ? `data-lock="${lock}"` : `data-av="${c}|${g}"`)).join('')}</div></div>
     <div class="cgrp"><b>Mesa</b><div class="hscroll copts">${MESAS.map(([k, l, need]) => { const lock = need && !ST.owned[need]; return tile(!lock && curMesa === k, lock, `<img class="tb" src="${A}mesa/truco-${k}.webp" alt="">`, l, lock ? `data-lock="${need}"` : `data-mesa="${k}"`); }).join('')}</div></div>
@@ -1403,6 +1405,7 @@ function personalizar() {
       toast(`Avatar: ${ST.crew === 'nenhum' ? 'sem skin' : crewName(ST.crew, ST.g)}`);
     }
     if (b.dataset.mesa) {
+      ST.mesaPicked = true;
       if (G && G.variant === 'Paulista') ST.mesaPaulista = b.dataset.mesa; else { ST.mesaChoice = b.dataset.mesa; if (!G) ST.mesaPaulista = b.dataset.mesa; }
       const m = $('#mesaBg'); if (m) m.style.backgroundImage = `url(${currentMesaImg()})`;
       const sq = $('#seq'); if (sq) sq.classList.toggle('dark', mesaKey() === 'bar');
