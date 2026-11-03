@@ -173,7 +173,7 @@ SCREENS.lobby = {cls: 'lobby', render: () => {
     ${g.id === 'truco' ? tabs(['1x1', '2x2'], ST.trucoMode, '', 'tmode', 'aria-label="Formato"') : ''}
     <section class="sec"><div class="trow"><b>Partida rápida · ${fmtLabel()}</b><small>Taxa da mesa 10%</small></div>
       <div class="stakes" id="stakes"><div class="track">${stakeCarousel()}</div></div>
-      ${btn(ok ? `Jogar · ${fmt(ST.stake)}` : 'Em breve', 'pri', 'l', `data-a="quickPlay" ${ok ? '' : 'disabled'}`, 'wide')}</section>
+      <div class="acts">${ok ? `<button class="atile" data-a="treino">${ic('joystick')}Treino</button>` : ''}${btn(ok ? `Jogar · ${fmt(ST.stake)}` : 'Em breve', 'pri', 'l', `data-a="quickPlay" ${ok ? '' : 'disabled'}`, 'wide')}</div></section>
     ${ok ? '' : `<p class="soon-note">${soonNote()}</p>`}
     <section class="sec open"><div class="trow"><b>Mesas abertas</b><small>43 mesas</small></div>${rows.join('')}</section>
     ${g.id === 'sinuca' ? '<p class="credit">Mesa 3D: “Pool Table” por EpicRatt (Sketchfab, CC BY 4.0), com cores alteradas.</p>' : ''}

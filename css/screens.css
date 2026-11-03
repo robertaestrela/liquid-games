@@ -65,6 +65,9 @@
 .home .stage .acts{display:flex;gap:8px;align-items:center}
 .home .stage .acts .btn{flex:1;height:64px;border-radius:24px;font:600 16px/1.2 var(--f-display)}
 .home .stage .acts .atile{-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+/* lobby (sem skin): Treino ao lado do Jogar, igual à Home com skin (Figma M01/D01, 03/11) */
+.lobby .sec .acts{display:flex;gap:8px;align-items:center}
+.lobby .sec .acts .btn{flex:1;height:64px;border-radius:24px;font:600 16px/1.2 var(--f-display)}
 .home .rw-hint{position:absolute;left:50%;top:72px;transform:translateX(-50%);z-index:25}
 
 /* ---------- fila (partida rápida / mesa) ---------- */
