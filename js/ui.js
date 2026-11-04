@@ -30,7 +30,7 @@ function header() {
   </header>`;
 }
 
-const NAV_ITEMS = [['jogos', 'gamepad', 'Jogos'], ['lobby', 'swords', 'Lobby'], ['chat', 'chat', 'Chat'], ['loja', 'shop', 'Loja'], ['batalhas', 'fire', 'Batalhas']];
+const NAV_ITEMS = [['jogos', 'gamepad', 'Jogos'], ['lobby', 'swords', 'Lobby'], ['chat', 'chat', 'Chat'], ['loja', 'shop', 'Loja'], ['torneios', 'trophy', 'Torneios']];
 function navbar(active) {
   const items = NAV_ITEMS.filter(([k]) => k !== 'jogos' || hasSkin());
   return `<nav class="nav" aria-label="Navegação">${items.map(([k, i, l]) => k === active

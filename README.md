@@ -17,7 +17,7 @@ Protótipo mobile do **Liquid** (redesign *Apple Gamer Style*), fiel ao Figma e 
 
 **Diamantes:** moeda da Loja, só cosmético (skins, baralhos, molduras, efeitos, troca de nome e de foto) e nunca entra em partida. É o único pagamento dentro do app: o saldo de diamantes fica no topo da Loja e o + abre a página Diamantes (50 +8 · 195 +15 · 960 +40 · 4.500 +100, por R$ 6,90 · 29,90 · 129,90 · 599,90). A confirmação é a tela da App Store / Google Play (no protótipo, uma referência). Pacote de skins = 70 diamantes; sem saldo, o Comprar abre a página Diamantes.
 
-**Batalhas:** lobby com busca e filtro por jogo, criação em 5 passos (jogo → modo e formato → rodadas 1/3/5/10 → buy-in → aberta ou fechada com senha), sala de espera que enche com bots e **série de partidas**: vence quem ganhar mais rodadas e leva o prêmio.
+**Torneios** (entraram em 04/11 no lugar das Batalhas): só inscrição (opt-in). Lista com filtro por jogo e card no estilo da mesa (prêmio na aba do meio, entrada embaixo do botão); a sheet do torneio tem Regras, Prêmios e Ranking. Torneio grátis inscreve na hora; pago pede confirmação e, sem saldo, abre "Saldo insuficiente" com Comprar fichas. Dá pra cancelar até o início (a entrada volta). 5 min antes vem o aviso "Seu torneio vai começar"; ao vivo, cada partida vale pontos (vitória 3) e o ranking do torneio anda com os bots. O Truco Relâmpago começa 1 min e meio depois de abrir o app, para dar pra ver o fluxo todo.
 
 Também navegáveis com dados de exemplo: Chat (bônus e mesas no chat), Notificações, Perfil, Histórico, Ranking (geral e por jogo) e Ajustes.
 
@@ -45,7 +45,7 @@ A Sinuca usa Three.js (carregado do jsDelivr), então precisa de internet.
 index.html        casca (telas são renderizadas pelos scripts)
 css/tokens.css    tokens do DS Liquid (cores, tipografia) resolvidos 1:1
 css/ui.css        componentes (header-game, navbar-glass, game-block, tabs, button-glass, stake-pill, table-glass…)
-css/screens.css   telas (cadastro, lobby, Home com skin, Loja, Batalhas, Chat, Perfil, Ranking, Redirecionando…)
+css/screens.css   telas (cadastro, lobby, Home com skin, Loja, Torneios, Chat, Perfil, Ranking, Redirecionando…)
 css/game.css      tela de jogo (match-top, match-nav, cartas, chamada de truco, resultado)
 css/desk.css      desktop: header largo, menu, chat ao vivo e a coluna 9:16
 js/core.js        dados e estado
@@ -54,7 +54,7 @@ js/screens.js     navegação, cadastro, lobby, Home, fila e resultado
 js/loja.js        Loja, pacotes, diamantes, escolha de personagem e recompensa
 js/social.js      Chat, Notificações, Perfil, Ajustes, Ranking e o redirecionamento para Fichas
 fichas/           página de Fichas (fora do app): index.html, fichas.css, fichas.js
-js/battles.js     Batalhas e série de partidas
+js/torneios.js    Torneios: lista, sheet do torneio, inscrição, aviso de início e pontos
 js/games.js       motores dos jogos e bots
 js/sinuca.js      abre a Sinuca (mesa 3D) e recebe o resultado dela
 js/desk.js        desktop: liga o layout largo e pinta header, menu e chat ao vivo

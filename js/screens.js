@@ -272,9 +272,9 @@ async function startQueue(tableId, opts = {}) {
   queueAbort = false;
   const training = tableId === 'Treino';
   ST.training = training; if (training) ST.trainSaldo = ST.saldo;
-  if (!training && !ST.series && ST.saldo < ST.stake) { toast('Saldo insuficiente · compre fichas no + do saldo'); return; }
+  if (!training && !ST.tourney && ST.saldo < ST.stake) { toast('Saldo insuficiente · compre fichas no + do saldo'); return; }
   const people = opts.people || queuePeople(), g = game();
-  openSheet(`${sheetHead(GAME_ICON[g.id], '<span id="qTitle">Buscando jogadores…</span>', training ? `Treino contra bots · ${matchLabel()}` : `${matchLabel()} · ${fmt(ST.stake)} · mesa ${tableId}`, false)}
+  openSheet(`${sheetHead(GAME_ICON[g.id], '<span id="qTitle">Buscando jogadores…</span>', training ? `Treino contra bots · ${matchLabel()}` : ST.tourney ? `Torneio · ${matchLabel()}` : `${matchLabel()} · ${fmt(ST.stake)} · mesa ${tableId}`, false)}
     <button class="xbtn" data-a="queueCancel" aria-label="Cancelar" style="position:absolute;right:12px;top:20px">${svg('i-x')}</button>
     <div class="qslots" id="qSlots" style="grid-template-columns:repeat(${Math.min(people.length, 4)},minmax(0,1fr))">${people.map((p, i) => `<div class="qslot ${i === 0 ? 'filled' : ''}" data-i="${i}">${i === 0 ? hex(p[1], p[2], 'm', 0, true, {add: false}) + `<b>${esc(p[0])}</b>` : '<span class="spin"></span>vaga'}</div>`).join('')}</div>
     <div class="qcount" id="qCount" hidden>3</div>
@@ -294,7 +294,7 @@ function launchGame(tableId) {
   if (GAME_START[g]) GAME_START[g](tableId);
   else if (g === 'poker') startPoker(tableId); else if (g === 'cacheta') startPif(tableId); else if (g === 'buraco' || g === 'tranca') startBuraco(tableId); else startMatch(tableId);
 }
-ACT.queueCancel = () => { queueAbort = true; closeSheet(); };
+ACT.queueCancel = () => { queueAbort = true; closeSheet(); if (ST.tourney) tExit(); };
 
 /* ======================================================================
    RESULTADO · R01 Vitória / R02 Derrota (minimal, igual para todos os jogos)
@@ -306,10 +306,10 @@ function teamHTML(players, name, sub, right) {
 }
 // r: {win, tie, title, sub, value, caption, ctx, left, right, score, extra, again, againLabel, gameColor}
 function showResult(r) {
+  if (ST.tourney) tResult(r);
   if (ST.training) { ST.saldo = ST.trainSaldo; r.value = r.win ? 'Treino concluído' : 'Treino'; r.caption = 'Partida de treino · sem valor'; r.training = true; }
   logHistory(r);
-  if (ST.series && !r.seriesFinal) { battleRoundEnd(r); return; }
-  if (r.win && !r.training && !r.seriesFinal) bumpReward();
+  if (r.win && !r.training) bumpReward();
   const glow = r.win ? 'win' : r.tie ? 'tie' : 'loss';
   $('#overlay').innerHTML = `<div class="res2 ${glow}" style="--gc:${r.gameColor || 'var(--game-todos)'}"><i class="rglow"></i>
     <span class="ctx">${r.ctx || ''}</span>
@@ -330,7 +330,7 @@ Object.assign(ACT, {
   resBack: () => { $('#overlay').innerHTML = ''; const f = RES && RES.onBack; RES = null; endAllGames(); if (f) f(); else leaveGame(); },
   resAgain: () => { $('#overlay').innerHTML = ''; const r = RES; RES = null; endAllGames(); if (r && r.again) r.again(); }
 });
-function leaveGame() { endAllGames(); ST.series = null; go('lobby', {}, {noHist: true, reset: true}); }
+function leaveGame() { endAllGames(); if (ST.tourney) tExit(); go('lobby', {}, {noHist: true, reset: true}); }
 
 /* ---------- histórico de partidas (alimenta Perfil → Histórico) ---------- */
 const HISTORY = [];

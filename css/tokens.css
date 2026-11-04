@@ -32,7 +32,7 @@
   /* games */
   --game-truco:#e5484d; --game-paulista:#3b74f5; --game-cacheta:#8752f2; --game-tranca:#2cc160; --game-buraco:#1f9a4a;
   --game-poker:#0fa968; --game-sinuca:#2fa35a; --game-todos:#3bb0d4; --game-domino:#14b8a6; --game-dama:#f76b15; --game-xadrez:#5b6cff;
-  --game-paulista-tint:#3b74f53d; --game-truco-tint:#e5484d3d; --game-cacheta-tint:#8752f23d; --game-buraco-tint:#1f9a4a3d;
+  --game-paulista-tint:#3b74f53d; --game-truco-tint:#e5484d3d; --game-cacheta-tint:#8752f23d; --game-buraco-tint:#1f9a4a3d; --game-poker-tint:#0fa9683d; --game-sinuca-tint:#2fa35a3d;
   /* crew */
   --crew-engenheiro:#4fb3ff; --crew-comandante:#f5c542; --crew-piloto:#ff5a36; --crew-navegador:#e86bff; --crew-explorador:#4dffb8;
   --crew-bar:#ff9f43; --crew-reis:#34d399; --crew-nobru:#3d8bff; --crew-inhui:#ff4fb0;

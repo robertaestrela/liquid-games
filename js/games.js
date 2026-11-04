@@ -2,16 +2,14 @@
    Cacheta e Pif-Paf 1x1, Buraco Aberto/Fechado e Tranca 2x2, Poker Texas Hold'em 1x1 e mesa de 6.
    O tabuleiro é um palco 375×649 (medidas do Figma) escalado para caber na tela. */
 'use strict';
-// adversários e parceiro da mesa (na batalha, vêm da sala de espera)
+// adversários e parceiro da mesa (bots fixos)
 const OPP = {n: 'dutra77', c: 'comandante', g: 'ele'}, PAR = {n: 'amanda.s', c: 'engenheiro', g: 'ela'}, OPP2 = {n: 'rafa_10', c: 'piloto', g: 'ele'};
 function syncNick() {
   const set = (o, p) => { if (p) { o.n = p[0]; o.c = p[1]; o.g = p[2]; } };
   set(OPP, ['dutra77', 'comandante', 'ele']); set(PAR, ['amanda.s', 'engenheiro', 'ela']); set(OPP2, ['rafa_10', 'piloto', 'ele']);
-  const sp = ST.series && ST.series.people ? ST.series.people.slice(1) : null;
-  if (sp && sp.length) { if (sp.length >= 3 && ST.game !== 'poker') { set(PAR, sp[0]); set(OPP, sp[1]); set(OPP2, sp[2]); } else set(OPP, sp[0]); }
   BU_NAMES.splice(0, 4, ST.nick, OPP.n, PAR.n, OPP2.n);
-  PK_BASE.forEach((x, i) => { PK_PEOPLE[i] = sp && sp[i - 1] && i ? sp[i - 1].slice() : x.slice(); });
-  PK_PEOPLE[0] = [ST.nick, null, null]; if (!sp) PK_PEOPLE[1] = [OPP.n, OPP.c, OPP.g];
+  PK_BASE.forEach((x, i) => { PK_PEOPLE[i] = x.slice(); });
+  PK_PEOPLE[0] = [ST.nick, null, null]; PK_PEOPLE[1] = [OPP.n, OPP.c, OPP.g];
 }
 // mesas: Truco usa o tampo quadrado (truco-*); os outros jogos usam a cápsula da cor do jogo ou a skin especial escolhida
 const SPECIAL_MESAS = ['bar', 'reis', 'gamer'];
@@ -23,21 +21,14 @@ function tableArt(gid, v) {
   return capsuleMesa(gid === 'cacheta' ? 'roxa' : 'verde');
 }
 function currentMesaImg() { if (G) return mesaImg(); if (PF) return `${A}mesa/${capsuleMesa('roxa')}.webp`; return `${A}mesa/${capsuleMesa('verde')}.webp`; }
+// prêmio no HUD da partida (no torneio a partida não tem aposta: mostra o prêmio do torneio)
+const hudPrize = m => ST.tourney ? fmt(ST.tourney.prize) : fmt(+(ST.stake * m).toFixed(2));
 // encerra qualquer partida em andamento (timers e estado)
 function endAllGames() {
   [myT, pfT, buT, pkT, clockT].forEach(t => clearInterval(t)); [pfBotT, buBotT, pkBotT].forEach(t => clearTimeout(t));
   G = null; PF = null; BU = null; PK = null; MODE = 'truco';
   const c = $('#call'); if (c) c.remove();
   if (typeof closeSinuca === 'function') closeSinuca();
-}
-// HUD estático (sala de espera) no mesmo desenho do match-top
-function hudStatic(b) {
-  const g = gameById(b.game), two = b.fmt === '2x2';
-  const mine = two ? `<span class="stack">${hex(ST.crew, ST.g, 32, 35, false)}${av('nenhum', 'ela', 's')}</span>` : hex(ST.crew, ST.g, 32, 35, false);
-  return `<header class="hud"><div class="row"><div class="side">${mine}<span class="pts"><span class="label">${two ? 'Nós' : 'Você'}</span><b>0</b></span></div>
-    <div class="timer"><span class="tt"><img src="${I('timer')}" alt=""><span>00:00</span></span><span class="label">tempo</span></div>
-    <div class="side r"><span class="pts"><span class="label">${two ? 'Eles' : 'Adversário'}</span><b>0</b></span>${av('nenhum', 'ela', 's')}</div></div>
-    <div class="info"><span class="g"><img src="${I(GAME_ICON[g.id])}" alt=""><b>${g.name}${g.id === 'truco' || g.id === 'buraco' ? ' ' + b.variant : ''}</b><span class="label">· ${b.fmt} · ${g.pts(b.variant)}</span></span><span class="prize"><img src="${I('banknote')}" alt="">${fmt(battlePrize(b))}</span></div></header>`;
 }
 const RED = s => s === 'C' || s === 'O';
 function cardHTML(c, size, down) {
@@ -311,7 +302,7 @@ function renderHUD() {
     <div class="side">${L}</div>
     <div class="timer"><span class="tt"><img src="${A}icons/timer.webp" alt=""><span id="clock">${clk()}</span></span><span class="rounds">${[0, 1, 2].map(k => `<i class="${rs[k] === 0 ? 'a' : rs[k] === 1 ? 'b' : rs[k] === 'E' ? 'e' : ''}"></i>`).join('')}</span></div>
     <div class="side r">${R}</div></div>
-    <div class="info"><span class="g"><img src="${A}icons/truco.webp" alt=""><b>Truco ${G.variant}</b><span class="label">· ${G.one ? '1x1' : '2x2'} · mão vale <span class="vale-tag">${LAD()[G.vi || 0]}</span></span></span><span class="prize"><img src="${A}icons/banknote.webp" alt="">${fmt(+(ST.stake * 1.8).toFixed(2))}</span></div>`;
+    <div class="info"><span class="g"><img src="${A}icons/truco.webp" alt=""><b>Truco ${G.variant}</b><span class="label">· ${G.one ? '1x1' : '2x2'} · mão vale <span class="vale-tag">${LAD()[G.vi || 0]}</span></span></span><span class="prize"><img src="${A}icons/banknote.webp" alt="">${hudPrize(1.8)}</span></div>`;
 }
 const RING_C = 2 * Math.PI * 40;
 function seatHTML(p) {
@@ -738,7 +729,7 @@ function renderPifHUD() {
     <div class="side">${hex(P[0].crew, P[0].g, 32, 35, false)}<span class="pts"><span class="label">${PF.rules === 'cacheta' ? 'Você · vidas' : 'Você'}</span><b>${PF.rules === 'cacheta' ? PF.lives[0] : PF.score[0]}</b></span></div>
     <div class="timer"><span class="tt"><img src="${A}icons/timer.webp" alt=""><span id="clock">${clk()}</span></span>${PF.rules === 'cacheta' ? '' : `<span class="rounds">${[0, 1, 2].map(k => `<i class="${rs[k] === 0 ? 'a' : rs[k] === 1 ? 'b' : ''}"></i>`).join('')}</span>`}</div>
     <div class="side r"><span class="pts"><span class="label">${PF.rules === 'cacheta' ? `vidas · ${OPP.n}` : `${OPP.n}`}</span><b>${PF.rules === 'cacheta' ? PF.lives[1] : PF.score[1]}</b></span>${hex(P[1].crew, P[1].g, 32, 35, false)}</div></div>
-    <div class="info"><span class="g"><img src="${A}icons/cacheta.webp" alt=""><b>Cacheta</b><span class="label">· 1x1 · ${PF.rules === 'cacheta' ? 'Cacheta · 5 vidas' : 'Pif-Paf · vence quem bater 2x'}</span></span><span class="prize"><img src="${A}icons/banknote.webp" alt="">${fmt(+(ST.stake * 1.8).toFixed(2))}</span></div>`;
+    <div class="info"><span class="g"><img src="${A}icons/cacheta.webp" alt=""><b>Cacheta</b><span class="label">· 1x1 · ${PF.rules === 'cacheta' ? 'Cacheta · 5 vidas' : 'Pif-Paf · vence quem bater 2x'}</span></span><span class="prize"><img src="${A}icons/banknote.webp" alt="">${hudPrize(1.8)}</span></div>`;
 }
 function pifSeatHTML(p) {
   const P = PF.players[p];
@@ -1225,7 +1216,7 @@ function renderBuHUD() {
     <div class="side"><span class="stack">${hex(P[0].crew, P[0].g, 32, 35, false)}${hex(PAR.c, PAR.g, 32, 35, false)}</span><span class="pts"><span class="label">Nós${isTr() && BU.tres[0].length ? ' · 3♥' + BU.tres[0].length : ''}</span><b>${sc[0]}</b></span></div>
     <div class="timer"><span class="tt"><img src="${A}icons/timer.webp" alt=""><span id="clock">${clk()}</span></span></div>
     <div class="side r"><span class="pts"><span class="label">${isTr() && BU.tres[1].length ? '3♥' + BU.tres[1].length + ' · ' : ''}Eles</span><b>${sc[1]}</b></span><span class="stack">${hex(OPP.c, OPP.g, 32, 35, false)}${hex(OPP2.c, OPP2.g, 32, 35, false)}</span></div></div>
-    <div class="info"><span class="g"><img src="${A}icons/${isTr() ? 'tranca' : 'buraco'}.webp" alt=""><b>${isTr() ? 'Tranca' : 'Buraco'}</b><span class="label">· 2x2 · ${BU.variant}${isTr() ? ' · 3 preto tranca' : ''}</span></span><span class="prize"><img src="${A}icons/banknote.webp" alt="">${fmt(+(ST.stake * 1.8).toFixed(2))}</span></div>`;
+    <div class="info"><span class="g"><img src="${A}icons/${isTr() ? 'tranca' : 'buraco'}.webp" alt=""><b>${isTr() ? 'Tranca' : 'Buraco'}</b><span class="label">· 2x2 · ${BU.variant}${isTr() ? ' · 3 preto tranca' : ''}</span></span><span class="prize"><img src="${A}icons/banknote.webp" alt="">${hudPrize(1.8)}</span></div>`;
 }
 function renderBuSeats() {
   if (!BU) return;
@@ -1345,8 +1336,8 @@ function gameChatSheet() {
 ACT.gameSay = () => { const i = $('#gIn'); if (!i || !i.value.trim()) return; GAME_CHAT.push({me: true, who: ST.nick, t: i.value.trim()}); gameChatSheet(); setTimeout(() => { const a = activeGame(); if (!a || !$('#gChat')) return; const p = pickOne(a.players.slice(1)); GAME_CHAT.push({who: p[0], c: p[1], g: p[2], t: pickOne(BOT_REPLIES)}); gameChatSheet(); }, rnd(900, 1700)); };
 function tableSheet() {
   const a = activeGame(); if (!a) return;
-  openSheet(`${sheetHead(GAME_ICON[a.id], `Mesa ${a.t}`, `${a.label} · ${ST.series ? 'batalha · ' + ST.series.b.name : 'jogando agora'}`, true, 'ok')}
-    <div class="room-info"><div class="cell"><small>Entrada</small><b>${ST.training ? 'Treino' : fmt(ST.stake)}</b></div><div class="cell"><small>Prêmio</small><b>${ST.training ? '—' : fmt(prizeOf(ST.stake, PK && PK.six ? 3.6 : 1.8))}</b></div><div class="cell"><small>Jogadores</small><b>${a.players.length}</b></div></div>
+  openSheet(`${sheetHead(GAME_ICON[a.id], `Mesa ${a.t}`, `${a.label} · ${ST.tourney ? 'torneio · ' + ST.tourney.name : 'jogando agora'}`, true, 'ok')}
+    <div class="room-info"><div class="cell"><small>Entrada</small><b>${ST.training ? 'Treino' : ST.tourney ? 'Torneio' : fmt(ST.stake)}</b></div><div class="cell"><small>Prêmio</small><b>${ST.training ? '—' : ST.tourney ? fmt(ST.tourney.prize) : fmt(prizeOf(ST.stake, PK && PK.six ? 3.6 : 1.8))}</b></div><div class="cell"><small>Jogadores</small><b>${a.players.length}</b></div></div>
     <div class="room-h"><span>Jogadores</span><span>${a.players.length}/${a.players.length}</span></div>
     <div class="room-list">${a.players.map((p, k) => `<button class="pr" style="width:100%;text-align:left" data-a="${k ? 'playerCard:' + esc(p[0]) : 'noop'}">${hex(p[1], p[2], 's', 0, false)}<b>${k ? esc(p[0]) : 'Você'}</b><small class="ok">Na mesa</small></button>`).join('')}</div>
     <button class="leave-btn" data-a="leaveAsk">Sair da mesa</button>`, {cls: 'g16'});
@@ -1364,15 +1355,15 @@ ACT.leaveAsk = () => { closeSheet(); setTimeout(leaveSheet, 200); };
 function leaveSheet() {
   const a = activeGame(); if (!a) return;
   const duo = (G && !G.one) || BU;
-  openSheet(`${sheetHead(GAME_ICON[a.id], 'Sair da partida?', ST.training ? 'É só treino · nada é perdido.' : ST.series ? `Se sair agora, você sai da batalha e perde a entrada de ${fmt(ST.series.b.buyin)}.` : duo ? 'Se sair agora, sua dupla perde a partida e você perde a entrada.' : 'Se sair agora, você perde a partida e a entrada.', false)}
+  openSheet(`${sheetHead(GAME_ICON[a.id], 'Sair da partida?', ST.training ? 'É só treino · nada é perdido.' : ST.tourney ? 'Se sair agora, a partida conta como derrota no torneio.' : duo ? 'Se sair agora, sua dupla perde a partida e você perde a entrada.' : 'Se sair agora, você perde a partida e a entrada.', false)}
     <div class="row" style="display:flex;gap:12px">${btn('Sair', 'sec', 'm m44', 'data-a="leaveGo"', 'fill')}${btn('Continuar jogando', 'pri', 'm m44', 'data-a="closeSheet"', 'fill')}</div>`, {cls: 'g16'});
 }
 ACT.leaveGo = () => {
   closeSheet();
-  if (ST.training) ST.saldo = ST.trainSaldo; else if (!ST.series) ST.saldo = +(ST.saldo - ST.stake).toFixed(2);
-  const ser = ST.series; ST.series = null; GAME_CHAT.length = 0;
+  if (ST.training) ST.saldo = ST.trainSaldo; else if (!ST.tourney) ST.saldo = +(ST.saldo - ST.stake).toFixed(2);
+  const tor = ST.tourney; GAME_CHAT.length = 0;
   endAllGames(); $('#overlay').innerHTML = '';
-  if (ser) { go('batalhas', {}, {noHist: true, reset: true}); toast(`Você saiu da ${ser.b.name}`); } else leaveGame();
+  if (tor) { tor.l++; tExit(); go('torneios', {}, {noHist: true, reset: true}); toast(`Você saiu da partida · conta como derrota no ${tor.name}`); } else leaveGame();
 };
 const DECKS = [['estrela', 'Liquid']]; // só o verso Estrela (o Tradicional vermelho saiu em 28/10, como no Figma)
 function deckBack(k, size = 'S') { const cur = ST.deck; ST.deck = k; const h = cardHTML(null, size, true); ST.deck = cur; return h; }
@@ -1666,7 +1657,7 @@ function pkEnd(place) {
   const alive = P.filter(p => !p.place).sort((a, b) => b.stack - a.stack);
   const order = [...alive, ...P.filter(p => p.place).sort((a, b) => a.place - b.place)];
   const rank = six ? `<div class="pkranks">${order.map((p, k) => { const pl = p.place || k + 1, live = !p.place; return `<div class="pkrank ${p === P[0] ? 'me' : ''}"><b>${pl}º</b>${hex(p.crew, p.g, 's', 0, false)}<span>${p === P[0] ? 'Você' : esc(p.name)}${live ? ' · jogando' : ''}</span><i>${live ? fmtc(p.stack) + ' fichas' : pl === 1 ? fmt(prizeOf(ST.stake, 3.6)) : pl === 2 ? fmt(prizeOf(ST.stake)) : '—'}</i></div>`; }).join('')}</div>` : '';
-  showResult({win: place === 1 || (six && place === 2 && !ST.series), title, sub,
+  showResult({win: place === 1 || (six && place === 2 && !ST.tourney), title, sub,
     value: prize ? `+ ${fmt2(prize)}` : `− ${fmt2(ST.stake)}`, caption: prize ? 'Prêmio já está no seu saldo' : 'Valor da entrada',
     ctx: `Mesa ${tid} · Poker · ${six ? 'mesa de 6' : '1x1'} · Sit & Go`, gameColor: 'var(--game-poker)',
     left: six ? '' : teamHTML([[P[0].name, P[0].crew, P[0].g]], 'Você', `${fmtc(P[0].stack)} fichas`), score: six ? '' : (place === 1 ? '1 × 0' : '0 × 1'),
@@ -1730,7 +1721,7 @@ function renderPkHUD() {
     <div class="side">${hex(P[0].crew, P[0].g, 32, 35, false)}<span class="pts"><span class="label">Você</span><b>${fmtc(P[0].stack)}</b></span></div>
     <div class="timer"><span class="tt"><img src="${A}icons/timer.webp" alt=""><span id="clock">${clk()}</span></span></div>
     <div class="side r">${right}</div></div>
-    <div class="info"><span class="g"><img src="${A}icons/poker.webp" alt=""><b>Poker</b><span class="label">· ${PK.six ? 'mesa de 6' : '1x1'} · Sit & Go · blinds ${sb}/${bb}</span></span><span class="prize"><img src="${A}icons/banknote.webp" alt="">${fmt(+(ST.stake * (PK.six ? 3.6 : 1.8)).toFixed(2))}</span></div>`;
+    <div class="info"><span class="g"><img src="${A}icons/poker.webp" alt=""><b>Poker</b><span class="label">· ${PK.six ? 'mesa de 6' : '1x1'} · Sit & Go · blinds ${sb}/${bb}</span></span><span class="prize"><img src="${A}icons/banknote.webp" alt="">${hudPrize(PK.six ? 3.6 : 1.8)}</span></div>`;
 }
 function pkButtons() {
   const me = PK.players[0], my = PK.phase === 'act' && PK.toAct === 0, toCall = PK.curBet - me.bet;

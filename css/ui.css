@@ -136,9 +136,9 @@ svg{display:block}
 .bicon.s28{width:28px;height:28px;border-radius:14px}.bicon.s28 svg{width:16px;height:16px}
 
 /* ---------- tag ---------- */
-.tag{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:999px;font:600 12px/14px var(--f-display);white-space:nowrap;flex:none}
+.tag{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:999px;font:400 12px/18px var(--f-ui);white-space:nowrap;flex:none}
 .tag.neutral{background:#ffffff14;color:var(--text-muted)}
-.tag.gold{background:#5fc8eb29;color:var(--text-brand);box-shadow:inset 0 0 0 1px #bceafb8c}
+.tag.gold{padding:3px 8px;background:#5fc8eb29;color:#fff;box-shadow:inset 0 0 0 1px #bceafb8c}
 .tag.success{background:var(--sys-success);color:var(--bg-default)}
 .tag.danger{background:var(--sys-error);color:var(--text-default)}
 .tag.info{background:var(--sys-info);color:var(--text-default)}

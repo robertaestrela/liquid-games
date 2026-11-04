@@ -108,7 +108,7 @@ Object.assign(ACT, {
 const NOTIFS = [
   {id: 1, icon: 'gift', t: 'Bônus diário liberado', d: 'Você tem R$ 5,00 para resgatar na Loja.', at: 'há 1 h', unread: true, fav: false},
   {id: 2, icon: 'coins', t: 'Fichas compradas', d: 'R$ 50,00 em fichas já estão no seu saldo.', at: 'há 2 h', unread: true, fav: false},
-  {id: 3, icon: 'swords', t: 'Batalha do Alfonso começa já', d: 'Faltam 5 min. Sua vaga na mesa está garantida.', at: 'ontem', unread: false, fav: true},
+  {id: 3, icon: 'trophy', t: 'Copa de Domingo começa em 5 min', d: 'Você está inscrito. Toque para entrar na mesa do torneio.', at: 'ontem', unread: false, fav: true},
   {id: 4, icon: 'verified', t: 'Verificação aprovada', d: 'Seus documentos foram aprovados. Já pode sacar suas fichas.', at: 'há 3 dias', unread: false, fav: false}
 ];
 let NTAB = 'todas';
@@ -163,7 +163,7 @@ Object.assign(ACT, {
   loja: () => { HIST = []; go('loja', {}, {noHist: true}); },
   changeSkin: () => openPicker(packOf(ST.crew), 'profile'),
   logout: () => {
-    Object.assign(ST, {onboarded: false, crew: 'nenhum', g: 'ela', owned: {nobru: false, magia: false, reis: false, estelar: false}, saldo: 1250, bonus: 35, reward: null, series: null});
+    Object.assign(ST, {onboarded: false, crew: 'nenhum', g: 'ela', owned: {nobru: false, magia: false, reis: false, estelar: false}, saldo: 1250, bonus: 35, reward: null, tourney: null, tPrev: null});
     HIST = []; go('ob1', {}, {noHist: true}); toast('Você saiu da conta');
   }
 });
@@ -198,7 +198,7 @@ function playerCard(nick) {
 }
 Object.assign(ACT, {
   playerCard: n => playerCard(n),
-  challenge: n => { closeSheet(); go('batalhas'); toast(`Crie uma batalha e convide @${n} no chat`); }
+  challenge: n => { closeSheet(); go('lobby'); toast(`Escolha a mesa e chame @${n} no chat`); }
 });
 
 /* ======================================================================
@@ -236,12 +236,12 @@ const SS = {
   del: k => { try { sessionStorage.removeItem(k); } catch (e) {} }
 };
 // telas que voltam como estavam (as outras dependem de algo em andamento e voltam para o início)
-const RESUME_OK = ['jogos', 'lobby', 'chat', 'loja', 'batalhas', 'profile', 'history', 'ranking', 'settings'];
+const RESUME_OK = ['jogos', 'lobby', 'chat', 'loja', 'torneios', 'profile', 'history', 'ranking', 'settings'];
 ACT.wallet = () => {
   if ($('#redir')) return;
   closeNotifs(); closeSheet();
   SS.set('eg.fichas', Object.assign(SS.get('eg.fichas') || {}, {saldo: ST.saldo, bonus: ST.bonus, nick: ST.nick, crew: ST.crew, g: ST.g, verified: !!ST.verified}));
-  SS.set('eg.resume', {st: ST, cur: CUR, curp: CURP, notifs: NOTIFS, history: HISTORY, battles: BATTLES}); SS.set('eg.away', 1);
+  SS.set('eg.resume', {st: ST, cur: CUR, curp: CURP, notifs: NOTIFS, history: HISTORY, tourneys: TOURNEYS}); SS.set('eg.away', 1);
   const r = document.createElement('div'); r.className = 'redir'; r.id = 'redir';
   r.innerHTML = `<div class="card" role="status">${ic('coins')}<span class="tx"><b>Redirecionando…</b><span>Levando você para sua carteira e fichas.</span></span><i class="bar"><i></i></i></div>`;
   $('#app').appendChild(r);
@@ -268,10 +268,10 @@ function fichasSync() {
 }
 function fichasResume(R) {
   const back = SS.get('eg.back') || {}; SS.del('eg.back'); SS.del('eg.away');
-  Object.assign(ST, R.st, {series: null, training: false});
+  Object.assign(ST, R.st, {tourney: null, tPrev: null, training: false});
   NOTIFS.splice(0, NOTIFS.length, ...(R.notifs || NOTIFS));
   HISTORY.splice(0, HISTORY.length, ...(R.history || []));
-  if (R.battles) BATTLES.splice(0, BATTLES.length, ...R.battles);
+  (R.tourneys || []).forEach(x => { const t = tById(x.id); if (t) Object.assign(t, x); });
   fichasSync();
   const to = back.to && SCREENS[back.to] ? back.to : RESUME_OK.includes(R.cur) ? R.cur : null;
   if (to) go(to, to === R.cur ? R.curp || {} : {}, {noHist: true, reset: true}); else goHome();

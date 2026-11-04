@@ -48,7 +48,6 @@ const DK_ACCOUNT = [['profile', 'user', 'Perfil'], ['wallet', 'coins', 'Fichas']
 function dkActive() {
   const c = CUR;
   if (c === 'pacote' || c === 'picker' || c === 'diamantes') return 'loja';
-  if (c === 'cbattle' || c === 'sala') return 'batalhas';
   if (c === 'rankGame') return 'lobby';
   if (c === 'jogos' && !hasSkin()) return 'lobby';
   return c;

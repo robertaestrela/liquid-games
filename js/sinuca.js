@@ -1,16 +1,16 @@
 /* Liquid · Sinuca Bola 8: mesa 3D e física próprias (sinuca/, aprovada pela Roberta).
    Abre em tela cheia num iframe em modo embed; o jogo devolve o resultado por postMessage
-   ({source:'sinuca', type:'result'|'exit'}) e o app cuida do saldo, histórico, resultado e Batalhas. */
+   ({source:'sinuca', type:'result'|'exit'}) e o app cuida do saldo, histórico, resultado e Torneios. */
 'use strict';
 let SN = null;
 function startSinuca(tableId) {
   closeSinuca();
   SN = {tableId, done: false};
-  // a fila já rodou no app (ou é rodada de batalha): abre direto na mesa (q=0)
+  // a fila já rodou no app: abre direto na mesa (q=0)
   const q = new URLSearchParams({nick: ST.nick, crew: ST.crew, g: ST.g, opp: OPP.n, mesa: tableId, q: '0'});
   const w = document.createElement('section');
   w.className = 'scr sinuca-scr'; w.id = 'sinucaWrap';
-  w.innerHTML = `<iframe id="sinucaFrame" title="Sinuca · Bola 8" allow="autoplay; fullscreen" src="sinuca/index.html?v=liquid-11031707#embed=${ST.stake}&${q}"></iframe>`;
+  w.innerHTML = `<iframe id="sinucaFrame" title="Sinuca · Bola 8" allow="autoplay; fullscreen" src="sinuca/index.html?v=liquid-11041435#embed=${ST.stake}&${q}"></iframe>`;
   closeSheet(); closeNotifs(); pauseViewVideos();
   $('#view').hidden = true; $('#scr-game').hidden = true;
   $('#app').appendChild(w);
@@ -38,8 +38,8 @@ function sinucaResult(d) {
 function sinucaExit(d) {
   SN = null; closeSinuca();
   if (ST.training) ST.saldo = ST.trainSaldo;
-  else if (d.forfeit && !ST.series) ST.saldo = +(ST.saldo - ST.stake).toFixed(2);
-  if (ST.series) { const b = ST.series.b; ST.series = null; go('batalhas', {}, {noHist: true, reset: true}); toast(`Você saiu da ${b.name} · entrada de ${fmt(b.buyin)} perdida`); return; }
+  else if (d.forfeit && !ST.tourney) ST.saldo = +(ST.saldo - ST.stake).toFixed(2);
+  if (ST.tourney) { const t = ST.tourney; if (d.forfeit) t.l++; tExit(); go('torneios', {}, {noHist: true, reset: true}); if (d.forfeit) toast(`Você saiu da partida · conta como derrota no ${t.name}`); return; }
   leaveGame();
   if (d.forfeit) toast(`Você saiu da partida · entrada de ${fmt(ST.stake)} perdida`);
 }
