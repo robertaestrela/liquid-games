@@ -135,6 +135,7 @@ function finishOnboarding(nick) {
   ST.nick = nick; ST.phone = OB.phone; ST.onboarded = true;
   go(hasSkin() ? 'jogos' : 'lobby', {}, {noHist: true, reset: true});
   toast(OB.mode === 'login' ? `Que bom te ver de novo, ${nick}!` : `Conta criada · bem-vindo, ${nick}!`);
+  if (INV && !INV.done) setTimeout(salaOpenInvite, 400); // veio pelo link de uma sala: entra direto nela
 }
 
 /* ======================================================================
@@ -173,7 +174,7 @@ SCREENS.lobby = {cls: 'lobby', render: () => {
     ${g.id === 'truco' ? tabs(['1x1', '2x2'], ST.trucoMode, '', 'tmode', 'aria-label="Formato"') : ''}
     <section class="sec"><div class="trow"><b>Partida rápida · ${fmtLabel()}</b><small>Taxa da mesa 10%</small></div>
       <div class="stakes" id="stakes"><div class="track">${stakeCarousel()}</div></div>
-      <div class="acts">${ok ? `<button class="atile" data-a="treino">${ic('joystick')}Treino</button>` : ''}${btn(ok ? `Jogar · ${fmt(ST.stake)}` : 'Em breve', 'pri', 'l', `data-a="quickPlay" ${ok ? '' : 'disabled'}`, 'wide')}</div></section>
+      <div class="acts">${ok ? `<button class="atile" data-a="treino">${ic('joystick')}Treino</button>` : ''}${btn(ok ? `Jogar · ${fmt(ST.stake)}` : 'Em breve', 'pri', 'l', `data-a="quickPlay" ${ok ? '' : 'disabled'}`, 'wide')}${ok ? `<button class="atile" data-a="criarSala">${ic('key')}Criar sala</button>` : ''}</div></section>
     ${ok ? '' : `<p class="soon-note">${soonNote()}</p>`}
     <section class="sec open"><div class="trow"><b>Mesas abertas</b><small>43 mesas</small></div>${rows.join('')}</section>
     ${g.id === 'sinuca' ? '<p class="credit">Mesa 3D: “Pool Table” por EpicRatt (Sketchfab, CC BY 4.0), com cores alteradas.</p>' : ''}
@@ -203,7 +204,7 @@ function joinTable(id) {
 }
 Object.assign(ACT, {
   quickPlay: () => { if (playableSel()) startQueue(game().pfx + (100 + Math.floor(Math.random() * 60))); },
-  rankGame: () => go('rankGame', {game: ST.game})
+  rankGame: () => { RK.gfilter = ST.game; go('ranking'); }
 });
 
 /* ======================================================================
@@ -217,7 +218,7 @@ SCREENS.jogos = {cls: 'home', render: () => {
   const g = game();
   return `${header()}<div class="stage"><video src="${stageVid()}" autoplay muted loop playsinline preload="auto" poster="${stagePoster()}"></video><i class="shade"></i>
     <div class="ct"><div class="gl">${GAMES.map(x => gameBlock(x, x.id === g.id, `data-hgame="${x.id}"`)).join('')}</div>
-      <div class="acts"><button class="atile" data-a="treino">${ic('joystick')}Treino</button>${btn(`Jogar ${g.name}`, 'pri', 'l', 'data-a="homePlay"')}</div></div></div>
+      <div class="acts"><button class="atile" data-a="treino">${ic('joystick')}Treino</button>${btn(`Jogar ${g.name}`, 'pri', 'l', 'data-a="homePlay"')}<button class="atile" data-a="criarSala">${ic('key')}Criar sala</button></div></div></div>
     ${ST.reward && ST.reward.later ? `<span class="hint-pill rw-hint">Recompensa guardada · toque no seu perfil</span>` : ''}
     ${navbar('jogos')}`;
 }, after: () => {
@@ -269,7 +270,7 @@ function queueRules() {
   return ST.trucoMode === '1x1' ? 'Você contra 1 jogador, 3 cartas cada. Vence quem fizer 12 pontos.' : 'Você e sua dupla contra a outra dupla. Vence quem fizer 12 pontos.';
 }
 async function startQueue(tableId, opts = {}) {
-  queueAbort = false;
+  queueAbort = false; ST.room = null;
   const training = tableId === 'Treino';
   ST.training = training; if (training) ST.trainSaldo = ST.saldo;
   if (!training && !ST.tourney && ST.saldo < ST.stake) { toast('Saldo insuficiente · compre fichas no + do saldo'); return; }
@@ -290,6 +291,7 @@ async function startQueue(tableId, opts = {}) {
 const GAME_START = {};
 function launchGame(tableId) {
   syncNick();
+  if (ST.room) salaPeople(); // partida da sala: os bots ganham os nomes de quem está na sala
   const g = ST.game;
   if (GAME_START[g]) GAME_START[g](tableId);
   else if (g === 'poker') startPoker(tableId); else if (g === 'cacheta') startPif(tableId); else if (g === 'buraco' || g === 'tranca') startBuraco(tableId); else startMatch(tableId);
@@ -308,6 +310,8 @@ function teamHTML(players, name, sub, right) {
 function showResult(r) {
   if (ST.tourney) tResult(r);
   if (ST.training) { ST.saldo = ST.trainSaldo; r.value = r.win ? 'Treino concluído' : 'Treino'; r.caption = 'Partida de treino · sem valor'; r.training = true; }
+  // partida da sala (Criar sala): a grátis não vale nada; as duas voltam para a mesma sala
+  if (ST.room) { if (ST.room.free) { r.value = r.win ? 'Vitória na sala' : 'Fim de jogo'; r.caption = `Sala ${ST.room.code} · grátis, sem valor`; r.training = true; } r.againLabel = 'Voltar para a sala'; r.again = salaAgain; }
   logHistory(r);
   if (r.win && !r.training) bumpReward();
   const glow = r.win ? 'win' : r.tie ? 'tie' : 'loss';
@@ -330,7 +334,7 @@ Object.assign(ACT, {
   resBack: () => { $('#overlay').innerHTML = ''; const f = RES && RES.onBack; RES = null; endAllGames(); if (f) f(); else leaveGame(); },
   resAgain: () => { $('#overlay').innerHTML = ''; const r = RES; RES = null; endAllGames(); if (r && r.again) r.again(); }
 });
-function leaveGame() { endAllGames(); if (ST.tourney) tExit(); go('lobby', {}, {noHist: true, reset: true}); }
+function leaveGame() { ST.room = null; endAllGames(); if (ST.tourney) tExit(); go('lobby', {}, {noHist: true, reset: true}); }
 
 /* ---------- histórico de partidas (alimenta Perfil → Histórico) ---------- */
 const HISTORY = [];

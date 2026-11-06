@@ -10,6 +10,8 @@ function fit() {
 window.addEventListener('resize', fit);
 // atalhos de teste: ?home pula o cadastro · &skin=gamer_ela · &go=tela · &game=sinuca · &act=ação (ex.: ?home&skin=bar_ele&go=profile)
 const QS = new URLSearchParams(location.search);
+// link de uma sala (Criar sala): ?sala=CÓDIGO&de=dono&j=jogo&v=modo&f=formato&e=entrada&k=senha
+INV = salaFromLink(QS);
 // volta da página de Fichas (?resume ou pelo voltar do navegador): reabre o app onde estava; sem nada guardado, abre no início
 const FICHAS_BACK = QS.has('resume') || SS.get('eg.away') ? SS.get('eg.resume') : null;
 if (FICHAS_BACK) fichasResume(FICHAS_BACK);
@@ -21,7 +23,9 @@ else if (QS.has('home') || QS.has('go') || QS.has('resume')) {
   const scr = QS.get('go'); go(scr && SCREENS[scr] ? scr : hasSkin() ? 'jogos' : 'lobby', scr === 'pacote' ? {id: QS.get('id') || 'nobru'} : scr === 'rankGame' ? {game: QS.get('id') || 'truco'} : {}, {noHist: true, reset: true});
   const pl = QS.get('play'); if (pl) { const [g, v, m] = pl.split(':'); Object.assign(ST, {game: g, variant: v || defVariant(gameById(g))}); if (m) ST.trucoMode = m; launchGame(game().pfx + '104'); }
   const act = QS.get('act'); if (act) { const [k, ...r] = act.split(':'); setTimeout(() => ACT[k] && ACT[k](r.join(':')), 50); }
-} else go('ob1', {}, {noHist: true, reset: true});
+  if (INV) setTimeout(salaOpenInvite, 300);
+} else if (INV && !INV.bad) go('convite', {}, {noHist: true, reset: true}); // sem login: primeiro o convite da sala
+else { go('ob1', {}, {noHist: true, reset: true}); if (INV) setTimeout(salaOpenInvite, 300); } // link quebrado: "Sala indisponível"
 fit();
-window.__eg = Object.assign(window.__eg || {}, {ST, go, TOURNEYS, TCLOCK, HISTORY, ACT});
+window.__eg = Object.assign(window.__eg || {}, {ST, go, TOURNEYS, TCLOCK, HISTORY, ACT, RM});
 Object.defineProperty(window.__eg, 'CUR', {get: () => CUR});

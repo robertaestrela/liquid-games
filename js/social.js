@@ -289,23 +289,27 @@ window.addEventListener('pageshow', e => {
    ====================================================================== */
 const RANK_TOP = [['af.dutra', 'piloto', 'ela', '11.900'], ['dutra77', 'comandante', 'ele', '12.480'], ['alfonso_d', 'navegador', 'ele', '10.350']];
 const RANK_ROWS = [['dutra.bet', 'Truco · 480 vitórias', '9.870', '+1'], ['af_07', 'Cacheta · 443 vitórias', '9.120', '–'], ['capitao.lu', 'Buraco · 406 vitórias', '8.450', '+3'], ['mari_truco', 'Buraco · 369 vitórias', '8.100', '-2'], ['joao.poker', 'Poker · 332 vitórias', '7.980', '+1'], ['lu.reis', 'Truco · 301 vitórias', '7.420', '+2'], ['caio.s', 'Cacheta · 288 vitórias', '6.990', '-1']];
-const RK = {period: 'semana', geral: 'semanal', gfilter: 'todos', variant: null};
+// 06/11 (Figma M01–M04 · R01–R02): Diário | Semanal em cima, Alto | Médio | Baixo embaixo e o filtro dos jogos.
+// O troféu do lobby abre o mesmo ranking com o jogo já escolhido.
+const RK = {per: 'diario', lvl: 'alto', gfilter: null};
+const RK_SUB = {diario: 'Fecha em 14h 20min · ranking do dia', semanal: 'Fecha em 2d 14h · ranking da semana'};
+// os números da base são do dia no nível Alto; a semana e os níveis Médio/Baixo escalam
+const rkPts = v => Math.round(+String(v).replace(/\./g, '') * (RK.per === 'semanal' ? 6.2 : 1) * ({alto: 1, medio: .5, baixo: .2})[RK.lvl]).toLocaleString('pt-BR');
+const rkGame = () => gameById(RK.gfilter) || game();
 const rowHTML = (r, i, gname) => { const d = r[3]; return `<button class="rrow" data-a="playerCard:${r[0]}"><em>${i}</em>${av(PEOPLE[i % PEOPLE.length][1], PEOPLE[i % PEOPLE.length][2], 's')}<span class="tx"><b>@${r[0]}</b><small>${gname ? r[1].replace(/^\w+/, gname) : r[1]}</small></span><span class="pts"><b>${r[2]}</b><small class="${d.startsWith('-') ? 'dn' : d === '–' ? 'eq' : ''}">${d}</small></span></button>`; };
-// podium-estrela-games (ranking do jogo) e rank-race (ranking geral)
-const podiumHTML = gc => `<div class="rrace" style="--gc:${gc}"><i class="glw"></i><div class="podium">${[0, 1, 2].map(k => { const p = RANK_TOP[k], n = [2, 1, 3][k]; return `<div role="button" tabindex="0" class="p n${n}" data-a="playerCard:${p[0]}">${av(p[1], p[2], n === 1 ? 'l' : 'm')}<b>@${p[0]}</b><small>${p[3]} pts</small><span class="blk">${n}</span></div>`; }).join('')}</div></div>`;
-const raceHTML = () => `<div class="race"><i class="glw"></i><i class="alt" style="top:88px"></i><i class="alt" style="top:176px"></i>${[0, 1, 2].map(k => { const p = RANK_TOP[k], n = [2, 1, 3][k]; return `<div role="button" tabindex="0" class="racer n${n}" data-a="playerCard:${p[0]}"><span class="badge">${n === 1 ? ic('crown') : ''}<span class="shield">${n}</span></span>${av(p[1], p[2], 'm')}<b>@${p[0]}</b><span class="pts">${p[3]} pts</span></div>`; }).join('')}</div>`;
-const meRow = gname => `<div class="rme"><div class="rrow me"><em>12</em>${ST.crew === 'nenhum' ? av('nenhum', 'ela', 's') : av(ST.crew, ST.g, 's')}<span class="tx"><b>Você · @${esc(ST.nick)}</b><small>${gname || 'Truco'} · 342 vitórias</small></span><span class="pts"><b>3.120</b><small>+4</small></span></div></div>`;
-SCREENS.ranking = {cls: 'rk', render: () => `<div class="pg-top">${header()}${ptop('Ranking', 'Fecha em 2d 14h · ranking da semana')}</div>
-  <div class="scroll"><div class="content">${tabs([['semanal', 'Semanal'], ['geral', 'Geral']], RK.geral, '', 'rkg')}
-    <div class="hscroll rkf"><button class="chip big ${RK.gfilter === 'todos' ? 'on' : ''}" data-rkf="todos">${ic('all')}Todos</button>${GAMES.map(x => `<button class="chip big ${RK.gfilter === x.id ? 'on' : ''}" data-rkf="${x.id}">${ic(GAME_ICON[x.id])}${x.name}</button>`).join('')}</div>
-    ${raceHTML()}
-    <div class="rlist">${RANK_ROWS.map((r, k) => rowHTML(r, k + 4, RK.gfilter === 'todos' ? '' : gameById(RK.gfilter).name)).join('')}</div></div></div>
-  ${meRow(RK.gfilter === 'todos' ? '' : gameById(RK.gfilter).name)}`,
-click: e => { const t = e.target.closest('[data-rkg],[data-rkf]'); if (!t) return; if (t.dataset.rkg) RK.geral = t.dataset.rkg; else RK.gfilter = t.dataset.rkf; rerender(); }};
-SCREENS.rankGame = {cls: 'rk', render: ({game: gid}) => {
-  const g = gameById(gid), v = RK.variant && g.variants.includes(RK.variant) ? RK.variant : ST.variant, st = tabStyle(g, v);
-  return `<div class="pg-top">${header()}${ptop(`Ranking ${doG(g)} ${g.name}`, 'Fecha em 2d 14h · ranking da semana')}</div>
-  <div class="scroll"><div class="content">${g.variants.length > 1 ? tabs(g.variants, v, st, 'rkv') : ''}${tabs([['semana', 'Semana'], ['mes', 'Mês'], ['geral', 'Geral']], RK.period, st, 'rkp')}
-    ${podiumHTML(st === 'azul' ? 'var(--game-paulista)' : g.color)}
-    <div class="rlist">${RANK_ROWS.map((r, k) => rowHTML(r, k + 4, g.name)).join('')}</div></div></div>${meRow(g.name)}`;
-}, click: e => { const t = e.target.closest('[data-rkv],[data-rkp]'); if (!t) return; if (t.dataset.rkv) RK.variant = t.dataset.rkv; else RK.period = t.dataset.rkp; rerender(); }};
+// podium-estrela-games
+const podiumHTML = (gc, pf = v => v) => `<div class="rrace" style="--gc:${gc}"><i class="glw"></i><div class="podium">${[0, 1, 2].map(k => { const p = RANK_TOP[k], n = [2, 1, 3][k]; return `<div role="button" tabindex="0" class="p n${n}" data-a="playerCard:${p[0]}">${av(p[1], p[2], n === 1 ? 'l' : 'm')}<b>@${p[0]}</b><small>${pf(p[3])} pts</small><span class="blk">${n}</span></div>`; }).join('')}</div></div>`;
+const meRow = (gname, pts = '3.120') => `<div class="rme"><div class="rrow me"><em>12</em>${ST.crew === 'nenhum' ? av('nenhum', 'ela', 's') : av(ST.crew, ST.g, 's')}<span class="tx"><b>Você · @${esc(ST.nick)}</b><small>${gname || 'Truco'} · 342 vitórias</small></span><span class="pts"><b>${pts}</b><small>+4</small></span></div></div>`;
+SCREENS.ranking = {cls: 'rk', render: () => {
+  const g = rkGame();
+  return `<div class="pg-top">${header()}${ptop('Ranking', RK_SUB[RK.per])}</div>
+  <div class="scroll"><div class="content">
+    <div class="rkfl">${tabs([['diario', 'Diário'], ['semanal', 'Semanal']], RK.per, '', 'rkp')}${tabs([['alto', 'Alto'], ['medio', 'Médio'], ['baixo', 'Baixo']], RK.lvl, '', 'rkl')}</div>
+    <div class="hscroll rkf">${GAMES.map(x => `<button class="chip big ${x.id === g.id ? 'on' : ''}" data-rkf="${x.id}">${ic(GAME_ICON[x.id])}${x.name}</button>`).join('')}</div>
+    ${podiumHTML(g.id === 'truco' ? 'var(--game-paulista)' : g.color, rkPts)}
+    <div class="rlist">${RANK_ROWS.slice(0, 5).map((r, k) => rowHTML([r[0], r[1], rkPts(r[2]), r[3]], k + 4, g.name)).join('')}</div></div></div>
+  ${meRow(g.name, rkPts('3.120'))}`;
+}, after: () => { const on = $('#view .rkf .chip.on'), row = $('#view .rkf'); if (on && row) row.scrollLeft = Math.max(0, on.offsetLeft - (row.clientWidth - on.offsetWidth) / 2); },
+click: e => { const t = e.target.closest('[data-rkp],[data-rkl],[data-rkf]'); if (!t) return; if (t.dataset.rkp) RK.per = t.dataset.rkp; else if (t.dataset.rkl) RK.lvl = t.dataset.rkl; else RK.gfilter = t.dataset.rkf; rerender(); }};
+// troféu do lobby (e ?go=rankGame&id=jogo): o mesmo ranking, com o jogo já escolhido
+SCREENS.rankGame = {cls: 'rk', render: p => { if (p && p.game) RK.gfilter = p.game; return SCREENS.ranking.render(); }, after: (p, v) => SCREENS.ranking.after(p, v), click: e => SCREENS.ranking.click(e)};
