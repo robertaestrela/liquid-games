@@ -322,7 +322,7 @@ window.addEventListener('resize', fit);
 function show(id) { $('#scr-lobby').hidden = id !== 'lobby'; $('#scr-game').hidden = id !== 'game'; if (id === 'game') requestAnimationFrame(resize3d); }
 function renderHead() {
   $('#head').innerHTML = `<img src="${A}ui/logo_icon.webp" alt="Liquid" style="width:30px;height:30px">
-    <button class="res" data-t="Carteira · fora do teste" aria-label="Saldo"><img src="${A}ui/banknote.webp" alt=""><span class="t"><span class="label">Saldo</span><b>${fmt(ST.saldo)}</b></span><span class="plus">+</span></button>
+    <button class="res" data-t="Carteira · fora do teste" aria-label="Saldo"><img src="${A}ui/fichas.webp" alt=""><span class="t"><span class="label">Saldo</span><b>${fmt(ST.saldo)}</b></span><span class="plus">+</span></button>
     <button data-t="Perfil · fora do teste" aria-label="Perfil" style="position:relative">${hex('nenhum', '', 44, 48)}<span class="avplus">+</span></button>
     <button class="res" data-t="Bônus · fora do teste" aria-label="Bônus"><img src="${A}ui/gift.webp" alt=""><span class="t"><span class="label">Bônus</span><b class="gold">R$ 35,00</b></span></button>
     <button class="bell" data-t="Mensagens · fora do teste" aria-label="Mensagens"><img src="${A}ui/bell.webp" alt=""></button>`;
@@ -719,7 +719,7 @@ function renderHUD() {
       <span class="av"><svg class="ring" viewBox="0 0 44 44" width="40" height="40"><circle class="tr" cx="22" cy="22" r="20"/><circle class="pg" cx="22" cy="22" r="20" stroke-dasharray="${RING_C}" stroke-dashoffset="0"/></svg>${hex(P.crew, P.g, 30, 33, false)}</span>
       <span class="meta"><b>${P.name}</b><span class="mbs">${ballsRow(i)}</span></span></div>`; };
   $('#hud').innerHTML = `<div class="row">${side(0)}<div class="timer"><span class="tt"><img src="${A}ui/timer.webp" alt=""><span id="clock">00:00</span></span><span class="label">${M.turn === 0 ? 'Sua vez' : 'Aguarde'}</span></div>${side(1)}</div>
-    <div class="info"><span class="g"><img src="${A}ui/sinuca.webp" alt=""><b>Sinuca · Bola 8</b><span class="label">· 1x1 · mesa ${M.tableId}</span></span><span class="prize"><img src="${A}ui/banknote.webp" alt="">${fmt(+(ST.stake * 1.8).toFixed(2))}</span></div>`;
+    <div class="info"><span class="g"><img src="${A}ui/sinuca.webp" alt=""><b>Sinuca · Bola 8</b><span class="label">· 1x1 · mesa ${M.tableId}</span></span><span class="prize"><img src="${A}ui/fichas.webp" alt="">${fmt(+(ST.stake * 1.8).toFixed(2))}</span></div>`;
   tickClock();
 }
 

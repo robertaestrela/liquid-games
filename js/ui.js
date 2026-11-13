@@ -23,7 +23,7 @@ function av(crew, g, size = 'm', opts = {}) {
 function header() {
   return `<header class="hdr">
     <div class="side"><button class="logo" data-a="home" aria-label="Início"><img src="${A}ui/logo_icon.webp" alt="Liquid"></button>
-      <button class="cpill" data-a="wallet" aria-label="Saldo">${ic('banknote')}<span class="t"><small>Saldo</small><b>${fmt(ST.saldo)}</b></span><span class="plus">${svg('i-plus')}</span></button></div>
+      <button class="cpill" data-a="wallet" aria-label="Saldo">${ic('fichas')}<span class="t"><small>Saldo</small><b>${fmt(ST.saldo)}</b></span><span class="plus">${svg('i-plus')}</span></button></div>
     <button data-a="${hasSkin() ? 'profile' : 'loja'}" aria-label="${hasSkin() ? 'Perfil' : 'Escolher skin na Loja'}">${hex(ST.crew, ST.g, 'm', 0, true, {add: true})}</button>
     <div class="side" style="justify-content:flex-end"><button class="cpill bonus" data-a="wallet" aria-label="Bônus">${ic('gift')}<span class="t"><small>Bônus</small><b>${fmt2(ST.bonus)}</b></span></button>
       <button class="hbell" data-a="notifs" aria-label="Notificações">${ic('bell')}<i ${ST.unread ? '' : 'hidden'}></i></button></div>

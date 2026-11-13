@@ -37,7 +37,7 @@ function dkFit() {
 function dkHeader() {
   const skin = hasSkin(), ob = !ST.onboarded || /^ob/.test(CUR || '');
   return `<button class="brand" data-a="${ob ? 'noop' : 'home'}" aria-label="Início"><img src="${A}ui/logo_icon.webp" alt=""><b>Liquid<span></span></b></button>
-    <div class="mid"><button class="cpill" data-a="wallet" aria-label="Saldo">${ic('banknote')}<span class="t"><small>Saldo</small><b>${fmt2(ST.saldo)}</b></span><span class="plus">${svg('i-plus')}</span></button>
+    <div class="mid"><button class="cpill" data-a="wallet" aria-label="Saldo">${ic('fichas')}<span class="t"><small>Saldo</small><b>${fmt2(ST.saldo)}</b></span><span class="plus">${svg('i-plus')}</span></button>
       <button class="cpill bonus" data-a="wallet" aria-label="Bônus">${ic('gift')}<span class="t"><small>Bônus</small><b>${fmt2(ST.bonus)}</b></span></button></div>
     <div class="right"><button class="hbell" data-a="notifs" aria-label="Notificações">${ic('bell')}<i ${ST.unread ? '' : 'hidden'}></i></button>
       <button class="me" data-a="${skin ? 'profile' : 'loja'}" aria-label="${skin ? 'Perfil' : 'Escolher skin na Loja'}">${hex(ST.crew, ST.g, 's', 0, true, {add: true})}<span class="tx"><b>${esc(ST.nick)}</b><small>${skin ? crewName(ST.crew, ST.g) : 'Escolher skin'}</small></span></button></div>`;

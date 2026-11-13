@@ -302,7 +302,7 @@ function renderHUD() {
     <div class="side">${L}</div>
     <div class="timer"><span class="tt"><img src="${A}icons/timer.webp" alt=""><span id="clock">${clk()}</span></span><span class="rounds">${[0, 1, 2].map(k => `<i class="${rs[k] === 0 ? 'a' : rs[k] === 1 ? 'b' : rs[k] === 'E' ? 'e' : ''}"></i>`).join('')}</span></div>
     <div class="side r">${R}</div></div>
-    <div class="info"><span class="g"><img src="${A}icons/truco.webp" alt=""><b>Truco ${G.variant}</b><span class="label">· ${G.one ? '1x1' : '2x2'} · mão vale <span class="vale-tag">${LAD()[G.vi || 0]}</span></span></span><span class="prize"><img src="${A}icons/banknote.webp" alt="">${hudPrize(1.8)}</span></div>`;
+    <div class="info"><span class="g"><img src="${A}icons/truco.webp" alt=""><b>Truco ${G.variant}</b><span class="label">· ${G.one ? '1x1' : '2x2'} · mão vale <span class="vale-tag">${LAD()[G.vi || 0]}</span></span></span><span class="prize"><img src="${A}icons/fichas.webp" alt="">${hudPrize(1.8)}</span></div>`;
 }
 const RING_C = 2 * Math.PI * 40;
 function seatHTML(p) {
@@ -729,7 +729,7 @@ function renderPifHUD() {
     <div class="side">${hex(P[0].crew, P[0].g, 32, 35, false)}<span class="pts"><span class="label">${PF.rules === 'cacheta' ? 'Você · vidas' : 'Você'}</span><b>${PF.rules === 'cacheta' ? PF.lives[0] : PF.score[0]}</b></span></div>
     <div class="timer"><span class="tt"><img src="${A}icons/timer.webp" alt=""><span id="clock">${clk()}</span></span>${PF.rules === 'cacheta' ? '' : `<span class="rounds">${[0, 1, 2].map(k => `<i class="${rs[k] === 0 ? 'a' : rs[k] === 1 ? 'b' : ''}"></i>`).join('')}</span>`}</div>
     <div class="side r"><span class="pts"><span class="label">${PF.rules === 'cacheta' ? `vidas · ${OPP.n}` : `${OPP.n}`}</span><b>${PF.rules === 'cacheta' ? PF.lives[1] : PF.score[1]}</b></span>${hex(P[1].crew, P[1].g, 32, 35, false)}</div></div>
-    <div class="info"><span class="g"><img src="${A}icons/cacheta.webp" alt=""><b>Cacheta</b><span class="label">· 1x1 · ${PF.rules === 'cacheta' ? 'Cacheta · 5 vidas' : 'Pif-Paf · vence quem bater 2x'}</span></span><span class="prize"><img src="${A}icons/banknote.webp" alt="">${hudPrize(1.8)}</span></div>`;
+    <div class="info"><span class="g"><img src="${A}icons/cacheta.webp" alt=""><b>Cacheta</b><span class="label">· 1x1 · ${PF.rules === 'cacheta' ? 'Cacheta · 5 vidas' : 'Pif-Paf · vence quem bater 2x'}</span></span><span class="prize"><img src="${A}icons/fichas.webp" alt="">${hudPrize(1.8)}</span></div>`;
 }
 function pifSeatHTML(p) {
   const P = PF.players[p];
@@ -1216,7 +1216,7 @@ function renderBuHUD() {
     <div class="side"><span class="stack">${hex(P[0].crew, P[0].g, 32, 35, false)}${hex(PAR.c, PAR.g, 32, 35, false)}</span><span class="pts"><span class="label">Nós${isTr() && BU.tres[0].length ? ' · 3♥' + BU.tres[0].length : ''}</span><b>${sc[0]}</b></span></div>
     <div class="timer"><span class="tt"><img src="${A}icons/timer.webp" alt=""><span id="clock">${clk()}</span></span></div>
     <div class="side r"><span class="pts"><span class="label">${isTr() && BU.tres[1].length ? '3♥' + BU.tres[1].length + ' · ' : ''}Eles</span><b>${sc[1]}</b></span><span class="stack">${hex(OPP.c, OPP.g, 32, 35, false)}${hex(OPP2.c, OPP2.g, 32, 35, false)}</span></div></div>
-    <div class="info"><span class="g"><img src="${A}icons/${isTr() ? 'tranca' : 'buraco'}.webp" alt=""><b>${isTr() ? 'Tranca' : 'Buraco'}</b><span class="label">· 2x2 · ${BU.variant}${isTr() ? ' · 3 preto tranca' : ''}</span></span><span class="prize"><img src="${A}icons/banknote.webp" alt="">${hudPrize(1.8)}</span></div>`;
+    <div class="info"><span class="g"><img src="${A}icons/${isTr() ? 'tranca' : 'buraco'}.webp" alt=""><b>${isTr() ? 'Tranca' : 'Buraco'}</b><span class="label">· 2x2 · ${BU.variant}${isTr() ? ' · 3 preto tranca' : ''}</span></span><span class="prize"><img src="${A}icons/fichas.webp" alt="">${hudPrize(1.8)}</span></div>`;
 }
 function renderBuSeats() {
   if (!BU) return;
@@ -1721,7 +1721,7 @@ function renderPkHUD() {
     <div class="side">${hex(P[0].crew, P[0].g, 32, 35, false)}<span class="pts"><span class="label">Você</span><b>${fmtc(P[0].stack)}</b></span></div>
     <div class="timer"><span class="tt"><img src="${A}icons/timer.webp" alt=""><span id="clock">${clk()}</span></span></div>
     <div class="side r">${right}</div></div>
-    <div class="info"><span class="g"><img src="${A}icons/poker.webp" alt=""><b>Poker</b><span class="label">· ${PK.six ? 'mesa de 6' : '1x1'} · Sit & Go · blinds ${sb}/${bb}</span></span><span class="prize"><img src="${A}icons/banknote.webp" alt="">${hudPrize(PK.six ? 3.6 : 1.8)}</span></div>`;
+    <div class="info"><span class="g"><img src="${A}icons/poker.webp" alt=""><b>Poker</b><span class="label">· ${PK.six ? 'mesa de 6' : '1x1'} · Sit & Go · blinds ${sb}/${bb}</span></span><span class="prize"><img src="${A}icons/fichas.webp" alt="">${hudPrize(PK.six ? 3.6 : 1.8)}</span></div>`;
 }
 function pkButtons() {
   const me = PK.players[0], my = PK.phase === 'act' && PK.toAct === 0, toCall = PK.curBet - me.bet;
