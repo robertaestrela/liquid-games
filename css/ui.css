@@ -8,6 +8,7 @@ button:focus-visible,[role="button"]:focus-visible{outline:2px solid var(--borde
 [role="button"]{cursor:pointer;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;outline:0}
 input{font:inherit;color:inherit;border:0;background:none;outline:0;padding:0;margin:0;min-width:0}
 img,video{display:block;max-width:100%;user-select:none;-webkit-user-drag:none}
+video::-webkit-media-controls,video::-webkit-media-controls-start-playback-button,video::-webkit-media-controls-overlay-play-button{display:none!important;-webkit-appearance:none} /* sem botão de play: os vídeos são fundo */
 svg{display:block}
 [hidden]{display:none!important}
 .ic{flex:none;object-fit:contain;pointer-events:none}

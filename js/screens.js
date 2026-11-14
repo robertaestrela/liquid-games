@@ -27,6 +27,10 @@ function goHome() { go(hasSkin() ? 'jogos' : 'lobby', {}, {noHist: true, reset: 
 function navTo(k) { HIST = []; go(k === 'jogos' && !hasSkin() ? 'lobby' : k, {}, {noHist: true}); }
 function playViewVideos() { $$('#view video').forEach(vd => { vd.muted = true; vd.play().catch(() => {}); }); }
 function pauseViewVideos() { $$('#view video').forEach(vd => vd.pause()); }
+// autoplay bloqueado (iPhone em modo pouca energia, navegador de dentro do WhatsApp/Instagram): o 1º toque solta os vídeos visíveis
+function kickVideos() { $$('video[autoplay]').forEach(vd => { if (vd.paused && vd.offsetParent) { vd.muted = true; vd.play().catch(() => {}); } }); }
+['pointerdown', 'pointerup', 'touchend', 'click', 'keydown'].forEach(e => document.addEventListener(e, kickVideos, {capture: true, passive: true})); // o iPhone só libera no fim do toque
+document.addEventListener('visibilitychange', () => { if (!document.hidden) kickVideos(); });
 // usado pelos motores de jogo
 function show(id) { if (id === 'game') { closeSheet(); closeNotifs(); pauseViewVideos(); $('#view').hidden = true; $('#scr-game').hidden = false; requestAnimationFrame(() => typeof fitBoard === 'function' && fitBoard()); } }
 function refreshChrome() { const h = $('#view .hdr'); if (h) h.outerHTML = header(); paintDesk(); }
@@ -66,7 +70,7 @@ function obFrame(step, total, title, sub, form, foot) {
     <div class="obc"><div style="display:flex;flex-direction:column;gap:24px"><div class="obtx"><h1>${title}</h1><p>${sub}</p></div><div class="form">${form}</div></div><div class="obft">${foot}</div></div>`;
 }
 SCREENS.ob1 = {cls: 'ob1', render: () => `
-  <div class="hero"><video src="${A}video/hero-boas-vindas.mp4" autoplay muted loop playsinline preload="auto"></video></div>
+  <div class="hero"><video src="${A}video/hero-boas-vindas.mp4" autoplay muted loop playsinline preload="auto" poster="${A}video/hero-boas-vindas.webp"></video></div>
   <div class="bottom">
     <div class="copy"><div class="hscroll" style="gap:8px">${GAMES.map(g => gameBlock(g, false, 'data-a="obSignup"')).join('')}</div></div>
     <div class="acts"><div>${btn('Já tenho conta', 'sec', 'm m44', 'data-a="obLogin"')}</div><div>${btn('Criar conta', 'pri', 'm m44', 'data-a="obSignup"')}</div></div>
