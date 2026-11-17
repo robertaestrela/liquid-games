@@ -116,7 +116,6 @@ async function callRaise(p) {
   const team = G.players[p].team;
   G.pending = {team, p, idx: G.vi + 1}; G.last = team;
   clearInterval(myT);
-  bubble(p, WORD_TXT[G.pending.idx] + '!');
   updateActs();
   const respTeam = 1 - team;
   await showCall(p, G.pending.idx, respTeam === 0);
@@ -128,7 +127,6 @@ async function respond(team, action) {
   const pend = G.pending;
   const responder = team === 0 ? 0 : bestOf(1);
   if (action === 'run') {
-    bubble(responder, 'Corri', 'no');
     G.pending = null;
     const pts = LAD()[G.vi];
     await showAnswer('run', team, pts, responder);
@@ -143,7 +141,6 @@ async function respond(team, action) {
     setTimeout(() => callRaise(responder), 350);
     return;
   }
-  bubble(responder, 'Aceito!', 'ok');
   G.pending = null;
   await showAnswer('acc', team, LAD()[G.vi], responder);
   if (!G) return;
@@ -373,18 +370,43 @@ function bubble(p, txt, kind) { const b = $('#bub' + p); if (!b) return; b.textC
 let gtT;
 function gtoast(msg) { const g = $('#gtoast'); if (!g) return; $('#gtoastTxt').textContent = msg; g.classList.add('show'); clearTimeout(gtT); gtT = setTimeout(() => g.classList.remove('show'), 1700); }
 
-/* ---------- CALL OVERLAY ---------- */
+/* ---------- CALL OVERLAY · balão de fala (DS speech-bubble · ◇ Status Chamada | Positivo | Negativo) ---------- */
+// quem pede, aceita ou corre fala do próprio avatar; a mesa continua à vista sob um véu leve
+// centro do avatar de um assento nas coordenadas do #app (no desktop o celular inteiro é escalado)
+function seatAnchor(p) {
+  const s = $(`#seat${p} .avbox`), app = $('#app');
+  if (!s || !app) return {x: 188, y: 400, side: 'b'};
+  const a = app.getBoundingClientRect(), r = s.getBoundingClientRect(), k = a.width / app.offsetWidth || 1;
+  const x = (r.left + r.width / 2 - a.left) / k, y = (r.top + r.height / 2 - a.top) / k;
+  return {x, y, side: x > 250 ? 'r' : x < 125 ? 'l' : y < 330 ? 't' : 'b'};
+}
+// encosta o balão no avatar: à esquerda dele (ponta para a direita), à direita (ponta para a esquerda) ou em cima (ponta para baixo)
+function placeBubble(b, at) {
+  const w = b.offsetWidth, h = b.offsetHeight;
+  let x, y;
+  if (at.side === 'r') { x = at.x - 36 - w; y = at.y - h / 2; b.classList.add('tr'); }
+  else if (at.side === 'b') { x = at.x - w / 2; y = at.y - 42 - h; b.classList.add('tb'); }
+  else { x = at.x + 40; y = at.y - h / 2; b.classList.add('tl'); }
+  b.style.left = Math.round(Math.max(8, Math.min(367 - w, x))) + 'px';
+  b.style.top = Math.round(Math.max(8, y)) + 'px';
+}
+// nas marcas traduzidas (Liquid) a palavra é traduzida antes de virar letras soltas
+const letters = w => [...(typeof window.i18n === 'function' ? window.i18n(w) : w)].map((ch, i) => `<i style="--i:${i}">${ch === ' ' ? '&nbsp;' : esc(ch)}</i>`).join('');
+// kind: chamada | pos | neg · a palavra é sempre em caixa alta (CSS)
+function sayAt(box, p, kind, word, sub) {
+  const at = seatAnchor(p);
+  const ring = document.createElement('i'); ring.className = `spring ${kind}`; ring.style.left = at.x + 'px'; ring.style.top = at.y + 'px'; box.appendChild(ring);
+  const b = document.createElement('div'); b.className = `spb ${kind}`;
+  b.innerHTML = `<b>${letters(word)}</b>${sub ? `<small>${sub}</small>` : ''}`;
+  box.appendChild(b); placeBubble(b, at);
+  return b;
+}
 function showCall(p, idx, youRespond) {
   return new Promise(res => {
-    const P = G.players[p];
-    const video = P.crew === 'nenhum' ? `<img class="empty" src="${A}ui/avatar_empty.webp" alt="">` : `<video src="${A}video/call/${P.crew}_${P.g}.mp4" autoplay muted loop playsinline preload="auto" poster="${A}video/call/${P.crew}_${P.g}.webp"></video>`;
-    const embers = Array.from({length: 14}, (_, k) => `<i class="ember" style="left:${5 + k * 6.6}%;--dx:${(k % 2 ? 1 : -1) * (10 + (k % 3) * 12)}px;animation-delay:${(.12 + k * .1).toFixed(2)}s"></i>`).join('');
     const nextLabel = idx < 4 ? 'Pedir ' + WORD_TXT[idx + 1] + '!' : '';
-    const who = p === 0 ? 'Você pediu' : `${P.name} pediu`;
-    $('#overlay').innerHTML = `<div class="call" id="call"><div class="veil2"></div><div class="fire fireA"></div><div class="fire fireB"></div><div class="glow"></div>${embers}
-      <div class="who">${video}</div>
-      <div class="content"><span class="pill">${who}</span><img class="word" src="${A}ui/word_${WORD[idx]}.webp" alt="${WORD_TXT[idx]}!"><span class="pill vale">vale ${LAD()[idx]}</span></div>
+    $('#overlay').innerHTML = `<div class="call fala" id="call"><div class="veil2"></div>
       ${youRespond ? `<div class="resp">${nextLabel ? `<button class="btn danger" id="cRaise" style="width:220px">${nextLabel}</button>` : ''}<div class="row"><button class="btn secondary" id="cRun">Correr</button><button class="btn primary" id="cOk">Aceitar</button></div></div>` : `<span class="pill wait">${p === 0 || G.players[p].team === 0 ? 'Esperando a resposta deles…' : ''}</span>`}</div>`;
+    sayAt($('#call'), p, 'chamada', WORD_TXT[idx] + '!', `vale ${LAD()[idx]}`);
     if (youRespond) {
       $('#cRun').onclick = () => respond(0, 'run');
       $('#cOk').onclick = () => respond(0, 'accept');
@@ -394,34 +416,32 @@ function showCall(p, idx, youRespond) {
   });
 }
 function hideCall() { const c = $('#call'); if (c) { c.style.transition = 'opacity .25s'; c.style.opacity = '0'; setTimeout(() => { if ($('#call') === c) $('#overlay').innerHTML = ''; }, 260); } }
-// resposta ao truco: o mesmo overlay do pedido continua e muda de clima
-// aceitou → o fogo cresce e solta mais brasa · correu → o fogo apaga, sobe fumaça e a palavra cai ("deu ruim")
+// resposta: o balão do pedido sai e quem respondeu fala · aceito = verde · corri = cinza, murcha e os pontos voam para o placar
 function showAnswer(kind, team, pts, rp) {
   return new Promise(res => {
     const acc = kind === 'acc', one = G.one;
-    const word = acc ? (one ? 'aceitou' : 'aceitaram') : (one ? 'correu' : 'correram');
-    const who = team === 0 ? (one ? (acc ? 'Você aceitou' : 'Você correu') : (acc ? 'Vocês aceitaram' : 'Vocês correram')) : (one ? `${OPP.n} ${acc ? 'aceitou' : 'correu'}` : (acc ? 'Eles aceitaram' : 'Eles correram'));
-    const tail = acc ? `a mão vale ${pts}` : (team === 0 ? (one ? `${OPP.n} leva +${pts}` : `Eles levam +${pts}`) : (one ? `Você leva +${pts}` : `Nós levamos +${pts}`));
     let c = $('#call');
-    if (!c) {
-      $('#overlay').innerHTML = `<div class="call" id="call"><div class="veil2"></div><div class="fire fireA"></div><div class="fire fireB"></div><div class="glow"></div><div class="content"></div></div>`;
-      c = $('#call');
-    }
-    c.querySelectorAll('.resp,.wait').forEach(n => n.remove());
-    // o círculo passa a mostrar quem respondeu
-    const R = G.players[rp];
-    if (R) { let w = c.querySelector('.who'); if (!w) { c.querySelector('.content').insertAdjacentHTML('beforebegin', '<div class="who"></div>'); w = c.querySelector('.who'); }
-      w.innerHTML = R.crew === 'nenhum' ? `<img class="empty" src="${A}ui/avatar_empty.webp" alt="">` : `<video src="${A}video/call/${R.crew}_${R.g}.mp4" autoplay muted loop playsinline preload="auto" poster="${A}video/call/${R.crew}_${R.g}.webp"></video>`; }
-    const embers = acc ? Array.from({length: 22}, (_, k) => `<i class="ember hot" style="left:${3 + k * 4.4}%;--dx:${(k % 2 ? 1 : -1) * (14 + (k % 4) * 14)}px;animation-delay:${(k * .05).toFixed(2)}s"></i>`).join('')
-      : `<div class="smoke">${Array.from({length: 14}, (_, k) => `<i style="left:${4 + k * 7}%;bottom:${-80 + (k % 4) * 60}px;--dx:${(k % 2 ? 1 : -1) * (16 + (k % 3) * 22)}px;--s:${(1.3 + (k % 3) * .4).toFixed(2)};animation-delay:${(.1 + (k % 6) * .1).toFixed(2)}s"></i>`).join('')}</div>`;
-    c.insertAdjacentHTML('beforeend', embers);
-    const ct = c.querySelector('.content');
-    // pontos para o nosso lado (eles correram) = pílula verde
-    const good = !acc && team === 1;
-    ct.innerHTML = `<span class="pill">${who}</span><img class="word ans" src="${A}ui/word_${word}.webp" alt="${word.toUpperCase()}"><span class="pill vale${good ? ' pos' : ''}">${tail}</span>`;
-    c.classList.add(acc ? 'acc' : 'run');
-    setTimeout(res, acc ? 1700 : 2300);
+    if (!c) { $('#overlay').innerHTML = `<div class="call fala" id="call"><div class="veil2"></div></div>`; c = $('#call'); }
+    c.querySelectorAll('.resp,.wait,.spb,.spring').forEach(n => n.remove());
+    const ran = team === 0 ? (one ? 'Você correu' : 'Vocês correram') : (one ? `${OPP.n} correu` : 'Eles correram');
+    const gain = team === 0 ? (one ? OPP.n : 'Eles') : (one ? 'Você' : 'Nós');
+    const b = sayAt(c, rp, acc ? 'pos' : 'neg', acc ? 'Aceito!' : 'Corri!', acc ? `mão vale ${pts}` : `${ran} · ${gain} +${pts}`);
+    if (!acc) flyPoints(c, b, team === 1, pts);
+    setTimeout(res, acc ? 1500 : 2300);
   });
+}
+// +N sai do balão e pousa no placar do HUD (Nós à esquerda, Eles à direita)
+function flyPoints(box, b, good, pts) {
+  const tgt = $(good ? '#hud .side:not(.r) .pts b' : '#hud .side.r .pts b'), app = $('#app');
+  if (!tgt || !app) return;
+  const a = app.getBoundingClientRect(), r = tgt.getBoundingClientRect(), k = a.width / app.offsetWidth || 1;
+  const chip = document.createElement('span'); chip.className = 'pfly' + (good ? ' pos' : ''); chip.textContent = `+${pts}`;
+  box.appendChild(chip);
+  const x0 = b.offsetLeft + b.offsetWidth / 2 - chip.offsetWidth / 2, y0 = b.offsetTop + b.offsetHeight + 24;
+  chip.style.left = x0 + 'px'; chip.style.top = y0 + 'px';
+  chip.style.setProperty('--dx', Math.round((r.left + r.width / 2 - a.left) / k - x0 - chip.offsetWidth / 2) + 'px');
+  chip.style.setProperty('--dy', Math.round((r.top + r.height / 2 - a.top) / k - y0 - chip.offsetHeight / 2) + 'px');
+  setTimeout(() => { if (!document.body.contains(tgt)) return; tgt.textContent = (+tgt.textContent || 0) + pts; tgt.classList.add('bump'); }, 1400);
 }
 
 /* ---------- PIF-PAF ENGINE (Cacheta · 1x1 contra bot) ---------- */
@@ -1319,10 +1339,10 @@ function renderBuTags() {
 }
 
 /* ---------- MATCH NAV · Voltar · Chat · Mesa · Voz · Ajustes ---------- */
-const activeGame = () => PK ? {id: 'poker', label: `Poker · ${PK.six ? 'mesa de 6' : '1x1'}`, t: PK.tableId, players: PK.players.map(p => [p.name, p.crew, p.g])}
-  : PF ? {id: 'cacheta', label: `${PF.rules === 'cacheta' ? 'Cacheta' : 'Pif-Paf'} · 1x1`, t: PF.tableId, players: PF.players.map(p => [p.name, p.crew, p.g])}
-  : BU ? {id: isTr() ? 'tranca' : 'buraco', label: `${isTr() ? 'Tranca' : 'Buraco ' + BU.variant} · 2x2`, t: BU.tableId, players: BU.players.map(p => [p.name, p.crew, p.g])}
-  : G ? {id: 'truco', label: `Truco ${G.variant} · ${G.one ? '1x1' : '2x2'}`, t: G.tableId, players: G.players.filter(Boolean).map(p => [p.name, p.crew, p.g])} : null;
+const activeGame = () => PK ? {id: 'poker', label: `Poker · ${PK.six ? 'mesa de 6' : '1x1'}`, t: PK.tableId, players: PK.players.map(p => [p.name, p.crew, p.g]), seats: PK.players.map((_, i) => i)}
+  : PF ? {id: 'cacheta', label: `${PF.rules === 'cacheta' ? 'Cacheta' : 'Pif-Paf'} · 1x1`, t: PF.tableId, players: PF.players.map(p => [p.name, p.crew, p.g]), seats: PF.players.map((_, i) => i)}
+  : BU ? {id: isTr() ? 'tranca' : 'buraco', label: `${isTr() ? 'Tranca' : 'Buraco ' + BU.variant} · 2x2`, t: BU.tableId, players: BU.players.map(p => [p.name, p.crew, p.g]), seats: BU.players.map((_, i) => i), partner: 2}
+  : G ? {id: 'truco', label: `Truco ${G.variant} · ${G.one ? '1x1' : '2x2'}`, t: G.tableId, players: G.players.filter(Boolean).map(p => [p.name, p.crew, p.g]), seats: [0, 1, 2, 3].filter(p => G.players[p]), partner: G.one ? null : 2} : null;
 const GAME_CHAT = [];
 function gameChatSheet() {
   const a = activeGame(); if (!a) return;
@@ -1333,7 +1353,32 @@ function gameChatSheet() {
       <div class="row"><label class="in"><input id="gIn" maxlength="200" placeholder="Diga algo…" autocomplete="off"></label><button class="send" data-a="gameSay" aria-label="Enviar">${svg('i-send')}</button></div></div>`, {cls: 'g16'});
   const c = $('#gChat'); c.scrollTop = c.scrollHeight; $('#gIn').onkeydown = e => { if (e.key === 'Enter') ACT.gameSay(); };
 }
-ACT.gameSay = () => { const i = $('#gIn'); if (!i || !i.value.trim()) return; GAME_CHAT.push({me: true, who: ST.nick, t: i.value.trim()}); gameChatSheet(); setTimeout(() => { const a = activeGame(); if (!a || !$('#gChat')) return; const p = pickOne(a.players.slice(1)); GAME_CHAT.push({who: p[0], c: p[1], g: p[2], t: pickOne(BOT_REPLIES)}); gameChatSheet(); }, rnd(900, 1700)); };
+ACT.gameSay = () => {
+  const i = $('#gIn'); if (!i || !i.value.trim()) return;
+  const t = i.value.trim(); GAME_CHAT.push({me: true, who: ST.nick, t});
+  closeSheet(); chatBubble(0, t);
+  botChatReply();
+};
+// alguém da mesa responde: entra no histórico e aparece em balão no avatar dele
+function botChatReply() {
+  setTimeout(() => {
+    const a = activeGame(); if (!a || a.players.length < 2) return;
+    const k = 1 + Math.floor(Math.random() * (a.players.length - 1)), p = a.players[k], t = pickOne(BOT_REPLIES);
+    GAME_CHAT.push({who: p[0], c: p[1], g: p[2], t});
+    if ($('#gChat')) gameChatSheet();
+    if (DK.on && DK.chat) paintChat();
+    chatBubble(a.seats[k], t, p[0]);
+  }, rnd(900, 1700));
+}
+// balão de mensagem sobre o avatar (some sozinho em 3 s, corta em 2 linhas)
+function chatBubble(seat, text, name, box) {
+  box = box || $('#scr-game'); if (!box || $('#scr-game').hidden) return;
+  const old = box.querySelector(`.cbub[data-seat="${seat}"]`); if (old) old.remove();
+  const el = document.createElement('div'); el.className = 'cbub'; el.dataset.seat = seat;
+  el.innerHTML = `${name ? `<em>${esc(name)}</em>` : ''}<span>${esc(text)}</span>`;
+  box.appendChild(el); placeBubble(el, seatAnchor(seat));
+  setTimeout(() => el.classList.add('out'), 3000); setTimeout(() => el.remove(), 3400);
+}
 function tableSheet() {
   const a = activeGame(); if (!a) return;
   openSheet(`${sheetHead(GAME_ICON[a.id], `Mesa ${a.t}`, `${a.label} · ${ST.tourney ? 'torneio · ' + ST.tourney.name : 'jogando agora'}`, true, 'ok')}

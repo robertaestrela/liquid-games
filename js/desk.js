@@ -103,8 +103,8 @@ ACT.dkSay = () => {
   const i = $('#dkIn'); if (!i || !i.value.trim()) return;
   const t = i.value.trim(), a = activeGame(); i.value = ''; $('#dkCount').textContent = '0/200';
   if (a) {
-    GAME_CHAT.push({me: true, who: ST.nick, t}); paintChat();
-    setTimeout(() => { const b = activeGame(); if (!b) return; const p = pickOne(b.players.slice(1)); GAME_CHAT.push({who: p[0], c: p[1], g: p[2], t: pickOne(BOT_REPLIES)}); paintChat(); }, rnd(900, 1700));
+    GAME_CHAT.push({me: true, who: ST.nick, t}); paintChat(); chatBubble(0, t);
+    botChatReply();
   } else {
     const gid = CHAT.game; feedOf(gid).push({me: true, who: ST.nick, t}); paintChat();
     setTimeout(() => { const p = pickOne(PEOPLE); feedOf(gid).push({who: p[0], c: p[1], g: p[2], t: pickOne(BOT_REPLIES)}); paintChat(); }, rnd(1200, 2200));

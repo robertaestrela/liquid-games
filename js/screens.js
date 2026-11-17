@@ -303,7 +303,7 @@ function launchGame(tableId) {
 ACT.queueCancel = () => { queueAbort = true; closeSheet(); if (ST.tourney) tExit(); };
 
 /* ======================================================================
-   RESULTADO · R01 Vitória / R02 Derrota (minimal, igual para todos os jogos)
+   RESULTADO · folha sobre a mesa (DS match-result ◇ Style=Folha) · igual para todos os jogos
    ====================================================================== */
 function teamHTML(players, name, sub, right) {
   const avs = `<span class="avs">${players.map(p => hex(p[1], p[2], 's', 0, false)).join('')}</span>`;
@@ -319,21 +319,31 @@ function showResult(r) {
   logHistory(r);
   if (r.win && !r.training) bumpReward();
   const glow = r.win ? 'win' : r.tie ? 'tie' : 'loss';
-  $('#overlay').innerHTML = `<div class="res2 ${glow}" style="--gc:${r.gameColor || 'var(--game-todos)'}"><i class="rglow"></i>
-    <span class="ctx">${r.ctx || ''}</span>
-    <div class="rblock">
-      <img class="ic big" src="${I(r.win ? 'trophy' : r.tie ? 'medal' : 'defeat')}" alt="">
-      <div class="rt"><h1>${r.title || (r.win ? 'Vitória' : r.tie ? 'Empate' : 'Derrota')}</h1>${r.sub ? `<span>${r.sub}</span>` : ''}</div>
+  const title = r.title || (r.win ? 'Vitória' : r.tie ? 'Empate' : 'Derrota');
+  $('#overlay').innerHTML = `<div class="res2 ${glow}" style="--gc:${r.gameColor || 'var(--game-todos)'}"><div class="rveil"></div>
+    <div class="rsheet" role="dialog" aria-label="${esc(title)}"><span class="handle"></span>
+      <div class="rt"><h1>${title}</h1>${r.sub ? `<span>${r.sub}</span>` : ''}</div>
       <div class="rv"><b class="${r.win && !r.training ? 'prize' : 'muted'}">${r.value}</b>${r.caption ? `<small>${r.caption}</small>` : ''}</div>
       ${r.left ? `<div class="score">${r.left}<b class="sc">${r.score}</b>${r.right}</div>` : ''}
       ${r.extra || ''}
+      <div class="ractions">${btn(r.backLabel || 'Voltar ao lobby', 'sec', 'm', 'data-a="resBack"')}${btn(r.againLabel || (ST.training ? 'Treinar de novo' : `Jogar de novo · ${fmt(ST.stake)}`), 'pri', 'm', 'data-a="resAgain"')}</div>
     </div>
-    <div class="ractions">${btn(r.backLabel || 'Voltar ao lobby', 'sec', 'm', 'data-a="resBack"')}${btn(r.againLabel || (ST.training ? 'Treinar de novo' : `Jogar de novo · ${fmt(ST.stake)}`), 'pri', 'm', 'data-a="resAgain"')}</div>
   </div>`;
+  if (!r.tie) resultCheer(r.win);
   RES = r;
   refreshChrome();
 }
 let RES = null;
+// na mesa, alguém comenta o resultado: o parceiro comemora a vitória; o adversário manda um gg na derrota (ou na vitória 1x1)
+function resultCheer(win) {
+  const a = typeof activeGame === 'function' && activeGame(); if (!a || !a.seats) return;
+  const box = $('#overlay .res2'), sheet = $('#overlay .rsheet'); if (!box || !sheet) return;
+  const ix = s => a.seats.indexOf(s), partner = a.partner != null && ix(a.partner) > 0 ? a.partner : null;
+  const opp = a.seats.find(s => s !== 0 && s !== partner);
+  const seat = win && partner != null ? partner : opp; if (seat == null) return;
+  const text = win && partner != null ? pickOne(['boa, parceiro! 🙌', 'é nóis! 🔥', 'que mão! 👏']) : pickOne(['gg', 'gg 🤝', 'boa partida']);
+  setTimeout(() => { if ($('#overlay .rsheet') !== sheet) return; chatBubble(seat, text, a.players[ix(seat)][0], box); const b = box.querySelector('.cbub'); if (b) box.insertBefore(b, sheet); }, 800);
+}
 Object.assign(ACT, {
   resBack: () => { $('#overlay').innerHTML = ''; const f = RES && RES.onBack; RES = null; endAllGames(); if (f) f(); else leaveGame(); },
   resAgain: () => { $('#overlay').innerHTML = ''; const r = RES; RES = null; endAllGames(); if (r && r.again) r.again(); }
