@@ -201,6 +201,17 @@
 @keyframes pIn{from{opacity:0}}
 @keyframes pFly{80%{opacity:1}to{opacity:0;transform:translate(var(--dx),var(--dy)) scale(.6)}}
 #hud .pts b.bump{display:inline-block;animation:bumpN .3s cubic-bezier(.3,1.6,.5,1)}
+#hud .pts b.bump.us{animation-duration:.5s} #hud .pts b.bump.them{animation:bumpT .4s cubic-bezier(.3,1.6,.5,1)}
+@keyframes bumpT{from{transform:scale(1.5)}}
+/* tirinha do placar (DS score-ticker): a linha de baixo do HUD vira um letreiro que corre */
+.hudtick{position:absolute;left:8px;right:8px;height:32px;z-index:30;display:flex;align-items:center;overflow:hidden;border-radius:12px;background:#fff;color:#111113;pointer-events:none;animation:hudtickIn .3s cubic-bezier(.3,1.4,.5,1) both;transition:opacity .22s}
+.hudtick.pos{background:var(--sys-success)} .hudtick.neg{background:#9ea2a4}
+.hudtick.out{opacity:0}
+.hudtick .run{display:flex;flex:none;white-space:nowrap;animation:hudtickRun 4.5s linear infinite}
+.hudtick .run span{display:inline-flex;align-items:center;gap:12px;padding-right:12px;font:700 20px/1 var(--f-display);letter-spacing:-.01em;text-transform:uppercase}
+.hudtick .run i{font-style:normal;font-size:16px;opacity:.55}
+@keyframes hudtickIn{from{opacity:0;transform:scaleX(.2)}}
+@keyframes hudtickRun{to{transform:translateX(-50%)}}
 @keyframes bumpN{from{transform:scale(1.5);color:var(--text-success)}}
 /* balão de mensagem do chat (DS chat-bubble) */
 .cbub{position:absolute;z-index:60;max-width:200px;padding:8px 12px;border-radius:16px;background:#fff;color:#111113;box-shadow:0 8px 20px rgba(0,0,0,.4);pointer-events:none;transform-origin:var(--o,50% 100%);animation:spbIn .26s cubic-bezier(.3,1.5,.5,1) both;transition:opacity .3s}

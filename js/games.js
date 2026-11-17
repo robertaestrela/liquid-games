@@ -94,6 +94,7 @@ async function newHand() {
   G.hands[0].sort((a, b) => power(a) - power(b));
   G.dealer = nextP(G.dealer); G.turn = nextP(G.dealer); G.round = 0; G.results = []; G.table = []; G.vi = 0; G.last = null; G.pending = null; G.over = false; G.raisedBy = {}; G.leaderOfRound = G.turn; G.flip = {};
   renderHUD(); renderSeats(); renderTable(); renderPote(); renderSeq(); renderHand(); updateActs();
+  G.handNo = (G.handNo || 0) + 1; if (G.handNo > 1) hudTicker('', 'Nova mão');
   if (G.variant === 'Paulista') gtoast(`Vira ${G.vira.r}${suitTxt(G.vira.s)} · manilha ${G.manilha}`);
   await wait(500);
   nextTurn();
@@ -220,6 +221,7 @@ async function resolveRound() {
   if (hw !== null) { endHand(hw, LAD()[G.vi]); return; }
   clearPlayed();
   G.round++; G.table = [];
+  hudTicker('', `${G.round + 1}ª rodada`);
   if (res !== 'E') G.turn = winP; else G.turn = G.leaderOfRound;
   G.leaderOfRound = G.turn;
   renderHand();
@@ -236,9 +238,10 @@ function handWinner() {
 async function endHand(team, pts, msg) {
   if (!G || G.over) return;
   G.over = true; clearInterval(myT); markTurn(-1); updateActs();
-  if (team === 'X') gtoast('Mão empatada · ninguém pontua');
-  else { G.score[team] = Math.min(12, G.score[team] + pts); gtoast(msg || `${team === 0 ? (G.one ? 'Você' : 'Nós') : (G.one ? `${OPP.n}` : 'Eles')} +${pts} ${pts === LAD()[0] ? (pts === 1 ? 'ponto' : 'pontos') : '· mão trucada'}`); }
+  if (team !== 'X') G.score[team] = Math.min(12, G.score[team] + pts);
   renderHUD();
+  if (team === 'X') hudTicker('', 'Mão empatada', 1700);
+  else { hudTicker(team === 0 ? 'pos' : 'neg', `${team === 0 ? (G.one ? 'Você' : 'Nós') : (G.one ? OPP.n : 'Eles')} +${pts}`, 1700); bumpScore(team); }
   await wait(1700);
   clearPlayed();
   if (G.score[0] >= 12 || G.score[1] >= 12) { endMatch(); return; }
@@ -430,6 +433,20 @@ function showAnswer(kind, team, pts, rp) {
     setTimeout(res, acc ? 1500 : 2300);
   });
 }
+// tirinha do placar (DS score-ticker): a linha de baixo do HUD vira um letreiro que corre · '' = rodada/mão nova (branca), pos = nosso ponto (verde), neg = ponto deles (cinza)
+function hudTicker(kind, word, ms = 1400) {
+  const box = $('#scr-game'), info = $('#hud .info'), app = $('#app'); if (!box || box.hidden || !info || !app) return;
+  box.querySelectorAll('.hudtick').forEach(t => t.remove());
+  const a = app.getBoundingClientRect(), r = info.getBoundingClientRect(), k = a.width / app.offsetWidth || 1;
+  const half = ['♠', '♥', '♦', '♣', '♠', '♥', '♦', '♣'].map(su => `<span>${esc(word)}<i>${su}</i></span>`).join('');
+  const t = document.createElement('div'); t.className = `hudtick ${kind}`;
+  t.style.top = Math.round((r.top - a.top) / k + (r.height / k - 32) / 2 + 4) + 'px';
+  t.innerHTML = `<div class="run">${half}${half}</div>`;
+  box.appendChild(t);
+  setTimeout(() => t.classList.add('out'), ms); setTimeout(() => t.remove(), ms + 260);
+}
+// o número do placar pula quando o ponto entra
+function bumpScore(team) { const b = $(team === 0 ? '#hud .side:not(.r) .pts b' : '#hud .side.r .pts b'); if (b) b.classList.add('bump', team === 0 ? 'us' : 'them'); }
 // +N sai do balão e pousa no placar do HUD (Nós à esquerda, Eles à direita)
 function flyPoints(box, b, good, pts) {
   const tgt = $(good ? '#hud .side:not(.r) .pts b' : '#hud .side.r .pts b'), app = $('#app');
