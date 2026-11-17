@@ -238,7 +238,7 @@ const SS = {
 // telas que voltam como estavam (as outras dependem de algo em andamento e voltam para o início)
 const RESUME_OK = ['jogos', 'lobby', 'chat', 'loja', 'torneios', 'profile', 'history', 'ranking', 'settings'];
 /* ---------- dropdown do saldo (DS header-game ◉ Expanded + balance-panel + _loyalty-bonus) ---------- */
-// o saldo do header abre o detalhe: total (o olho esconde os valores), saldo, bônus, Bônus Fidelidade e o que dá pra sacar, com Sacar | Comprar
+// o saldo do header abre o detalhe sem somas: saldo real e saldo de bônus com o mesmo peso (o olho esconde os valores), Bônus Fidelidade e o que dá pra sacar, com Sacar | Comprar
 const BAL = {open: false, hide: false, fidOpen: false};
 const money = v => BAL.hide ? 'R$ ••••' : fmt2(v);
 function fidHTML() {
@@ -251,9 +251,9 @@ function fidHTML() {
 }
 function balPanel() {
   return `<div class="balp" role="dialog" aria-label="Saldo">
-    <div class="top"><div><small>Saldo total</small><div class="tv"><b>${money(ST.saldo + ST.bonus + ST.fid.ready)}</b><button class="eye" data-a="balHide" aria-label="${BAL.hide ? 'Mostrar valores' : 'Esconder valores'}">${svg('i-eye')}</button></div></div>
+    <div class="top"><div class="tv"><small>Seu saldo</small><button class="eye" data-a="balHide" aria-label="${BAL.hide ? 'Mostrar valores' : 'Esconder valores'}">${svg('i-eye')}</button></div>
       <button class="x" data-a="balToggle" aria-label="Fechar">${svg('i-chev-r')}</button></div>
-    <div class="rows"><div class="kv"><span>Saldo geral</span><b>${money(ST.saldo)}</b></div><div class="kv"><span>Bônus</span><b>${money(ST.bonus)}</b></div>${fidHTML()}<hr>
+    <div class="rows"><div class="kv"><span>Saldo real</span><b>${money(ST.saldo)}</b></div><div class="kv"><span>Saldo de bônus</span><b>${money(ST.bonus)}</b></div>${fidHTML()}<hr>
       <div class="kv"><span>Saldo livre pra saque</span><b>${money(ST.saldo)}</b></div></div>
     <div class="acts">${btn('Sacar', 'sec', 'm', 'data-a="sellChips"')}${btn('Comprar', 'ok', 'm', 'data-a="buyChips"')}</div></div>`;
 }

@@ -60,10 +60,9 @@ svg{display:block}
 .baldrop{position:absolute;left:0;right:0;top:64px;bottom:0;z-index:45;background:var(--bga-default-75);animation:fade .15s both}
 .balp{display:flex;flex-direction:column;gap:16px;max-height:100%;overflow:auto;padding:16px 16px 24px;background:var(--bg-subtle);border-radius:0 0 24px 24px;box-shadow:inset 0 -1px 0 var(--hl-subtle),0 16px 40px rgba(0,0,0,.4);animation:balIn .22s cubic-bezier(.2,.8,.2,1) both}
 @keyframes balIn{from{transform:translateY(-12px);opacity:0}}
-.balp .top{display:flex;justify-content:space-between;align-items:flex-start}
+.balp .top{display:flex;justify-content:space-between;align-items:center}
 .balp .top small{font:500 12px/1.2 var(--f-ui);color:var(--text-muted)}
-.balp .tv{display:flex;align-items:center;gap:8px;margin-top:4px}
-.balp .tv b{font:700 32px/1.2 var(--f-display);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.balp .tv{display:flex;align-items:center;gap:4px}
 .balp .eye,.balp .x{display:grid;place-items:center;width:28px;height:28px}
 .balp .eye svg{width:20px;height:20px;fill:var(--text-muted)}
 .balp .x svg{width:12px;height:12px;fill:var(--text-muted);transform:rotate(-90deg)}
