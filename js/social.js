@@ -229,7 +229,7 @@ Object.assign(ACT, {
    O + do saldo (e Fichas no Perfil, em Ajustes e no menu do desktop) mostra "Redirecionando…" e abre a página
    na mesma aba. O app guarda onde estava; na volta (?resume) reabre no mesmo ponto, com o saldo que a página devolveu.
    ====================================================================== */
-const FICHAS_URL = 'fichas/index.html?v=20261027h';
+const FICHAS_URL = 'fichas/index.html?v=20261117d';
 const SS = {
   get: k => { try { return JSON.parse(sessionStorage.getItem(k)); } catch (e) { return null; } },
   set: (k, v) => { try { sessionStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
@@ -237,10 +237,51 @@ const SS = {
 };
 // telas que voltam como estavam (as outras dependem de algo em andamento e voltam para o início)
 const RESUME_OK = ['jogos', 'lobby', 'chat', 'loja', 'torneios', 'profile', 'history', 'ranking', 'settings'];
-ACT.wallet = () => {
+/* ---------- dropdown do saldo (DS header-game ◉ Expanded + balance-panel + _loyalty-bonus) ---------- */
+// o saldo do header abre o detalhe: total (o olho esconde os valores), saldo, bônus, Bônus Fidelidade e o que dá pra sacar, com Sacar | Comprar
+const BAL = {open: false, hide: false, fidOpen: false};
+const money = v => BAL.hide ? 'R$ ••••' : fmt2(v);
+function fidHTML() {
+  const f = ST.fid;
+  if (f.ready > 0) return `<div class="fid ready">${ic('coins')}<span class="t"><b>Bônus Fidelidade</b><small>Pronto pra resgatar</small></span><b class="v">${money(f.ready)}</b>${btn('Resgatar', 'ok', 's', 'data-a="fidClaim"')}</div>`;
+  return `<div class="fid${BAL.fidOpen ? ' open' : ''}"><button class="row" data-a="fidToggle" aria-expanded="${BAL.fidOpen}">${ic('coins')}<span class="t"><b>Bônus Fidelidade</b><small>${BAL.fidOpen ? 'Pronto pra resgatar toda semana' : 'Juntando nesta semana · ' + money(f.week)}</small></span><span class="chev">${svg('i-chev-r')}</span></button>
+    ${BAL.fidOpen ? `<div class="more"><div class="wk"><small>Juntando nesta semana</small><b>${money(f.week)}</b></div><p>Você tem 7 dias pra resgatar; depois disso o valor expira.</p>
+      <div class="kv"><span>Volta pra você</span><b>5% da taxa das mesas</b></div><div class="kv"><span>Limite da semana</span><b>R$ 50,00</b></div>
+      <p>Jogue nas mesas com saldo real para começar a acumular o seu Bônus Fidelidade.</p>${btn('Ver minha fidelidade', 'pri', 'm', 'data-a="toast:Minha fidelidade · em breve"', 'wide')}</div>` : ''}</div>`;
+}
+function balPanel() {
+  return `<div class="balp" role="dialog" aria-label="Saldo">
+    <div class="top"><div><small>Saldo total</small><div class="tv"><b>${money(ST.saldo + ST.bonus + ST.fid.ready)}</b><button class="eye" data-a="balHide" aria-label="${BAL.hide ? 'Mostrar valores' : 'Esconder valores'}">${svg('i-eye')}</button></div></div>
+      <button class="x" data-a="balToggle" aria-label="Fechar">${svg('i-chev-r')}</button></div>
+    <div class="rows"><div class="kv"><span>Saldo geral</span><b>${money(ST.saldo)}</b></div><div class="kv"><span>Bônus</span><b>${money(ST.bonus)}</b></div>${fidHTML()}<hr>
+      <div class="kv"><span>Saldo livre pra saque</span><b>${money(ST.saldo)}</b></div></div>
+    <div class="acts">${btn('Sacar', 'sec', 'm', 'data-a="sellChips"')}${btn('Comprar', 'ok', 'm', 'data-a="buyChips"')}</div></div>`;
+}
+// celular: preso embaixo do header, com véu · desktop: cartão embaixo do saldo do header largo
+function paintBal() {
+  let el = $('#balDrop');
+  $$('.cpill.dd').forEach(b => { b.classList.toggle('open', BAL.open); b.setAttribute('aria-expanded', BAL.open); });
+  if (!BAL.open) { if (el) el.remove(); return; }
+  if (!el) { el = document.createElement('div'); el.id = 'balDrop'; el.addEventListener('click', e => { if (e.target === el) closeBal(); }); }
+  (DK.on ? document.body : $('#app')).appendChild(el);
+  el.className = 'baldrop' + (DK.on ? ' dk' : '');
+  el.innerHTML = balPanel();
+  if (DK.on) { const pill = $('#dkh .cpill.dd'), p = el.firstElementChild; if (pill) { const r = pill.getBoundingClientRect(); p.style.left = r.left + 'px'; p.style.top = r.bottom + 8 + 'px'; } }
+}
+function closeBal() { if (!BAL.open) return; BAL.open = false; BAL.fidOpen = false; paintBal(); }
+Object.assign(ACT, {
+  balToggle: () => { closeNotifs(); BAL.open = !BAL.open; if (!BAL.open) BAL.fidOpen = false; paintBal(); },
+  balHide: () => { BAL.hide = !BAL.hide; paintBal(); },
+  fidToggle: () => { BAL.fidOpen = !BAL.fidOpen; paintBal(); },
+  fidClaim: () => { const v = ST.fid.ready; if (!v) return; ST.fid.ready = 0; ST.saldo = +(ST.saldo + v).toFixed(2); refreshChrome(); paintBal(); toast(`${fmt2(v)} do Bônus Fidelidade no seu saldo`); },
+  buyChips: () => { closeBal(); ACT.wallet('comprar'); },
+  sellChips: () => { closeBal(); ACT.wallet('sacar'); }
+});
+// intent (comprar | sacar) abre a página de Fichas direto na etapa certa
+ACT.wallet = intent => {
   if ($('#redir')) return;
-  closeNotifs(); closeSheet();
-  SS.set('eg.fichas', Object.assign(SS.get('eg.fichas') || {}, {saldo: ST.saldo, bonus: ST.bonus, nick: ST.nick, crew: ST.crew, g: ST.g, verified: !!ST.verified}));
+  closeNotifs(); closeSheet(); closeBal();
+  SS.set('eg.fichas', Object.assign(SS.get('eg.fichas') || {}, {saldo: ST.saldo, bonus: ST.bonus, nick: ST.nick, crew: ST.crew, g: ST.g, verified: !!ST.verified, open: intent === 'comprar' || intent === 'sacar' ? intent : null}));
   SS.set('eg.resume', {st: ST, cur: CUR, curp: CURP, notifs: NOTIFS, history: HISTORY, tourneys: TOURNEYS}); SS.set('eg.away', 1);
   const r = document.createElement('div'); r.className = 'redir'; r.id = 'redir';
   r.innerHTML = `<div class="card" role="status">${ic('coins')}<span class="tx"><b>Redirecionando…</b><span>Levando você para sua carteira e fichas.</span></span><i class="bar"><i></i></i></div>`;

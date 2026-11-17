@@ -33,6 +33,11 @@ body.dk .dkh{position:fixed;left:0;right:0;top:0;height:var(--dkh);z-index:100;d
 .dkh .cpill .t small{font-size:10px}
 .dkh .cpill .t b{font:700 14px/1 var(--f-ui)}
 .dkh .cpill .plus{width:24px;height:24px;border-radius:12px}
+.dkh .cpill .chev{width:24px;height:24px}
+.dkh .hbuy{flex:none}
+/* dropdown do saldo no computador: cartão embaixo do saldo do header largo */
+.baldrop.dk{position:fixed;inset:0;top:0;z-index:90;background:transparent}
+.baldrop.dk .balp{position:fixed;width:360px;border-radius:16px;box-shadow:inset 0 0 0 1px var(--hl-subtle),0 16px 40px rgba(0,0,0,.5)}
 .dkh .cpill.bonus{width:168px;padding-right:12px}
 .dkh .right{position:relative;flex:none;display:flex;align-items:center;gap:12px}
 .dkh .hbell{width:40px;height:40px;border-radius:20px}

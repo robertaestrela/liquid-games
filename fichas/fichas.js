@@ -241,4 +241,6 @@ document.addEventListener('input', e => {
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && D) ACT.close(); });
 window.addEventListener('hashchange', () => { render(); window.scrollTo(0, 0); });
 render();
+// veio do Comprar ou do Sacar do app: já abre a compra ou o saque
+if (F.open) { const o = F.open; F.open = null; save(); (o === 'sacar' ? ACT.out : ACT.buy)(); }
 window.__fx = {F, ACT, page};

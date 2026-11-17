@@ -71,6 +71,7 @@ const ST = {
   game: 'truco', variant: 'Mineiro', trucoMode: '2x2', stake: 1,
   crew: 'gamer', g: 'ele', owned: {nobru: true, magia: false, reis: false, estelar: false}, pack: 'nobru',
   mesaChoice: 'vermelha', mesaPaulista: 'azul', mesaPicked: false, deck: 'estrela', mic: false,
+  fid: {ready: 12, week: 0}, // Bônus Fidelidade: o que está pronto pra resgatar e o que está juntando nesta semana (5% da taxa das mesas, limite R$ 50)
   unread: 2, reward: null, rewardsWon: 18, tourney: null, tPrev: null, training: false, room: null,
   diamonds: 1000 // moeda da Loja (só cosmético) · comprada em Loja › Diamantes · protótipo começa com 1.000 para mostrar as liberações nas reuniões
 };

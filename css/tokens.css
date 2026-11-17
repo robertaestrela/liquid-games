@@ -40,6 +40,7 @@
   --stake-padrao-top:#0e5467; --stake-padrao-bottom:#0a2b36; --stake-iniciante-top:#1f9a4a; --stake-iniciante-bottom:#1f502c;
   --table-card-top:#1f5a4a; --table-card-bottom:#0f2e2a; --table-stake:#ffc841;
   --plus-bg:#52de7e; --plus-icon:#111113;
+  --btn-success-top:#52de7e; --btn-success-bg:#1f9a4a; /* DS button-glass ☰ Type=Success (Comprar) */
   /* cards */
   --card-face:#ffffff; --card-border:#9ea2a4; --suit-red:#c72c3d; --suit-black:#141922; --back-top:#1b667d; --back-bottom:#003848;
   /* seat timer */

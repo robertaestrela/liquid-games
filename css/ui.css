@@ -51,6 +51,45 @@ svg{display:block}
 .cpill.bonus .t b{color:var(--text-prize)}
 .cpill .plus{width:20px;height:20px;border-radius:10px;background:var(--plus-bg);display:grid;place-items:center;flex:none}
 .cpill .plus svg{width:12px;height:12px;fill:var(--plus-icon)}
+/* saldo com seta: abre o dropdown (DS header-game ◉ Expanded) */
+.cpill .chev{width:20px;height:20px;display:grid;place-items:center;flex:none}
+.cpill .chev svg{width:10px;height:10px;fill:var(--text-muted);transform:rotate(90deg);transition:transform .2s}
+.cpill.open{box-shadow:inset 0 0 0 1px var(--border-strong)} .cpill.open .chev svg{transform:rotate(-90deg)}
+.hdr .hbuy{flex:1;min-width:0}
+/* dropdown do saldo (DS balance-panel) · celular: preso embaixo do header */
+.baldrop{position:absolute;left:0;right:0;top:64px;bottom:0;z-index:45;background:var(--bga-default-75);animation:fade .15s both}
+.balp{display:flex;flex-direction:column;gap:16px;max-height:100%;overflow:auto;padding:16px 16px 24px;background:var(--bg-subtle);border-radius:0 0 24px 24px;box-shadow:inset 0 -1px 0 var(--hl-subtle),0 16px 40px rgba(0,0,0,.4);animation:balIn .22s cubic-bezier(.2,.8,.2,1) both}
+@keyframes balIn{from{transform:translateY(-12px);opacity:0}}
+.balp .top{display:flex;justify-content:space-between;align-items:flex-start}
+.balp .top small{font:500 12px/1.2 var(--f-ui);color:var(--text-muted)}
+.balp .tv{display:flex;align-items:center;gap:8px;margin-top:4px}
+.balp .tv b{font:700 32px/1.2 var(--f-display);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.balp .eye,.balp .x{display:grid;place-items:center;width:28px;height:28px}
+.balp .eye svg{width:20px;height:20px;fill:var(--text-muted)}
+.balp .x svg{width:12px;height:12px;fill:var(--text-muted);transform:rotate(-90deg)}
+.balp .rows{display:flex;flex-direction:column;gap:12px}
+.balp .kv{display:flex;justify-content:space-between;gap:12px;font:400 14px/1.4 var(--f-ui);color:var(--text-muted)}
+.balp .kv b{font-weight:400;color:var(--text-default);font-variant-numeric:tabular-nums;text-align:right}
+.balp hr{border:0;height:1px;background:var(--border-muted);margin:0}
+.balp .acts{display:flex;gap:12px} .balp .acts .btn{flex:1}
+/* Bônus Fidelidade (DS _loyalty-bonus): Resgatar quando tem valor · Juntando com a seta que abre as regras */
+.fid{display:flex;flex-direction:column;gap:12px;padding:8px 12px 8px 8px;border-radius:24px;background:var(--bga-strong-50);box-shadow:inset 0 0 0 1px var(--border-muted)}
+.fid.ready{flex-direction:row;align-items:center;gap:8px}
+.fid .ic{width:28px;height:28px;flex:none}
+.fid .t{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;text-align:left}
+.fid .t b{font:400 14px/1.3 var(--f-ui);color:var(--text-default)}
+.fid .t small{font:500 10px/1.2 var(--f-ui);color:var(--text-muted)}
+.fid .v{font:400 14px/1 var(--f-ui);font-variant-numeric:tabular-nums}
+.fid .row{display:flex;align-items:center;gap:8px;width:100%}
+.fid .chev{width:20px;height:20px;display:grid;place-items:center;flex:none}
+.fid .chev svg{width:10px;height:10px;fill:var(--text-muted);transform:rotate(90deg);transition:transform .2s}
+.fid.open{border-radius:16px;padding:8px 12px 12px 8px} .fid.open .chev svg{transform:rotate(-90deg)}
+.fid .more{display:flex;flex-direction:column;gap:12px}
+.fid .wk{display:flex;flex-direction:column;gap:4px;padding:12px;border-radius:12px;background:var(--bga-default-50);box-shadow:inset 0 0 0 1px var(--border-muted)}
+.fid .wk small{font:500 12px/1.2 var(--f-ui);color:var(--text-muted)}
+.fid .wk b{font:700 20px/1.2 var(--f-display);color:var(--text-prize);font-variant-numeric:tabular-nums}
+.fid p{margin:0;font:400 12px/1.5 var(--f-ui);color:var(--text-muted)}
+.fid .kv{font-size:12px}
 .hbell{position:relative;width:36px;height:36px;border-radius:18px;background:var(--bga-strong-50);box-shadow:inset 0 0 0 1px var(--border-muted);display:grid;place-items:center;flex:none}
 .hbell .ic{width:28px;height:28px}
 .hbell i{position:absolute;left:28px;top:0;width:8px;height:8px;border-radius:50%;background:var(--notification-error)}
@@ -123,6 +162,7 @@ svg{display:block}
 .btn.m44{height:44px;border-radius:22px}
 .btn.pri{background:linear-gradient(180deg,var(--btn-primary-top),var(--btn-primary-bg));box-shadow:inset 0 0 0 1px var(--hl),0 0 20px var(--glow-info);color:var(--btn-primary-text)}
 .btn.sec{background:var(--bga-strong-50);box-shadow:inset 0 0 0 1px var(--border-muted);color:var(--text-default)}
+.btn.ok{background:linear-gradient(180deg,var(--btn-success-top),var(--btn-success-bg));box-shadow:inset 0 0 0 1px var(--hl),0 0 20px var(--glow-success);color:#fff}
 .btn:disabled,.btn.dis{background:var(--btn-disabled-bg);box-shadow:none;color:var(--btn-disabled-text);pointer-events:none}
 .btn.danger-txt{background:none;box-shadow:none;color:var(--text-error);font:500 14px/1 var(--f-ui)}
 .btn.fill{flex:1;min-width:0}

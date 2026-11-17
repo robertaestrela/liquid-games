@@ -4,7 +4,7 @@ const SCREENS = {}, ACT = {};
 let CUR = null, CURP = {}, HIST = [];
 
 function go(name, p = {}, opts = {}) {
-  closeNotifs();
+  closeNotifs(); closeBal();
   if (!opts.noHist && CUR && CUR !== name) HIST.push([CUR, CURP]);
   if (opts.reset) HIST = [];
   const keep = opts.keepScroll ? ($('#view .scroll') || {}).scrollTop : 0, keepX = opts.keepScroll ? $$('#view .hscroll').map(x => x.scrollLeft) : [];
@@ -317,6 +317,8 @@ function showResult(r) {
   // partida da sala (Criar sala): a grátis não vale nada; as duas voltam para a mesma sala
   if (ST.room) { if (ST.room.free) { r.value = r.win ? 'Vitória na sala' : 'Fim de jogo'; r.caption = `Sala ${ST.room.code} · grátis, sem valor`; r.training = true; } r.againLabel = 'Voltar para a sala'; r.again = salaAgain; }
   logHistory(r);
+  // partida com saldo real junta Bônus Fidelidade: 5% da taxa da mesa (≈ 1% da entrada), até R$ 50 por semana
+  if (!r.training && ST.fid) ST.fid.week = Math.min(50, +(ST.fid.week + ST.stake * .01).toFixed(2));
   if (r.win && !r.training) bumpReward();
   const glow = r.win ? 'win' : r.tie ? 'tie' : 'loss';
   const title = r.title || (r.win ? 'Vitória' : r.tie ? 'Empate' : 'Derrota');
