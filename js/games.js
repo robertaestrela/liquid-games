@@ -373,8 +373,7 @@ function bubble(p, txt, kind) { const b = $('#bub' + p); if (!b) return; b.textC
 let gtT;
 function gtoast(msg) { const g = $('#gtoast'); if (!g) return; $('#gtoastTxt').textContent = msg; g.classList.add('show'); clearTimeout(gtT); gtT = setTimeout(() => g.classList.remove('show'), 1700); }
 
-/* ---------- CALL OVERLAY · balão de fala (DS speech-bubble · ◇ Status Chamada | Positivo | Negativo) ---------- */
-// quem pede, aceita ou corre fala do próprio avatar; a mesa continua à vista sob um véu leve
+/* ---------- balão de fala no avatar (DS speech-bubble / chat-bubble) ---------- */
 // centro do avatar de um assento nas coordenadas do #app (no desktop o celular inteiro é escalado)
 function seatAnchor(p) {
   const s = $(`#seat${p} .avbox`), app = $('#app');
@@ -395,42 +394,101 @@ function placeBubble(b, at) {
 }
 // nas marcas traduzidas (Liquid) a palavra é traduzida antes de virar letras soltas
 const letters = w => [...(typeof window.i18n === 'function' ? window.i18n(w) : w)].map((ch, i) => `<i style="--i:${i}">${ch === ' ' ? '&nbsp;' : esc(ch)}</i>`).join('');
-// kind: chamada | pos | neg · a palavra é sempre em caixa alta (CSS)
-function sayAt(box, p, kind, word, sub) {
-  const at = seatAnchor(p);
-  const ring = document.createElement('i'); ring.className = `spring ${kind}`; ring.style.left = at.x + 'px'; ring.style.top = at.y + 'px'; box.appendChild(ring);
-  const b = document.createElement('div'); b.className = `spb ${kind}`;
-  b.innerHTML = `<b>${letters(word)}</b>${sub ? `<small>${sub}</small>` : ''}`;
-  box.appendChild(b); placeBubble(b, at);
-  return b;
+/* ---------- CHAMADA POR FAMÍLIA (DS truco-call-estrela-games · ◇ Status Truco | Seis | Nove | Doze | Aceitaram | Correram) ---------- */
+// a cor da família de quem fala varre a mesa, o vídeo dele aparece dentro do shape da família e a palavra cai letra por letra
+// famílias com shape próprio (Todas as marcas) · as outras skins entram no medalhão na cor do personagem · 3º item: como o shape some no CORRERAM (fall = cai, off = desliga)
+const CALL_FAM = {
+  bar: ['bar', '#C6E33B'], laje: ['laje', '#FF7F50', 'fall'], live: ['live', '#B45CFF'], portaria: ['portaria', '#3DDC84', 'off'],
+  feira: ['feira', '#FFA62B'], navalha: ['navalha', '#FF4FB0'], varzea: ['varzea', '#5BE37D'], oficina: ['oficina', '#3DB8FF'],
+  posto: ['posto', '#FF3B4A', 'off'], fliper: ['fliper', '#A45CFF', 'off'], grau: ['grau', '#4FA3FF'], palpite: ['palpite', '#F2B233'], mestres: ['mestres', '#2EE6E6']};
+// cor de um personagem em hex (crewColor devolve var(--crew-x))
+function crewHex(c, g) { const v = crewColor(c, g), m = /var\((--[^)]+)\)/.exec(v), s = (m ? getComputedStyle(document.documentElement).getPropertyValue(m[1]) : v).trim(); return /^#[0-9a-f]{6}$/i.test(s) ? s : '#E5484D'; }
+// mistura a cor com preto (to 0) ou branco (to 255)
+const cmix = (hex, to, t) => { const n = parseInt(hex.slice(1), 16), ch = s => Math.round(((n >> s) & 255) * (1 - t) + to * t); return `rgb(${ch(16)},${ch(8)},${ch(0)})`; };
+const crnd = (a, b) => a + Math.random() * (b - a);
+const cparts = (n, mk) => Array.from({length: n}, (_, k) => mk(k)).join('');
+function callDeco(k, C) {
+  const R = crnd;
+  switch (k) {
+    case 'bar': return {body: '<span class="cf-eight">8</span>', fxb: cparts(10, j => `<i style="--x:${10 + j * 8}%;--z:${Math.round(R(18, 34))}px;--dx:${Math.round(R(-40, 40))}px;--dy:${Math.round(R(-220, -160))}px;--dl:${(j * .21).toFixed(2)}s"></i>`)};
+    case 'laje': return {body: `<div class="cf-tail">${cparts(5, j => `<b style="top:${10 + j * 15}px"></b>`)}</div>`, fxb: cparts(7, j => `<i style="--x:${j * 15 - 10}%;--c:${j % 2 ? '#fff' : C};--dx:${Math.round(R(-80, 80))}px;--dy:${Math.round(R(-360, -260))}px;--dl:${(j * .4).toFixed(2)}s"></i>`)};
+    case 'live': return {body: '<span class="cf-ao">AO VIVO</span><span class="cf-vw"><svg viewBox="0 0 24 24"><path d="M12 5C6.5 5 2.7 9.2 1.5 12c1.2 2.8 5 7 10.5 7s9.3-4.2 10.5-7C21.3 9.2 17.5 5 12 5zm0 11a4 4 0 110-8 4 4 0 010 8z"/></svg>2,4 mil</span>', fxf: cparts(12, j => `<i style="--x:${Math.round(R(-46, 10))}px;--c:${['#ff4f8b', C, '#fff', '#ff6a70'][j % 4]};--dx:${Math.round(R(-30, 24))}px;--dy:${Math.round(R(-300, -220))}px;--dl:${(j * .17).toFixed(2)}s"></i>`)};
+    case 'portaria': return {body: '<span class="cf-rec">REC</span><span class="cf-ts">CAM 02 · 23:47</span><span class="cf-led"></span><span class="cf-glitch"></span>'};
+    case 'feira': return {fxb: cparts(12, j => `<i style="--x:${12 + j * 6.5}%;--z:${Math.round(R(30, 56))}px;--dx:${Math.round(R(-50, 50))}px;--dy:${Math.round(R(-230, -170))}px;--dl:${(j * .22).toFixed(2)}s"></i>`)};
+    case 'navalha': return {body: cparts(16, j => { const a = j / 16 * Math.PI * 2; return `<span class="cf-bulb" style="left:${(50 + 47 * Math.cos(a)).toFixed(1)}%;top:${(50 + 47.5 * Math.sin(a)).toFixed(1)}%;--k:${j}"></span>`; }), before: '<span class="cf-pole l"></span><span class="cf-pole r"></span>'};
+    case 'varzea': return {before: '<span class="cf-net"></span>', fxf: cparts(12, j => `<i style="--x:${j * 8.5 - 4}%;--z:${Math.round(R(22, 40))}px;--dx:${Math.round((j - 5.5) * 14)}px;--dy:${Math.round(R(-60, -20))}px;--dl:${(Math.abs(j - 5.5) * .015).toFixed(3)}s"></i>`), fxb: cparts(6, j => `<i style="--x:${j * 18}%;--z:${Math.round(R(30, 50))}px;--dx:${Math.round(R(-40, 40))}px;--dy:${Math.round(R(-110, -70))}px;--dl:${(j * .4).toFixed(2)}s"></i>`)};
+    case 'oficina': { let d = ''; for (let j = 0; j < 56; j++) { const a = j / 56 * Math.PI * 2, rr = (j % 4 === 1 || j % 4 === 2) ? 134 : 112; d += (j ? 'L' : 'M') + (134 + rr * Math.cos(a)).toFixed(1) + ' ' + (134 + rr * Math.sin(a)).toFixed(1); }
+      return {body: `<svg class="cf-gear" viewBox="0 0 268 268"><path fill-rule="evenodd" d="${d}Z M134 30a104 104 0 1 0 .1 0Z"/></svg>`, fxf: cparts(16, j => { const left = j % 2 === 0; return `<i style="--x:${left ? R(4, 18) : R(80, 94)}%;--r:${Math.round(R(-60, 60))}deg;--dx:${Math.round((left ? -1 : 1) * R(60, 130))}px;--dy:${Math.round(R(-120, -30))}px;--dl:${(j * .09).toFixed(2)}s"></i>`; })}; }
+    case 'posto': return {body: '<span class="cf-h24">CONVENIÊNCIA 24H</span>', after: '<span class="cf-stripes"></span>'};
+    case 'fliper': return {body: '<span class="cf-p1">PLAYER 1</span>', fxb: cparts(14, j => `<i style="--x:${Math.round(R(-10, 100))}%;--z:${[6, 8, 10][j % 3]}px;--c:${['#3df2ff', C, '#fff', '#ff4fb0'][j % 4]};--dx:0px;--dy:${Math.round(R(-260, -180))}px;--dl:${(j * .14).toFixed(2)}s"></i>`)};
+    case 'grau': { let t = ''; for (let j = 0; j <= 20; j++) { const a = (-225 + j * 13.5) * Math.PI / 180, big = j % 5 === 0, r2 = big ? 108 : 116; t += `<line x1="${(131 + 124 * Math.cos(a)).toFixed(1)}" y1="${(131 + 124 * Math.sin(a)).toFixed(1)}" x2="${(131 + r2 * Math.cos(a)).toFixed(1)}" y2="${(131 + r2 * Math.sin(a)).toFixed(1)}" stroke="${j >= 16 ? '#ff3b4a' : '#fff'}" stroke-width="${big ? 4 : 2.5}" stroke-linecap="round"/>`; }
+      return {body: `<svg class="cf-gauge" viewBox="0 0 262 262"><circle cx="131" cy="131" r="116" fill="none" stroke="#111113" stroke-width="30"/><circle cx="131" cy="131" r="129" fill="none" stroke="${C}" stroke-width="4"/>${t}<g class="cf-needle"><path d="M131 8 L138 30 L124 30 Z" fill="#ff3b4a" transform="rotate(112 131 131)"/></g></svg>`, fxb: cparts(12, j => `<i style="--y:${Math.round(R(5, 95))}%;--z:${Math.round(R(50, 130))}px;--c:${j % 3 ? 'rgba(255,255,255,.7)' : C};--dl:${(j * .07).toFixed(2)}s"></i>`), fxf: cparts(5, j => `<i style="--z:${Math.round(R(26, 40))}px;--dl:${(j * .28).toFixed(2)}s"></i>`)}; }
+    case 'palpite': return {body: '<span class="cf-no">Nº 0427</span>', fxf: cparts(22, j => `<i style="--x:${Math.round(R(-40, 140))}%;--c:${[C, '#2cc160', '#fff', '#ff4f8b'][j % 4]};--dx:${Math.round(R(-50, 50))}px;--r:${Math.round(R(200, 720))}deg;--dl:${(j * .11).toFixed(2)}s"></i>`)};
+    case 'mestres': return {after: cparts(8, j => `<span class="cf-card" style="--dl:${(-j / 8 * 4.4).toFixed(2)}s"></span>`), fxb: cparts(8, j => `<i style="--x:${10 + j * 11}%;--z:${Math.round(R(24, 40))}px;--dx:${Math.round(R(-30, 30))}px;--dy:${Math.round(R(-200, -150))}px;--dl:${(j * .3).toFixed(2)}s"></i>`)};
+  }
+  // medalhão (skin sem família desenhada): brilhos na cor do personagem subindo
+  return {fxb: cparts(8, j => `<i style="--x:${8 + j * 12}%;--z:${Math.round(R(22, 38))}px;--dx:${Math.round(R(-30, 30))}px;--dy:${Math.round(R(-200, -150))}px;--dl:${(j * .3).toFixed(2)}s"></i>`)};
 }
+// fundo + shape de um jogador (lvl 1–4 escurece a cor a cada aumento)
+function callStage(pl, lvl) {
+  const f = CALL_FAM[pl.crew], k = f ? f[0] : 'medal', col = f ? f[1] : crewHex(pl.crew, pl.g), dk = [0, .08, .16, .24][Math.max(0, Math.min(3, lvl - 1))];
+  const pal = `--fc:${col};--r1:${cmix(col, 0, .28 + dk)};--r2:${cmix(col, 0, .58 + dk * .7)};--r3:${cmix(col, 0, .86 + dk * .3)};--sa:${cmix(col, 255, .3)};--sb:${cmix(col, 0, .65)}`;
+  const media = !pl.crew || pl.crew === 'nenhum' ? `<img class="empty" src="${A}ui/avatar_empty.webp" alt="">` : `<video src="${A}video/call/${pl.crew}_${pl.g}.mp4" autoplay muted loop playsinline preload="auto" poster="${A}video/call/${pl.crew}_${pl.g}.webp"></video>`;
+  const d = callDeco(k, col);
+  const plates = k === 'feira' ? '<div class="cf-rot"><div class="cf-plate"></div><div class="cf-plate2"></div></div>' : '<div class="cf-plate"></div><div class="cf-plate2"></div>';
+  return {pal, die: f ? f[2] : '', html: `<div class="cf-shape cf-${k}" id="cfShape">${d.before || ''}<div class="cf-fxb">${d.fxb || ''}</div><div class="cf-body in">${plates}<div class="cf-win">${media}</div>${d.body || ''}</div>${d.after || ''}<div class="cf-fxf">${d.fxf || ''}</div></div>`};
+}
+// a palavra cabe na largura da tela (ACEITARAM! diminui) e o shape encolhe em telas baixas
+function callFit(c) {
+  const k = Math.max(.6, Math.min(1, (c.offsetHeight - 330) / 480)); c.style.setProperty('--k', k.toFixed(3));
+  const w = c.querySelector('.cword .w'); if (!w) return;
+  w.style.setProperty('--fs', '72px'); w.style.removeProperty('--st');
+  const max = Math.min(330, c.offsetWidth - 40), sw = w.scrollWidth;
+  if (sw > max) { const fs = Math.floor(72 * max / sw); w.style.setProperty('--fs', fs + 'px'); w.style.setProperty('--st', Math.max(6, Math.round(fs / 8)) + 'px'); }
+}
+function callShell(st, lvl, cls, who, word, vale, valePos, tail) {
+  $('#overlay').innerHTML = `<div class="call fam lvl${lvl}${cls}" id="call" style="${st.pal}"><div class="cveil"><i class="sw a"></i><i class="sw b"></i></div>
+    <div class="ccol">${st.html}<span class="pill cwho">${esc(who)}</span><div class="cword">${word ? `<span class="w">${letters(word)}</span>` : ''}</div><span class="pill cvale${valePos ? ' pos' : ''}">${esc(vale)}</span></div>${tail || ''}</div>`;
+  const c = $('#call'); callFit(c); return c;
+}
+function callShake(c, word, d0) { setTimeout(() => { const w = c.querySelector('.cword .w'); if (w && document.body.contains(w)) w.classList.add('shake'); }, (d0 + word.length * .05 + .3) * 1000); }
 function showCall(p, idx, youRespond) {
   return new Promise(res => {
+    const P = G.players[p], st = callStage(P, idx), word = WORD_TXT[idx] + '!';
     const nextLabel = idx < 4 ? 'Pedir ' + WORD_TXT[idx + 1] + '!' : '';
-    $('#overlay').innerHTML = `<div class="call fala" id="call"><div class="veil2"></div>
-      ${youRespond ? `<div class="resp">${nextLabel ? `<button class="btn danger" id="cRaise" style="width:220px">${nextLabel}</button>` : ''}<div class="row"><button class="btn secondary" id="cRun">Correr</button><button class="btn primary" id="cOk">Aceitar</button></div></div>` : `<span class="pill wait">${p === 0 || G.players[p].team === 0 ? 'Esperando a resposta deles…' : ''}</span>`}</div>`;
-    sayAt($('#call'), p, 'chamada', WORD_TXT[idx] + '!', `vale ${LAD()[idx]}`);
+    const tail = youRespond ? `<div class="resp">${nextLabel ? `<button class="btn raise" id="cRaise">${nextLabel}</button>` : ''}<div class="row"><button class="btn secondary" id="cRun">Correr</button><button class="btn primary" id="cOk">Aceitar</button></div></div>` : `<span class="pill wait">${p === 0 || P.team === 0 ? 'Esperando a resposta deles…' : ''}</span>`;
+    const c = callShell(st, idx, '', p === 0 ? 'Você pediu' : `${P.name} pediu`, word, `vale ${LAD()[idx]}`, false, tail);
+    callShake(c, word, .6);
     if (youRespond) {
       $('#cRun').onclick = () => respond(0, 'run');
       $('#cOk').onclick = () => respond(0, 'accept');
       const r = $('#cRaise'); if (r) r.onclick = () => respond(0, 'raise');
     }
-    setTimeout(res, youRespond ? 700 : 1500);
+    setTimeout(res, youRespond ? 900 : 1800);
   });
 }
 function hideCall() { const c = $('#call'); if (c) { c.style.transition = 'opacity .25s'; c.style.opacity = '0'; setTimeout(() => { if ($('#call') === c) $('#overlay').innerHTML = ''; }, 260); } }
-// resposta: o balão do pedido sai e quem respondeu fala · aceito = verde · corri = cinza, murcha e os pontos voam para o placar
+// resposta: o shape passa a ser de quem respondeu · aceitaram = clarão e o personagem acena · correram = a cor apaga pra cinza, o shape afunda e as letras caem; os pontos voam para o placar
 function showAnswer(kind, team, pts, rp) {
   return new Promise(res => {
-    const acc = kind === 'acc', one = G.one;
-    let c = $('#call');
-    if (!c) { $('#overlay').innerHTML = `<div class="call fala" id="call"><div class="veil2"></div></div>`; c = $('#call'); }
-    c.querySelectorAll('.resp,.wait,.spb,.spring').forEach(n => n.remove());
-    const ran = team === 0 ? (one ? 'Você correu' : 'Vocês correram') : (one ? `${OPP.n} correu` : 'Eles correram');
-    const gain = team === 0 ? (one ? OPP.n : 'Eles') : (one ? 'Você' : 'Nós');
-    const b = sayAt(c, rp, acc ? 'pos' : 'neg', acc ? 'Aceito!' : 'Corri!', acc ? `mão vale ${pts}` : `${ran} · ${gain} +${pts}`);
-    if (!acc) flyPoints(c, b, team === 1, pts);
-    setTimeout(res, acc ? 1500 : 2300);
+    const acc = kind === 'acc', one = G.one, R = G.players[rp] || G.players[0];
+    const word = acc ? (one ? 'ACEITOU!' : 'ACEITARAM!') : (one ? 'CORREU' : 'CORRERAM');
+    const who = team === 0 ? (one ? (acc ? 'Você aceitou' : 'Você correu') : (acc ? 'Vocês aceitaram' : 'Vocês correram')) : (one ? `${OPP.n} ${acc ? 'aceitou' : 'correu'}` : (acc ? 'Eles aceitaram' : 'Eles correram'));
+    const tail = acc ? `a mão vale ${pts}` : (team === 0 ? (one ? `${OPP.n} leva +${pts}` : `Eles levam +${pts}`) : (one ? `Você leva +${pts}` : `Nós levamos +${pts}`));
+    const good = !acc && team === 1, st = callStage(R, 1);
+    const c = callShell(st, 1, ' ans', who, '', tail, good);
+    setTimeout(() => {
+      if ($('#call') !== c) return;
+      c.classList.add(acc ? 'acc' : 'run');
+      const wd = c.querySelector('.cword'); wd.innerHTML = `<span class="w">${letters(word)}</span>`; wd.style.setProperty('--d0', '0s'); callFit(c);
+      if (acc) callShake(c, word, 0);
+      else {
+        const sh = $('#cfShape'); sh.classList.add('dead'); if (st.die) sh.classList.add(st.die);
+        const vp = c.querySelector('.cvale'), r = vp.getBoundingClientRect(), a = c.getBoundingClientRect(), s = a.width / c.offsetWidth || 1;
+        flyPoints(c, {offsetLeft: (r.left - a.left) / s, offsetTop: (r.top - a.top) / s, offsetWidth: r.width / s, offsetHeight: r.height / s}, good, pts);
+      }
+    }, 420);
+    setTimeout(res, acc ? 1900 : 2500);
   });
 }
 // tirinha do placar (DS score-ticker): a linha de baixo do HUD vira um letreiro que corre · '' = rodada/mão nova (branca), pos = nosso ponto (verde), neg = ponto deles (cinza)
