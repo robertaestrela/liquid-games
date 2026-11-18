@@ -489,6 +489,9 @@
 .call.fam .cf-mestres.dead .cf-card{opacity:.25;translate:0 120px}
 .call.fam .cf-mestres .cf-fxb i{left:var(--x);top:40%;width:var(--z);height:var(--z);border-radius:50%;background:var(--fc);filter:blur(8px);--o:.45;--s0:.4;--s1:1.6;animation:cfRise calc(2.6s * var(--spd,1)) var(--dl) ease-out infinite backwards}
 @media (prefers-reduced-motion:reduce){.call.fam .cf-rot,.call.fam .cf-gear,.call.fam .cf-pole,.call.fam .cf-card{animation-duration:20s}}
+/* energia da carta (skin de família): SVG de 1 s por cima da carta que bateu na mesa · não pega toque */
+#board .energia{position:absolute;z-index:6;pointer-events:none}
+#board .energia svg{width:100%;height:100%;overflow:visible;display:block}
 
 /* Liquid: logo da marca no centro do pano de todas as mesas */
 .board .mesa::after{content:"";position:absolute;left:50%;top:47%;width:132px;height:132px;transform:translate(-50%,-50%);background:url(../assets/ui/logo-mark.svg) center/contain no-repeat;filter:brightness(0) invert(1);opacity:.1;pointer-events:none}

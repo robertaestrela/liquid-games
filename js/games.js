@@ -78,7 +78,7 @@ function startMatch(tableId) {
   };
   G.active = G.players.filter(Boolean).length;
   ST.mesaChoice = ST.mesaChoice || 'vermelha';
-  show('game'); buildBoard(); renderHUD(); tick(); newHand();
+  show('game'); buildBoard(); renderHUD(); tick(); newHand(); energiaPrep(G.players);
 }
 let clockT;
 function clk() { const M = G || PF || BU || PK; if (!M || !M.start) return '00:00'; const s = Math.floor((Date.now() - M.start) / 1000); return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); }
@@ -200,7 +200,8 @@ async function playCard(p, i, down) {
   G.table.push({p, c: card});
   G.turn = -1; // nobody plays while the card travels and the round resolves (blocks double taps)
   markTurn(-1); renderHandState();
-  await animatePlay(p, card, i);
+  const played = await animatePlay(p, card, i);
+  cardEnergy(G.players[p], played);
   renderHand(); renderSeats();
   if (G.table.length === G.active) { resolveRound(); return; }
   G.turn = nextP(p);
@@ -368,6 +369,33 @@ async function animatePlay(p, card, i) {
   await wait(20);
   el.style.left = sl.x + 'px'; el.style.top = sl.y + 'px'; el.style.transform = `rotate(${sl.r + rnd(-4, 4)}deg)`;
   await wait(380);
+  return el;
+}
+/* ---------- ENERGIA DA CARTA (página Skins · 6 · Energia da carta) ---------- */
+// quem joga com skin de família: quando a carta bate na mesa, 1 s de energia na cor da família (clarão no formato da carta, onda e partículas do tema)
+// cada família é um SVG animado leve em js/energia/<família>.js, carregado só quando ela está na mesa (funciona também abrindo o zip direto do computador)
+const ENERGIA_FAM = ['bar', 'laje', 'live', 'portaria', 'feira', 'navalha', 'varzea', 'oficina', 'posto', 'fliper', 'grau', 'palpite', 'mestres'];
+const ENERGIA_V = (((document.querySelector('script[src*="js/games.js"]') || {}).src || '').split('?')[1] || '');
+const energiaReq = {};
+function energiaLoad(crew) {
+  if (!ENERGIA_FAM.includes(crew)) return Promise.resolve(false);
+  return energiaReq[crew] = energiaReq[crew] || new Promise(res => { const s = document.createElement('script'); s.src = `js/energia/${crew}.js${ENERGIA_V ? '?' + ENERGIA_V : ''}`; s.onload = () => res(true); s.onerror = () => { delete energiaReq[crew]; res(false); }; document.head.appendChild(s); });
+}
+// já deixa carregada a energia das famílias que estão na mesa
+function energiaPrep(players) { for (const p of players || []) if (p) energiaLoad(p.crew); }
+async function cardEnergy(pl, el) {
+  if (!pl || !el || !ENERGIA_FAM.includes(pl.crew) || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (!(await energiaLoad(pl.crew))) return;
+  const svg = (window.ENERGIA || {})[pl.crew], b = $('#board');
+  if (!svg || !b || !document.body.contains(el)) return;
+  // centro e tamanho da carta nas coordenadas da mesa (no desktop o celular inteiro é escalado); no SVG a carta tem 68 px de largura
+  const card = el.querySelector('.card') || el, br = b.getBoundingClientRect(), k = br.width / b.offsetWidth || 1, r = card.getBoundingClientRect();
+  const w = card.offsetWidth || r.width / k, s = Math.max(.5, w / 68);
+  const cx = (r.left + r.width / 2 - br.left) / k, cy = (r.top + r.height / 2 - br.top) / k;
+  const e = document.createElement('div'); e.className = 'energia';
+  e.style.cssText = `left:${(cx - 120 * s).toFixed(1)}px;top:${(cy - 120 * s).toFixed(1)}px;width:${(240 * s).toFixed(1)}px;height:${(240 * s).toFixed(1)}px`;
+  e.innerHTML = svg; b.appendChild(e);
+  setTimeout(() => e.remove(), 1100);
 }
 function bubble(p, txt, kind) { const b = $('#bub' + p); if (!b) return; b.textContent = txt; b.className = 'bubble show' + (kind ? ' ' + kind : ''); setTimeout(() => b.classList.remove('show'), 1600); }
 let gtT;
@@ -646,7 +674,7 @@ function startPif(tableId) {
     score: [0, 0], results: [], hands: [[], []], monte: [], lixo: [], turn: 0, phase: 'wait', starter: 1, start: Date.now(),
     sel: null, newId: null, newTag: '', fromLixoId: null, sorted: false, groups: null, tags: null, melds: null, winner: null, note: '',
     rules: ST.variant === 'Cacheta' ? 'cacheta' : 'pif', lives: [5, 5], vira: null, wild: null, deadWild: new Set(), loss: 0};
-  show('game'); buildPifBoard(); renderPifHUD(); tick(); pifNewHand();
+  show('game'); buildPifBoard(); renderPifHUD(); tick(); pifNewHand(); energiaPrep(PF.players);
 }
 async function pifNewHand() {
   if (!PF) return;
@@ -716,7 +744,7 @@ async function pifDiscard(p, i) {
   Object.assign(PF, {sel: null, newId: null, phase: 'wait'});
   if (p === 0) { clearInterval(pfT); if (PF.sorted) pifSort(); markTurn(-1); }
   else { PF.note = `${OPP.n} descartou o ${cardTxt(c)}`; renderPifFan(); markTurn(-1); }
-  renderPif(true);
+  renderPif(true); cardEnergy(PF.players[p], $('#pfLixo'));
   await wait(p === 0 ? 450 : 900);
   if (!PF || PF.phase === 'over') return;
   PF.turn = 1 - p; pifTurn();
@@ -1037,7 +1065,7 @@ function startBuraco(tableId) {
     sorted: false, order: null, groups: null, tags: null, note: '', newJogoId: null, end: null};
   BU.hands[0].sort(bySuitRank); BU.lixo = [d.pop()]; BU.monte = d;
   if (BU.rules === 'tranca') { while (isRed3(BU.lixo[0])) { BU.monte.unshift(BU.lixo.pop()); BU.lixo.push(BU.monte.pop()); } for (let p = 0; p < 4; p++) buRed3(p, true); BU.newIds = new Set(); BU.hands[0].sort(bySuitRank); }
-  show('game'); buildBuBoard(); renderBuHUD(); tick(); renderBuSeats(); renderBu();
+  show('game'); buildBuBoard(); renderBuHUD(); tick(); renderBuSeats(); renderBu(); energiaPrep(BU.players);
   BU.note = 'Nova mão · você começa'; renderBu();
   setTimeout(() => { if (BU) buTurn(); }, 900);
 }
@@ -1145,7 +1173,7 @@ async function buDiscard(p, id) {
     else { buEndMao(t, `${t === 0 ? 'Batemos' : 'Eles bateram'}! Fim da mão`); return true; }
   } else if (p !== 0) BU.note = `${BU_NAMES[p]} descartou o ${cardTxt(c)}`;
   if (p === 0 && BU.sorted) buSort();
-  BU.phase = 'wait'; markTurn(-1); renderBuSeats(); renderBu(true);
+  BU.phase = 'wait'; markTurn(-1); renderBuSeats(); renderBu(true); cardEnergy(BU.players[p], $('#buLixo'));
   await wait(p === 0 ? 450 : 700 * BU_SPEED);
   if (!BU || BU.phase === 'over') return true;
   BU.turn = (p + 1) % 4; buTurn();
