@@ -222,7 +222,8 @@ SCREENS.jogos = {cls: 'home', render: () => {
   const g = game();
   return `${header()}<div class="stage"><video src="${stageVid()}" autoplay muted loop playsinline preload="auto" poster="${stagePoster()}"></video><i class="shade"></i>
     <div class="ct"><div class="gl">${GAMES.map(x => gameBlock(x, x.id === g.id, `data-hgame="${x.id}"`)).join('')}</div>
-      <div class="acts"><button class="atile" data-a="treino">${ic('joystick')}Treino</button>${btn(`Jogar ${g.name}`, 'pri', 'l', 'data-a="homePlay"')}<button class="atile" data-a="criarSala">${ic('key')}Criar sala</button></div></div></div>
+      <div class="acts"><button class="atile" data-a="treino">${ic('joystick')}Treino</button>${btn(`Jogar ${g.name}`, 'pri', 'l', 'data-a="homePlay"')}<button class="atile" data-a="criarSala">${ic('key')}Criar sala</button></div></div>
+    <button class="lojab" data-a="lojaHome" aria-label="Loja · novidades"><span class="ring"></span>${ic('loja')}<span>Loja</span>${tag('Novo', 'danger')}</button></div>
     ${ST.reward && ST.reward.later ? `<span class="hint-pill rw-hint">Recompensa guardada · toque no seu perfil</span>` : ''}
     ${navbar('jogos')}`;
 }, after: () => {
@@ -239,6 +240,7 @@ function paintHomeGames() {
 const HOME_VT = {src: '', t: 0};
 Object.assign(ACT, {
   homePlay: () => go('lobby', {}, {noHist: true}),
+  lojaHome: () => { LOJA.cat = 'skins'; go('loja'); },
   treino: () => {
     if (!playableSel()) { ST.game = 'truco'; ST.variant = 'Mineiro'; }
     startQueue('Treino');

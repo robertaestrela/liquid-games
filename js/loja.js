@@ -60,7 +60,7 @@ SCREENS.loja = {cls: 'loja', render: () => {
         <div class="pgrid">${LOJA_GRID.filter(k => k !== LOJA_HERO).map(packCardS).join('')}${[0, 1, 2].map(k => soonCard('Novos personagens', k)).join('')}</div>
         <p class="note">Ao desbloquear, todos os personagens do pacote ficam seus. Você escolhe com qual jogar e pode trocar quando quiser.</p></div>`;
   }
-  return `<div class="pg-top">${header()}${ptop('Loja', null, 'home')}</div><div class="scroll"><div class="content">${cats}${body}</div></div>${navbar('loja')}`;
+  return `<div class="pg-top">${header()}${ptop('Loja', null, 'home')}</div><div class="scroll"><div class="content">${cats}${body}</div></div>`;
 }, click: e => {
   const c = e.target.closest('[data-cat]'); if (c) { if (c.dataset.cat === 'skins' || c.dataset.cat === 'baralhos') { LOJA.cat = c.dataset.cat; rerender(); } else toast(`${c.textContent.trim()} · em breve na Loja`); return; }
   const d = e.target.closest('[data-deck]'); if (d) { ST.deck = d.dataset.deck; rerender(); toast(`Baralho ${DECKS.find(x => x[0] === ST.deck)[1]} ativado`); return; }
@@ -87,7 +87,7 @@ SCREENS.pacote = {cls: 'pack', render: ({id}) => {
       <div role="button" tabindex="0" class="uopt" data-a="buyPack:${id}">${ic('diamond')}<span class="tx"><b>Comprar agora</b><small>Libera na hora, com seus diamantes</small></span><span class="pr">${diaPrice(PRICE)}</span></div>
       <div role="button" tabindex="0" class="uopt" data-a="earnPack:${id}">${ic('trophy')}<span class="tx"><b>Ganhar jogando</b><small>Vença 20 partidas em qualquer jogo</small></span><span class="pg"><b>${won}/20</b><span class="tr"><i style="width:${won / 20 * 100}%"></i></span></span></div>
       <p class="unote">Sem diamantes suficientes, o Comprar abre a página Diamantes.</p>
-    </div></div></div>${navbar('loja')}`;
+    </div></div></div>`;
 }};
 // pacote de skins sai do saldo (R$) · sem saldo, abre o Comprar fichas do header
 function buyPack(id) {
@@ -194,7 +194,7 @@ SCREENS.diamantes = {cls: 'diamantes', render: () => `<div class="pg-top">${head
     <div class="packs">${stitle('Pacotes de diamantes', 'Pagamento pela App Store ou Google Play')}
       <div class="dgrid">${DIA_PACKS.map((k, i) => `<div role="button" tabindex="0" class="dpack" data-dp="${i}">${tag(`+${k.b} bônus`, 'gold')}<img class="art" src="${diaArt(k.art)}" alt=""><b>${diaN(k.n)}</b><small>diamantes</small>${btn(fmt2(k.p), 'pri', 'm')}</div>`).join('')}</div>
       <p class="note">Diamantes servem para skins, baralhos, molduras, efeitos e troca de nome e de foto. Não valem dinheiro, não entram em partidas e não podem ser sacados.</p>
-    </div></div></div>${navbar('loja')}`,
+    </div></div></div>`,
   click: e => { const d = e.target.closest('[data-dp]'); if (d) diaConfirm(+d.dataset.dp); }};
 // D03 · confirmação da loja do celular: no app de verdade quem desenha é a App Store / Google Play (aqui é só a referência)
 function diaConfirm(i) {

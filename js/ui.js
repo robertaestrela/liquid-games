@@ -32,7 +32,8 @@ function header() {
 
 const NAV_ITEMS = [['jogos', 'gamepad', 'Jogos'], ['lobby', 'swords', 'Lobby'], ['chat', 'chat', 'Chat'], ['loja', 'shop', 'Loja'], ['torneios', 'trophy', 'Torneios']];
 function navbar(active) {
-  const items = NAV_ITEMS.filter(([k]) => k !== 'jogos' || hasSkin());
+  // a Loja saiu da navbar do celular (Figma 19/nov): ela abre pelo botão animado no palco da Home · o menu do desktop continua com a Loja
+  const items = NAV_ITEMS.filter(([k]) => (k !== 'jogos' || hasSkin()) && k !== 'loja');
   return `<nav class="nav" aria-label="Navegação">${items.map(([k, i, l]) => k === active
     ? `<button class="on" data-nav="${k}" aria-current="page">${ic(i)}<span class="lr"><i data-a="navstep:-1">${svg('i-chev-l')}</i><span>${l}</span><i data-a="navstep:1">${svg('i-chev-r')}</i></span></button>`
     : `<button data-nav="${k}">${ic(i)}<span>${l}</span></button>`).join('')}</nav>`;
