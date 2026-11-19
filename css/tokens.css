@@ -36,6 +36,8 @@
   /* crew */
   --crew-engenheiro:#4fb3ff; --crew-comandante:#f5c542; --crew-piloto:#ff5a36; --crew-navegador:#e86bff; --crew-explorador:#4dffb8;
   --crew-bar:#ff9f43; --crew-reis:#34d399; --crew-nobru:#3d8bff; --crew-inhui:#ff4fb0;
+  /* famílias da página Skins (mesma cor da chamada do Truco) */
+  --crew-laje:#ff7f50; --crew-portaria:#3ddc84; --crew-live:#b45cff; --crew-feira:#ffa62b; --crew-navalha:#ff4fb0; --crew-varzea:#5be37d; --crew-oficina:#3db8ff; --crew-posto:#ff3b4a; --crew-fliper:#a45cff; --crew-grau:#4fa3ff; --crew-palpite:#f2b233;
   /* stake / table */
   --stake-padrao-top:#0e5467; --stake-padrao-bottom:#0a2b36; --stake-iniciante-top:#1f9a4a; --stake-iniciante-bottom:#1f502c;
   --table-card-top:#1f5a4a; --table-card-bottom:#0f2e2a; --table-stake:#ffc841;

@@ -2,25 +2,47 @@
    diamantes (moeda da Loja, só cosmético: é o único pagamento dentro do app · Figma Loja › 6 · Diamantes D01–D07) */
 'use strict';
 const LOJA = {cat: 'skins'};
-const PRICE = 70; // pacote de skins, em diamantes
+const PRICE = 70; // pacote de skins em diamantes (proposta guardada · Figma Loja › 6; a Loja de hoje é em R$, como na produção)
 const diaN = n => n.toLocaleString('pt-BR');
 const diaPrice = (n, cls = '') => `${ic('diamond', 'dia ' + cls)}${diaN(n)}`;
 // saldo de diamantes no topo da Loja (_Diamantes/saldo): o + abre a página Diamantes
 const diaPill = () => `<button class="cpill dpill" data-a="diamantes" aria-label="Diamantes · comprar">${ic('diamond')}<span class="t"><small>Diamantes</small><b>${diaN(ST.diamonds)}</b></span><span class="plus">${svg('i-plus')}</span></button>`;
 const packActive = id => hasSkin() && packOf(ST.crew) === id;
+
+/* ---------- Loja como na produção (Figma Loja › 7 · LJ01–LJ03): pacotes a R$ 9,90, só as famílias da página Skins ---------- */
+const PACK_PRICE = 9.9;
+const FREE_PACK = 'nobru'; // pacote grátis (já é seu e vem ativo)
+const LOJA_HERO = 'portaria'; // card do topo
+const LOJA_GRID = ['nobru', 'magia', 'live', 'feira', 'navalha', 'varzea', 'oficina', 'posto', 'fliper', 'grau', 'palpite', 'laje'];
+const inLoja = id => id === LOJA_HERO || LOJA_GRID.includes(id);
+const packPrice = id => id === FREE_PACK ? 0 : PACK_PRICE;
+/* promoção (Figma Loja › 8 · tags do DS ☰ Type=Super promoção / Promoção): o destaque vira o card especial (−x%, contador, preço riscado)
+   e o grid mostra a tag + o selo com o preço riscado · sup = Super promoção (−x% no degradê da estrela) · sem sup = tag "Promoção" */
+const PROMO = {portaria: {pct: 15, sup: true}, magia: {pct: 15, sup: true}};
+const PROMO_END = Date.now() + 24 * 36e5 - 48e3; // protótipo: a promoção termina 24 h depois de abrir o app
+const promoOf = id => (PROMO[id] && !ST.owned[id] && packPrice(id)) ? PROMO[id] : null;
+const priceNow = id => { const pr = promoOf(id), v = packPrice(id); return pr ? Math.round(Math.round(v * 100) * (100 - pr.pct) / 100) / 100 : v; };
+const promoTag = id => PROMO[id].sup ? `<span class="tag promo sup">${ic('fire')}−${PROMO[id].pct}%</span>` : '<span class="tag promo">Promoção</span>';
+const cdText = () => { const t = Math.max(0, Math.floor((PROMO_END - Date.now()) / 1000)), p = n => String(n).padStart(2, '0'); return `Termina em ${p(Math.floor(t / 3600))}:${p(Math.floor(t % 3600 / 60))}:${p(t % 60)}`; };
+const timerPill = (cls = '') => `<span class="tpill ${cls}">${ic('timer')}<b data-cd>${cdText()}</b></span>`;
+const oldPrice = v => `<s class="old">${fmt2(v)}</s>`;
+setInterval(() => $$('[data-cd]').forEach(el => { el.textContent = cdText(); }), 1000);
+
 function packCardL(id, mode = 'loja') {
-  const p = PACKS[id], act = packActive(id), own = ST.owned[id];
-  const tg = act ? tag('Ativo', 'success') : own ? tag('Seu', 'success') : mode === 'page' ? tag('Pacote de skins', 'danger') : tag('Em destaque', 'danger');
-  const label = act ? 'Trocar personagem' : own ? 'Escolher personagem' : `${ic('diamond', 'dia')}Comprar · ${diaN(PRICE)}`;
-  return `<div class="spk L" role="button" tabindex="0" data-pack="${id}" style="background-image:url(${A}art/${p.artL}.webp);background-position:${p.posL}">
+  const p = PACKS[id], act = packActive(id), own = ST.owned[id], pr = promoOf(id);
+  const tg = act ? tag('Ativo', 'success') : own ? tag('Seu', 'success') : pr ? promoTag(id) + timerPill() : mode === 'page' ? tag('Pacote de skins', 'danger') : tag('Em destaque', 'danger');
+  const cta = btn(act ? 'Trocar personagem' : own ? 'Escolher personagem' : `Comprar · ${fmt2(priceNow(id))}`, 'pri', 's', `data-a="packAct:${id}"`);
+  return `<div class="spk L${pr ? ' promo' : ''}" role="button" tabindex="0" data-pack="${id}" style="background-image:url(${A}art/${p.artL}.webp);background-position:${p.posL}">
     <span class="top">${tg}</span>
-    <span class="info"><span class="tx"><b>${p.name}</b><small>${p.caption}</small></span>${btn(label, 'pri', 's', `data-a="packAct:${id}"`)}</span></div>`;
+    <span class="info"><span class="tx"><b>${p.name}</b><small>${p.caption}</small></span>${pr ? `<span class="pcol">${oldPrice(packPrice(id))}${cta}</span>` : cta}</span></div>`;
 }
 function packCardS(id) {
-  const p = PACKS[id], act = packActive(id), own = ST.owned[id];
+  const p = PACKS[id], act = packActive(id), own = ST.owned[id], pr = promoOf(id), v = packPrice(id);
   // Magia do bar e Reis do baralho mostram o Rei e a Rainha lado a lado (como no Figma)
   const bg = p.duo ? `background-image:url(${A}art/${p.artS}.webp),url(${A}art/${p.artL}.webp);background-size:50% auto,50% auto;background-position:left 12%,right 12%;background-repeat:no-repeat` : `background-image:url(${A}art/${p.artS}.webp);background-position:${p.posS}`;
-  return `<div role="button" tabindex="0" class="spk S" data-pack="${id}"><span class="art" style="${bg}">${act ? tag('Ativo', 'success') : own ? tag('Seu', 'success') : tag('Novo', 'danger')}${own ? '' : `<span class="price">${diaPrice(PRICE)}</span>`}</span>
+  const tg = act ? tag('Ativo', 'success') : own ? tag('Seu', 'success') : pr ? promoTag(id) : tag('Novo', 'danger');
+  const price = own ? (v ? '' : '<span class="price">Grátis</span>') : pr ? `<span class="price promo">${oldPrice(v)}<b>${fmt2(priceNow(id))}</b></span>` : `<span class="price">${v ? fmt2(v) : 'Grátis'}</span>`;
+  return `<div role="button" tabindex="0" class="spk S" data-pack="${id}"><span class="art" style="${bg}">${tg}${price}</span>
     <span class="tx"><b>${p.name}</b><small>${p.skins} skin${p.skins > 1 ? 's' : ''}</small></span></div>`;
 }
 const soonCard = (n, k) => `<div class="spk S blocked t${k}" aria-label="${n} · em breve"><span class="art">${tag('Em breve')}${ic('lock', 'lock')}</span><span class="tx"><b>Em breve</b><small>Novos personagens</small></span></div>`;
@@ -32,20 +54,21 @@ SCREENS.loja = {cls: 'loja', render: () => {
     body = `<div class="packs">${stitle('Baralhos', 'Ative o verso que quiser · vale em todos os jogos')}
       <div class="decks">${DECKS.map(([k, l]) => `<div role="button" tabindex="0" class="deckc ${ST.deck === k ? 'on' : ''}" data-deck="${k}"><span class="dk">${deckBack(k, 'L')}</span><b>${l}</b>${ST.deck === k ? tag('Ativo', 'success') : tag('Seu', 'neutral')}</div>`).join('')}</div></div>`;
   } else {
-    // ordem: Nobru & Inhui em destaque · Magia do bar · Reis do baralho · Estelar
-    body = `${packCardL('nobru')}
-      <div class="packs">${stitle('Pacotes de skins', 'Ganhe jogando ou compre com diamantes')}
-        <div class="pgrid">${['magia', 'reis'].map(packCardS).join('')}${['Velho Oeste', 'Neon', 'Piratas', 'Mais personagens'].map((n, k) => soonCard(n, k % 3)).join('')}</div>
+    // destaque (card especial quando está em promoção) · famílias da página Skins · Em breve
+    body = `${packCardL(LOJA_HERO)}
+      <div class="packs">${stitle('Pacotes de skins', 'Ganhe jogando ou compre')}
+        <div class="pgrid">${LOJA_GRID.filter(k => k !== LOJA_HERO).map(packCardS).join('')}${[0, 1, 2].map(k => soonCard('Novos personagens', k)).join('')}</div>
         <p class="note">Ao desbloquear, todos os personagens do pacote ficam seus. Você escolhe com qual jogar e pode trocar quando quiser.</p></div>`;
   }
-  return `<div class="pg-top">${header()}${ptop('Loja', null, 'home', diaPill())}</div><div class="scroll"><div class="content">${cats}${body}</div></div>${navbar('loja')}`;
+  return `<div class="pg-top">${header()}${ptop('Loja', null, 'home')}</div><div class="scroll"><div class="content">${cats}${body}</div></div>${navbar('loja')}`;
 }, click: e => {
   const c = e.target.closest('[data-cat]'); if (c) { if (c.dataset.cat === 'skins' || c.dataset.cat === 'baralhos') { LOJA.cat = c.dataset.cat; rerender(); } else toast(`${c.textContent.trim()} · em breve na Loja`); return; }
   const d = e.target.closest('[data-deck]'); if (d) { ST.deck = d.dataset.deck; rerender(); toast(`Baralho ${DECKS.find(x => x[0] === ST.deck)[1]} ativado`); return; }
   const p = e.target.closest('[data-pack]'); if (p) openPack(p.dataset.pack);
 }};
-function openPack(id) { ST.pack = id; if (ST.owned[id]) openPicker(id); else go('pacote', {id}); }
-ACT.packAct = id => { ST.pack = id; if (ST.owned[id]) openPicker(id); else if (CUR === 'pacote') buyPack(id); else go('pacote', {id}); };
+// pacote → personagem (LJ03): o mesmo palco do picker, com Agora não | Comprar · R$ 9,90 (ou o preço da promoção)
+function openPack(id) { ST.pack = id; openPicker(id); }
+ACT.packAct = id => { ST.pack = id; if (CUR === 'picker' && !ST.owned[id]) buyPack(id); else openPicker(id); };
 
 /* ---------- página do pacote (M02 · M09 · M15 · M21) ---------- */
 function includedHTML(id) {
@@ -66,11 +89,12 @@ SCREENS.pacote = {cls: 'pack', render: ({id}) => {
       <p class="unote">Sem diamantes suficientes, o Comprar abre a página Diamantes.</p>
     </div></div></div>${navbar('loja')}`;
 }};
-// pacote de skins sai dos diamantes; sem saldo de diamantes, vai para a página Diamantes
+// pacote de skins sai do saldo (R$) · sem saldo, abre o Comprar fichas do header
 function buyPack(id) {
-  if (ST.diamonds < PRICE) { toast(`Faltam ${diaN(PRICE - ST.diamonds)} diamantes · escolha um pacote`); go('diamantes'); return; }
-  ST.diamonds -= PRICE; ST.owned[id] = true; ST.pack = id;
-  rerender(); unlockedSheet(id, true);
+  const v = priceNow(id);
+  if (ST.saldo < v) { toast(`Saldo insuficiente para ${PACKS[id].name} · compre fichas`); ACT.buyChips(); return; }
+  ST.saldo = +(ST.saldo - v).toFixed(2); ST.owned[id] = true; ST.pack = id;
+  rerender(); unlockedSheet(id, v);
 }
 Object.assign(ACT, {
   buyPack: id => buyPack(id),
@@ -91,17 +115,17 @@ function heroAvatars(id) {
 }
 function unlockedSheet(id, paid) {
   const p = PACKS[id];
-  openSheet(`<div class="hero">${heroAvatars(id)}</div>${paid ? tag(`−${diaN(PRICE)} diamantes · ficaram ${diaN(ST.diamonds)}`) : ''}<h2>Pacote desbloqueado!</h2>
+  openSheet(`<div class="hero">${heroAvatars(id)}</div>${paid ? tag(`−${fmt2(paid)} · saldo ${fmt2(ST.saldo)}`) : ''}<h2>Pacote desbloqueado!</h2>
     <p>${id === 'estelar' ? 'Os 10 personagens do Estelar agora são seus. Escolha com qual você quer jogar.' : `${p.incl} agora são seus. Escolha com qual você quer jogar.`}</p>
     <div class="row">${btn('Agora não', 'sec', 'm m44', 'data-a="unlockLater"')}${btn('Escolher personagem', 'pri', 'm m44', `data-a="unlockChoose:${id}"`)}</div>`, {cls: 'unlock'});
 }
 Object.assign(ACT, {
   unlockLater: () => { closeSheet(); go('loja', {}, {noHist: true}); },
-  unlockChoose: id => { closeSheet(); openPicker(id); }
+  unlockChoose: id => { closeSheet(); if (CUR === 'picker' && PICK.pack === id) rerender(); else openPicker(id); }
 });
 
 /* ---------- escolher personagem (character-picker · Ele | Ela, Ela rosa; vídeo top-center) ---------- */
-const PICK = {pack: 'nobru', c: 'gamer', g: 'ele', back: 'loja'};
+const PICK = {pack: 'laje', c: 'laje', g: 'ela', back: 'loja'};
 function openPicker(id, back) {
   PICK.pack = id; PICK.back = back || CUR;
   if (packActive(id)) { PICK.c = ST.crew; PICK.g = ST.g; }
@@ -119,14 +143,16 @@ function warmPack(id) {
 SCREENS.picker = {cls: 'picker-scr', render: () => {
   const p = PACKS[PICK.pack], estelar = PICK.pack === 'estelar', cc = crewColor(PICK.c, PICK.g);
   const crew = estelar ? p.roles.map(r => [r, PICK.g]) : p.solo ? p.roles.map(r => [r, 'ele']) : [[p.roles[0], 'ele'], [p.roles[0], 'ela']];
-  return `<div class="pg-top">${header()}${ptop(p.page, null, 'pickBack')}</div>
+  const own = ST.owned[PICK.pack], pr = promoOf(PICK.pack);
+  return `<div class="pg-top">${header()}${ptop(own ? p.page : p.name, null, 'pickBack')}</div>
     <div class="scr picker" style="position:relative;inset:auto;flex:1;min-height:0">
       ${p.solo ? '' : tabs([['ele', 'Ele'], ['ela', 'Ela']], PICK.g, PICK.g === 'ela' ? 'rosa' : '', 'pg')}
       <div class="stg" style="--cc:${cc}"><video src="${stageVid(PICK.c, PICK.g)}" autoplay muted loop playsinline preload="auto" poster="${stagePoster(PICK.c, PICK.g)}"></video>
         <button class="arrow p" data-a="pickStep:-1" aria-label="Anterior">${svg('i-chev-l-light')}</button><button class="arrow n" data-a="pickStep:1" aria-label="Próximo">${svg('i-chev-r-light')}</button>
         <div class="ident"><b>${crewName(PICK.c, PICK.g)}</b><small><i></i>${ROLE_SUB[PICK.c]}</small></div></div>
       <div class="crew">${crew.map(([c, g]) => `<button class="${c === PICK.c && g === PICK.g ? 'on' : ''}" style="--cc:${crewColor(c, g)}" data-pc="${c}|${g}" aria-label="${crewName(c, g)}"><img src="${photo(c, g)}" alt=""></button>`).join('')}</div>
-      <div class="acts">${btn('Agora não', 'sec', 'l', 'data-a="pickBack"')}${btn('Embarcar', 'pri', 'l', 'data-a="embark"')}</div>
+      ${pr ? `<div class="pbar"><span class="of">${promoTag(PICK.pack)}${timerPill('flat')}</span>${oldPrice(packPrice(PICK.pack))}</div>` : ''}
+      <div class="acts">${btn('Agora não', 'sec', 'l', 'data-a="pickBack"')}${own ? btn('Embarcar', 'pri', 'l', 'data-a="embark"') : btn(`Comprar · ${fmt2(priceNow(PICK.pack))}`, 'pri', 'l', `data-a="buyPack:${PICK.pack}"`)}</div>
     </div>`;
 }, click: e => {
   const t = e.target.closest('[data-pg],[data-pc]'); if (!t) return;

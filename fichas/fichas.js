@@ -32,7 +32,7 @@ const F = Object.assign({
   ]
 }, SS.get('eg.fichas') || {});
 const save = () => SS.set('eg.fichas', F);
-const CREW = {engenheiro: 'var(--crew-engenheiro)', comandante: 'var(--crew-comandante)', piloto: 'var(--crew-piloto)', navegador: 'var(--crew-navegador)', explorador: 'var(--crew-explorador)', bar: 'var(--crew-bar)', reis: 'var(--crew-reis)'};
+const CREW = {engenheiro: 'var(--crew-engenheiro)', comandante: 'var(--crew-comandante)', piloto: 'var(--crew-piloto)', navegador: 'var(--crew-navegador)', explorador: 'var(--crew-explorador)', bar: 'var(--crew-bar)', reis: 'var(--crew-reis)', laje: 'var(--crew-laje)', portaria: 'var(--crew-portaria)', live: 'var(--crew-live)', feira: 'var(--crew-feira)', navalha: 'var(--crew-navalha)', varzea: 'var(--crew-varzea)', oficina: 'var(--crew-oficina)', posto: 'var(--crew-posto)', fliper: 'var(--crew-fliper)', grau: 'var(--crew-grau)', palpite: 'var(--crew-palpite)'};
 const crewColor = () => F.crew === 'gamer' ? (F.g === 'ela' ? 'var(--crew-inhui)' : 'var(--crew-nobru)') : CREW[F.crew] || 'var(--border-strong)';
 const photo = () => !F.crew || F.crew === 'nenhum' ? A + 'ui/avatar_empty.webp' : `${A}photo/${F.crew}_${F.g}.webp`;
 const hav = (w, h) => `<span class="hav" style="--w:${w}px;--h:${h}px;--cc:${crewColor()}"><i class="gl"></i><span class="hx"><img src="${photo()}" alt=""></span><i class="on"></i></span>`;

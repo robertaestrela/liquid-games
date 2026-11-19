@@ -362,7 +362,7 @@ function logHistory(r) {
 function bumpReward() {
   ST.rewardsWon = Math.min(20, ST.rewardsWon + 1);
   if (ST.rewardsWon >= 20 && !ST.reward) {
-    const pk = ['magia', 'reis', 'nobru'].find(p => !ST.owned[p]);
+    const pk = [LOJA_HERO, ...LOJA_GRID].find(p => !ST.owned[p]);
     if (!pk) return;
     ST.reward = {pack: pk, c: PACKS[pk].def[0], g: pk === 'magia' ? 'ela' : PACKS[pk].def[1]};
     setTimeout(() => showRewardSheet(), 900);

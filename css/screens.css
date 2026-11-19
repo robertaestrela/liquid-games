@@ -573,3 +573,28 @@
 .cv-bot .acts>div{flex:1;min-width:0;padding:12px 8px;display:flex}
 .cv-bot .acts .btn{flex:1}
 .cv-bot .legal{margin:0;padding:6px 0 14px;text-align:center;font:500 10px/1 var(--f-ui);color:var(--text-subtle)}
+
+/* ---------- Loja em R$ + promoção (Figma Loja › 7 LJ01–LJ03 e › 8 Promoção · DS tag ☰ Type=Super promoção / Promoção, skin-pack-card ◇ Status=Promoção) ---------- */
+.spk.S .art .price{display:flex;align-items:center;gap:4px;padding:4px 8px;font:600 12px/1 var(--f-display)}
+.tag.promo{gap:4px;background:#ff7300;color:#111113}
+.tag.promo.sup{background:linear-gradient(90deg,#ffd800,#ffb000 50%,#ff7300);box-shadow:0 0 8px #ff730066}
+.tag.promo .ic{width:14px;height:14px}
+.tpill{display:inline-flex;align-items:center;gap:4px;padding:4px 8px;border-radius:999px;background:var(--bga-strong-75);box-shadow:inset 0 0 0 1px var(--border-muted);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);font:600 12px/1 var(--f-display);color:var(--text-default);white-space:nowrap}
+.tpill .ic{width:14px;height:14px}
+.tpill b{font:inherit;font-variant-numeric:tabular-nums}
+.tpill.flat{padding:0;background:none;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none}
+s.old{position:relative;text-decoration:none;color:var(--text-muted);font:500 10px/1 var(--f-ui);white-space:nowrap}
+s.old::after{content:"";position:absolute;left:0;right:0;top:50%;height:1px;background:currentColor}
+/* card especial: borda no degradê da estrela + brilho laranja · preço antigo riscado em cima do Comprar */
+.spk.L.promo{box-shadow:0 0 24px #ff730052}
+.spk.L.promo::after{content:"";position:absolute;inset:0;border-radius:20px;padding:2px;background:linear-gradient(90deg,#ffd800,#ffb000 50%,#ff7300);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0);pointer-events:none}
+.spk.L .top{align-items:center}
+.spk.L .pcol{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex:none}
+.spk.L .pcol s.old{color:var(--text-default);text-shadow:0 1px 4px #000c}
+.spk.L .info b{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.spk.S .art .price.promo b{font:inherit}
+/* faixa da promoção na tela do pacote (promo-bar): tag + contador · preço antigo riscado */
+.picker .pbar{flex:none;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 12px;border-radius:16px;background:var(--bga-strong-75);box-shadow:inset 0 0 0 1px var(--border-muted)}
+.picker .pbar .of{display:flex;align-items:center;gap:8px;min-width:0}
+.picker .pbar s.old{color:var(--text-default);font-size:12px}
+.spk.S .tx b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}

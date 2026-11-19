@@ -22,7 +22,7 @@
   --blue:#3bb0d4; --blue-top:#2ba4c8; --blue-bg:#207f9b; --ok:#2cc160; --ok-text:#52de7e;
   --red:#e5484d; --red-top:#ef4452; --red-bg:#c72c3d; --gold:#ffc841;
   --g-sinuca:#2fa35a; --felt:#207f9b; --felt-l:#3bb0d4; --felt-d:#0a2b36;
-  --c-engenheiro:#4fb3ff; --c-comandante:#f5c542; --c-piloto:#ff5a36; --c-navegador:#e86bff; --c-explorador:#4dffb8; --c-bar:#ff9f43; --c-reis:#34d399; --c-gamer:#3d8bff;
+  --c-engenheiro:#4fb3ff; --c-comandante:#f5c542; --c-piloto:#ff5a36; --c-navegador:#e86bff; --c-explorador:#4dffb8; --c-bar:#ff9f43; --c-reis:#34d399; --c-gamer:#3d8bff; --c-laje:#ff7f50; --c-portaria:#3ddc84; --c-live:#b45cff; --c-feira:#ffa62b; --c-navalha:#ff4fb0; --c-varzea:#5be37d; --c-oficina:#3db8ff; --c-posto:#ff3b4a; --c-fliper:#a45cff; --c-grau:#4fa3ff; --c-palpite:#f2b233;
   --f-display:"Sora", "Inter", system-ui, sans-serif; --f-ui:"Inter", system-ui, -apple-system, sans-serif;
 }
 html,body{height:100%}
@@ -283,7 +283,7 @@ const threeReady = Promise.all(['three', 'three/addons/environments/RoomEnvironm
   .catch(err => { console.error(err); return false; });
 
 /* ---------- data ---------- */
-const CREW = {engenheiro:'var(--c-engenheiro)', comandante:'var(--c-comandante)', piloto:'var(--c-piloto)', navegador:'var(--c-navegador)', explorador:'var(--c-explorador)', bar:'var(--c-bar)', reis:'var(--c-reis)', gamer:'var(--c-gamer)'};
+const CREW = {engenheiro:'var(--c-engenheiro)', comandante:'var(--c-comandante)', piloto:'var(--c-piloto)', navegador:'var(--c-navegador)', explorador:'var(--c-explorador)', bar:'var(--c-bar)', reis:'var(--c-reis)', gamer:'var(--c-gamer)', laje:'var(--c-laje)', portaria:'var(--c-portaria)', live:'var(--c-live)', feira:'var(--c-feira)', navalha:'var(--c-navalha)', varzea:'var(--c-varzea)', oficina:'var(--c-oficina)', posto:'var(--c-posto)', fliper:'var(--c-fliper)', grau:'var(--c-grau)', palpite:'var(--c-palpite)'};
 const STAKES = [{v:.25, q:154, tag:'Iniciante'}, {v:1, q:158}, {v:5, q:67}, {v:10, q:41}, {v:25, q:12}];
 const PEOPLE = [['dutra77','comandante','ele'],['rafa_10','piloto','ele'],['amanda.s','engenheiro','ela'],['lu.reis','explorador','ela'],['af_07','navegador','ele']];
 const BOT = {name:'dutra77', crew:'comandante', g:'ele'};
