@@ -374,7 +374,7 @@ async function animatePlay(p, card, i) {
 /* ---------- ENERGIA DA CARTA (página Skins · 6 · Energia da carta) ---------- */
 // quem joga com skin de família: quando a carta bate na mesa, 1 s de energia na cor da família (clarão no formato da carta, onda e partículas do tema)
 // cada família é um SVG animado leve em js/energia/<família>.js, carregado só quando ela está na mesa (funciona também abrindo o zip direto do computador)
-const ENERGIA_FAM = ['bar', 'laje', 'live', 'portaria', 'feira', 'navalha', 'varzea', 'oficina', 'posto', 'fliper', 'grau', 'palpite', 'mestres'];
+const ENERGIA_FAM = ['bar', 'laje', 'live', 'portaria', 'feira', 'navalha', 'varzea', 'oficina', 'posto', 'fliper', 'grau', 'palpite', 'mestres', 'assalto'];
 const ENERGIA_V = (((document.querySelector('script[src*="js/games.js"]') || {}).src || '').split('?')[1] || '');
 const energiaReq = {};
 function energiaLoad(crew) {
@@ -428,11 +428,13 @@ const letters = w => [...(typeof window.i18n === 'function' ? window.i18n(w) : w
 const CALL_FAM = {
   bar: ['bar', '#C6E33B'], laje: ['laje', '#FF7F50', 'fall'], live: ['live', '#B45CFF'], portaria: ['portaria', '#3DDC84', 'off'],
   feira: ['feira', '#FFA62B'], navalha: ['navalha', '#FF4FB0'], varzea: ['varzea', '#5BE37D'], oficina: ['oficina', '#3DB8FF'],
-  posto: ['posto', '#FF3B4A', 'off'], fliper: ['fliper', '#A45CFF', 'off'], grau: ['grau', '#4FA3FF'], palpite: ['palpite', '#F2B233'], mestres: ['mestres', '#2EE6E6']};
+  posto: ['posto', '#FF3B4A', 'off'], fliper: ['fliper', '#A45CFF', 'off'], grau: ['grau', '#4FA3FF'], palpite: ['palpite', '#F2B233'], mestres: ['mestres', '#2EE6E6'], assalto: ['assalto', '#FF4FA3']};
 // cor de um personagem em hex (crewColor devolve var(--crew-x))
 function crewHex(c, g) { const v = crewColor(c, g), m = /var\((--[^)]+)\)/.exec(v), s = (m ? getComputedStyle(document.documentElement).getPropertyValue(m[1]) : v).trim(); return /^#[0-9a-f]{6}$/i.test(s) ? s : '#E5484D'; }
 // mistura a cor com preto (to 0) ou branco (to 255)
 const cmix = (hex, to, t) => { const n = parseInt(hex.slice(1), 16), ch = s => Math.round(((n >> s) & 255) * (1 - t) + to * t); return `rgb(${ch(16)},${ch(8)},${ch(0)})`; };
+// fundo do shape do O Grande Assalto (igual ao palco do DS)
+const ASSALTO_BG = '<svg class="cf-sun" viewBox="0 0 300 300"><defs><linearGradient id="cfSunG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFE0F0"/><stop offset=".45" stop-color="#FF4FA3"/><stop offset="1" stop-color="#7A5CFF"/></linearGradient><mask id="cfSunM"><rect width="300" height="300" fill="#fff"/><g fill="#000"><rect x="0" y="158.0" width="300" height="5.0"/><rect x="0" y="175.0" width="300" height="6.5"/><rect x="0" y="192.0" width="300" height="8.0"/><rect x="0" y="209.0" width="300" height="9.5"/><rect x="0" y="226.0" width="300" height="11.0"/><rect x="0" y="243.0" width="300" height="12.5"/><rect x="0" y="260.5" width="300" height="14.0"/><rect x="0" y="279.5" width="300" height="15.5"/></g></mask></defs><circle cx="150" cy="150" r="146" fill="url(#cfSunG)" mask="url(#cfSunM)"/></svg><svg class="cf-bats" viewBox="0 0 480 420"><g transform="translate(240 210) rotate(-42) scale(3.1) translate(-64 0)"><path d="M3 -2.6L44 -2.6C66 -3 80 -8.6 100 -9L118 -9A9 9 0 0 1 118 9L100 9C80 8.6 66 3 44 2.6L3 2.6Z" fill="#E2B57A"/><path d="M50 -5.6C68 -6.6 82 -7.8 102 -7.6" stroke="#F6D9A8" stroke-width="1.6" fill="none" stroke-linecap="round"/><rect x="7" y="-3.4" width="28" height="6.8" rx="1.6" fill="#141218"/><ellipse cx="3" cy="0" rx="3.4" ry="7" fill="#E2B57A"/><circle cx="106" cy="0" r="2.6" fill="#F2C25A"/></g><g transform="translate(240 210) rotate(-138) scale(3.1) translate(-64 0)"><path d="M3 -2.6L44 -2.6C66 -3 80 -8.6 100 -9L118 -9A9 9 0 0 1 118 9L100 9C80 8.6 66 3 44 2.6L3 2.6Z" fill="#E2B57A"/><path d="M50 -5.6C68 -6.6 82 -7.8 102 -7.6" stroke="#F6D9A8" stroke-width="1.6" fill="none" stroke-linecap="round"/><rect x="7" y="-3.4" width="28" height="6.8" rx="1.6" fill="#141218"/><ellipse cx="3" cy="0" rx="3.4" ry="7" fill="#E2B57A"/><circle cx="106" cy="0" r="2.6" fill="#F2C25A"/></g></svg>';
 const crnd = (a, b) => a + Math.random() * (b - a);
 const cparts = (n, mk) => Array.from({length: n}, (_, k) => mk(k)).join('');
 function callDeco(k, C) {
@@ -453,6 +455,8 @@ function callDeco(k, C) {
       return {body: `<svg class="cf-gauge" viewBox="0 0 262 262"><circle cx="131" cy="131" r="116" fill="none" stroke="#111113" stroke-width="30"/><circle cx="131" cy="131" r="129" fill="none" stroke="${C}" stroke-width="4"/>${t}<g class="cf-needle"><path d="M131 8 L138 30 L124 30 Z" fill="#ff3b4a" transform="rotate(112 131 131)"/></g></svg>`, fxb: cparts(12, j => `<i style="--y:${Math.round(R(5, 95))}%;--z:${Math.round(R(50, 130))}px;--c:${j % 3 ? 'rgba(255,255,255,.7)' : C};--dl:${(j * .07).toFixed(2)}s"></i>`), fxf: cparts(5, j => `<i style="--z:${Math.round(R(26, 40))}px;--dl:${(j * .28).toFixed(2)}s"></i>`)}; }
     case 'palpite': return {body: '<span class="cf-no">Nº 0427</span>', fxf: cparts(22, j => `<i style="--x:${Math.round(R(-40, 140))}%;--c:${[C, '#2cc160', '#fff', '#ff4f8b'][j % 4]};--dx:${Math.round(R(-50, 50))}px;--r:${Math.round(R(200, 720))}deg;--dl:${(j * .11).toFixed(2)}s"></i>`)};
     case 'mestres': return {after: cparts(8, j => `<span class="cf-card" style="--dl:${(-j / 8 * 4.4).toFixed(2)}s"></span>`), fxb: cparts(8, j => `<i style="--x:${10 + j * 11}%;--z:${Math.round(R(24, 40))}px;--dx:${Math.round(R(-30, 30))}px;--dy:${Math.round(R(-200, -150))}px;--dl:${(j * .3).toFixed(2)}s"></i>`)};
+    // O Grande Assalto: sol retrô listrado atrás, dois tacos de beisebol cruzados e cartas de pôr do sol subindo
+    case 'assalto': return {before: ASSALTO_BG, fxf: cparts(10, j => `<i style="--x:${Math.round(R(-8, 96))}%;--dx:${Math.round(R(-60, 60))}px;--dy:${Math.round(R(-300, -200))}px;--r:${Math.round(R(-220, 220))}deg;--dl:${(j * .22).toFixed(2)}s"></i>`)};
   }
   // medalhão (skin sem família desenhada): brilhos na cor do personagem subindo
   return {fxb: cparts(8, j => `<i style="--x:${8 + j * 12}%;--z:${Math.round(R(22, 38))}px;--dx:${Math.round(R(-30, 30))}px;--dy:${Math.round(R(-200, -150))}px;--dl:${(j * .3).toFixed(2)}s"></i>`)};

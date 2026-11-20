@@ -13,7 +13,7 @@ const packActive = id => hasSkin() && packOf(ST.crew) === id;
 const PACK_PRICE = 9.9;
 const FREE_PACK = 'nobru'; // pacote grátis (já é seu e vem ativo)
 const LOJA_HERO = 'portaria'; // card do topo
-const LOJA_GRID = ['nobru', 'magia', 'live', 'feira', 'navalha', 'varzea', 'oficina', 'posto', 'fliper', 'grau', 'palpite', 'laje'];
+const LOJA_GRID = ['nobru', 'magia', 'assalto', 'live', 'feira', 'navalha', 'varzea', 'oficina', 'posto', 'fliper', 'grau', 'palpite', 'laje'];
 const inLoja = id => id === LOJA_HERO || LOJA_GRID.includes(id);
 const packPrice = id => id === FREE_PACK ? 0 : PACK_PRICE;
 /* promoção (Figma Loja › 8 · tags do DS ☰ Type=Super promoção / Promoção): o destaque vira o card especial (−x%, contador, preço riscado)
