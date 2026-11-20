@@ -132,7 +132,7 @@ function paintDesk() {
   dkFit();
 }
 function dkBusy() {
-  const busy = !$('#scr-game').hidden || !!$('#sinucaWrap') || CUR === 'sala' || !!$('#qSlots') || !!$('#overlay .res2');
+  const busy = !$('#scr-game').hidden || !!$('#sinucaWrap') || CUR === 'sala' || !!$('#qSlots') || !!$('#overlay .call.res');
   if (busy !== DK.busy) { DK.busy = busy; document.body.classList.toggle('dk-busy', busy); }
 }
 // partida, fila e resultado abrem e fecham sem passar pelo go(): observa o app para travar/soltar o menu e trocar o chat

@@ -305,14 +305,16 @@ function launchGame(tableId) {
 ACT.queueCancel = () => { queueAbort = true; closeSheet(); if (ST.tourney) tExit(); };
 
 /* ======================================================================
-   RESULTADO · folha sobre a mesa (DS match-result ◇ Style=Folha) · igual para todos os jogos
+   RESULTADO POR FAMÍLIA (DS match-result ◇ Style=Família) · igual para todos os jogos
+   a tela inteira entra na cor da família da sua skin, como a chamada do TRUCO!: vitória com clarão, confete e o prêmio contando;
+   derrota com a cor apagando pro cinza, o shape afundando e as letras caindo tortas
    ====================================================================== */
 function teamHTML(players, name, sub, right) {
   const avs = `<span class="avs">${players.map(p => hex(p[1], p[2], 's', 0, false)).join('')}</span>`;
   const tx = `<span class="tx"><b>${esc(name)}</b><small>${sub}</small></span>`;
   return `<div class="team ${right ? 'r' : ''}">${right ? tx + avs : avs + tx}</div>`;
 }
-// r: {win, tie, title, sub, value, caption, ctx, left, right, score, extra, again, againLabel, gameColor}
+// r: {win, tie, title, sub, value, caption, ctx, left, right, score, extra, again, againLabel, backLabel, onBack}
 function showResult(r) {
   if (ST.tourney) tResult(r);
   if (ST.training) { ST.saldo = ST.trainSaldo; r.value = r.win ? 'Treino concluído' : 'Treino'; r.caption = 'Partida de treino · sem valor'; r.training = true; }
@@ -322,31 +324,58 @@ function showResult(r) {
   // partida com saldo real junta Bônus Fidelidade: 5% da taxa da mesa (≈ 1% da entrada), até R$ 50 por semana
   if (!r.training && ST.fid) ST.fid.week = Math.min(50, +(ST.fid.week + ST.stake * .01).toFixed(2));
   if (r.win && !r.training) bumpReward();
-  const glow = r.win ? 'win' : r.tie ? 'tie' : 'loss';
-  const title = r.title || (r.win ? 'Vitória' : r.tie ? 'Empate' : 'Derrota');
-  $('#overlay').innerHTML = `<div class="res2 ${glow}" style="--gc:${r.gameColor || 'var(--game-todos)'}"><div class="rveil"></div>
-    <div class="rsheet" role="dialog" aria-label="${esc(title)}"><span class="handle"></span>
-      <div class="rt"><h1>${title}</h1>${r.sub ? `<span>${r.sub}</span>` : ''}</div>
-      <div class="rv"><b class="${r.win && !r.training ? 'prize' : 'muted'}">${r.value}</b>${r.caption ? `<small>${r.caption}</small>` : ''}</div>
-      ${r.left ? `<div class="score">${r.left}<b class="sc">${r.score}</b>${r.right}</div>` : ''}
+  const kind = r.win ? 'vit' : r.tie ? 'emp' : 'der';
+  const title = r.title || (r.win ? 'Vitória' : r.tie ? 'Empate' : 'Derrota'), word = title.toUpperCase();
+  const st = callStage({crew: ST.crew, g: ST.g}, 1), col = (CALL_FAM[ST.crew] || [0, crewHex(ST.crew, ST.g)])[1];
+  const conf = r.win ? `<div class="rconf">${cparts(34, k => `<i style="--x:${Math.round(crnd(0, 100))}%;--c:${[col, '#ffc841', '#fff', col][k % 4]};--dx:${Math.round(crnd(-60, 60))}px;--r:${Math.round(crnd(240, 900))}deg;--du:${crnd(2.2, 3.4).toFixed(2)}s;--dl:${(.45 + (k % 17) * .09).toFixed(2)}s"></i>`)}</div>` : '';
+  const money = /R\$/.test(r.value || ''), prize = r.win && !r.training;
+  $('#overlay').innerHTML = `<div class="call fam res ${kind}" id="res" style="${st.pal}" role="dialog" aria-label="${esc(title)}">
+    <div class="cveil"><i class="sw a"></i><i class="sw b"></i></div>${conf}
+    <div class="rcol">
+      ${r.ctx ? `<span class="pill rctx">${esc(r.ctx)}</span>` : ''}
+      ${st.html}
+      <div class="cword">${kind === 'der' ? '' : `<span class="w">${letters(word)}</span>`}</div>
+      ${r.sub ? `<p class="rsub">${r.sub}</p>` : ''}
+      <div class="rval ${prize ? 'prize' : 'muted'}">${money ? `<img src="${A}icons/fichas.webp" alt="">` : ''}<b>${r.value}</b></div>
+      ${r.caption ? `<p class="rcap">${r.caption}</p>` : ''}
       ${r.extra || ''}
+      ${r.left ? `<div class="score">${r.left}<b class="sc">${r.score}</b>${r.right}</div>` : ''}
       <div class="ractions">${btn(r.backLabel || 'Voltar ao lobby', 'sec', 'm', 'data-a="resBack"')}${btn(r.againLabel || (ST.training ? 'Treinar de novo' : `Jogar de novo · ${fmt(ST.stake)}`), 'pri', 'm', 'data-a="resAgain"')}</div>
     </div>
   </div>`;
-  if (!r.tie) resultCheer(r.win);
+  const c = $('#res'); resFit(c);
+  const live = () => $('#res') === c;
+  if (kind === 'der') {
+    // a cor entra e apaga: o shape afunda (ou desliga / cai, conforme a família) e DERROTA cai letra por letra
+    setTimeout(() => { if (!live()) return; c.classList.add('run'); const sh = c.querySelector('.cf-shape'); sh.classList.add('dead'); if (st.die) sh.classList.add(st.die);
+      const wd = c.querySelector('.cword'); wd.innerHTML = `<span class="w">${letters(word)}</span>`; wd.style.setProperty('--d0', '0s'); resFit(c); }, 700);
+  } else {
+    callShake(c, word, .6);
+    if (r.win) setTimeout(() => { if (live()) c.classList.add('acc'); }, 900);
+    // o prêmio sobe contando até o valor e dá uma batida
+    const m = prize && money && /^(.*?)(\d{1,3}(?:\.\d{3})*,\d{2})(.*)$/.exec(r.value);
+    if (m) {
+      const b = c.querySelector('.rval b'), to = +m[2].replace(/\./g, '').replace(',', '.'), nf = v => v.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+      b.textContent = m[1] + nf(0) + m[3];
+      setTimeout(() => { const t0 = performance.now(); const step = t => { if (!live()) return; const p = Math.min(1, (t - t0) / 800), e = 1 - Math.pow(1 - p, 3); b.textContent = m[1] + nf(to * e) + m[3];
+        if (p < 1) requestAnimationFrame(step); else { const v = c.querySelector('.rval'); v.classList.remove('pop'); void v.offsetWidth; v.classList.add('pop'); } }; requestAnimationFrame(step); }, 1050);
+      // aba em segundo plano não roda requestAnimationFrame: o valor final entra de qualquer jeito
+      setTimeout(() => { if (live()) b.textContent = r.value; }, 2000);
+    }
+  }
   RES = r;
   refreshChrome();
 }
 let RES = null;
-// na mesa, alguém comenta o resultado: o parceiro comemora a vitória; o adversário manda um gg na derrota (ou na vitória 1x1)
-function resultCheer(win) {
-  const a = typeof activeGame === 'function' && activeGame(); if (!a || !a.seats) return;
-  const box = $('#overlay .res2'), sheet = $('#overlay .rsheet'); if (!box || !sheet) return;
-  const ix = s => a.seats.indexOf(s), partner = a.partner != null && ix(a.partner) > 0 ? a.partner : null;
-  const opp = a.seats.find(s => s !== 0 && s !== partner);
-  const seat = win && partner != null ? partner : opp; if (seat == null) return;
-  const text = win && partner != null ? pickOne(['boa, parceiro! 🙌', 'é nóis! 🔥', 'que mão! 👏']) : pickOne(['gg', 'gg 🤝', 'boa partida']);
-  setTimeout(() => { if ($('#overlay .rsheet') !== sheet) return; chatBubble(seat, text, a.players[ix(seat)][0], box); const b = box.querySelector('.cbub'); if (b) box.insertBefore(b, sheet); }, 800);
+// a palavra cabe na largura (callFit) e o shape encolhe até tudo caber na altura da tela (no máximo .86, como no DS)
+function resFit(c) {
+  callFit(c);
+  // a palavra do resultado é Display/Chamada 64 (a chamada usa 72)
+  const w = c.querySelector('.cword .w'); if (w && (parseFloat(w.style.getPropertyValue('--fs')) || 72) > 64) { w.style.setProperty('--fs', '64px'); w.style.setProperty('--st', '8px'); }
+  const col = c.querySelector('.rcol'); if (!col) return;
+  c.style.setProperty('--k', '.86');
+  const over = col.scrollHeight - col.clientHeight;
+  if (over > 0) c.style.setProperty('--k', Math.max(.5, .86 - over / 240).toFixed(3));
 }
 Object.assign(ACT, {
   resBack: () => { $('#overlay').innerHTML = ''; const f = RES && RES.onBack; RES = null; endAllGames(); if (f) f(); else leaveGame(); },
