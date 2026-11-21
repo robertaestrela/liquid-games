@@ -461,11 +461,13 @@ function callDeco(k, C) {
   // medalhão (skin sem família desenhada): brilhos na cor do personagem subindo
   return {fxb: cparts(8, j => `<i style="--x:${8 + j * 12}%;--z:${Math.round(R(22, 38))}px;--dx:${Math.round(R(-30, 30))}px;--dy:${Math.round(R(-200, -150))}px;--dl:${(j * .3).toFixed(2)}s"></i>`)};
 }
+// chamada do jogador com a classe da skin dele (Loja por classe) · bots usam a arte padrão
+const callSfx = pl => !pl.bot && pl.crew === ST.crew && pl.g === ST.g && (!pl.name || pl.name === ST.nick) ? tierSfx(pl.crew) : '';
 // fundo + shape de um jogador (lvl 1–4 escurece a cor a cada aumento)
 function callStage(pl, lvl) {
   const f = CALL_FAM[pl.crew], k = f ? f[0] : 'medal', col = f ? f[1] : crewHex(pl.crew, pl.g), dk = [0, .08, .16, .24][Math.max(0, Math.min(3, lvl - 1))];
   const pal = `--fc:${col};--r1:${cmix(col, 0, .28 + dk)};--r2:${cmix(col, 0, .58 + dk * .7)};--r3:${cmix(col, 0, .86 + dk * .3)};--sa:${cmix(col, 255, .3)};--sb:${cmix(col, 0, .65)}`;
-  const media = !pl.crew || pl.crew === 'nenhum' ? `<img class="empty" src="${A}ui/avatar_empty.webp" alt="">` : `<video src="${A}video/call/${pl.crew}_${pl.g}.mp4" autoplay muted loop playsinline preload="auto" poster="${A}video/call/${pl.crew}_${pl.g}.webp"></video>`;
+  const media = !pl.crew || pl.crew === 'nenhum' ? `<img class="empty" src="${A}ui/avatar_empty.webp" alt="">` : `<video src="${A}video/call/${pl.crew}_${pl.g}${callSfx(pl)}.mp4" autoplay muted loop playsinline preload="auto" poster="${A}video/call/${pl.crew}_${pl.g}${callSfx(pl)}.webp"></video>`;
   const d = callDeco(k, col);
   const plates = k === 'feira' ? '<div class="cf-rot"><div class="cf-plate"></div><div class="cf-plate2"></div></div>' : '<div class="cf-plate"></div><div class="cf-plate2"></div>';
   return {pal, die: f ? f[2] : '', html: `<div class="cf-shape cf-${k}" id="cfShape">${d.before || ''}<div class="cf-fxb">${d.fxb || ''}</div><div class="cf-body in">${plates}<div class="cf-win">${media}</div>${d.body || ''}</div>${d.after || ''}<div class="cf-fxf">${d.fxf || ''}</div></div>`};

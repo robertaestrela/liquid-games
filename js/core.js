@@ -47,7 +47,15 @@ const PACKS = {
 };
 const PACK_ORDER = ['nobru', 'laje', 'portaria', 'magia', 'live', 'feira', 'navalha', 'varzea', 'oficina', 'posto', 'fliper', 'grau', 'palpite', 'assalto'];
 const packOf = c => ['gamer', 'barbara'].includes(c) ? 'nobru' : c === 'bar' ? 'magia' : c === 'reis' ? 'reis' : PACKS[c] ? c : 'estelar';
-const photo = (crew, g) => crew === 'nenhum' ? A + 'ui/avatar_empty.webp' : `${A}photo/${crew}_${g}.webp`;
+/* classes de skin (Loja por classe · Figma Loja › 9): a compra vale para a família toda (Ele + Ela) · subir de classe paga só a diferença */
+const CLS = [{k: 'comum', n: 'Comum', p: 4.9}, {k: 'rara', n: 'Rara', p: 9.9}, {k: 'mistica', n: 'Mística', p: 19.9}, {k: 'lendaria', n: 'Lendária', p: 39.9}];
+// famílias com arte própria por classe (palco, chamada e foto: assets/…/<crew>_<g>_<classe>) · as outras usam a mesma arte em todas as classes
+const TIER_ART = {bar: 3, assalto: 4};
+// classe que o jogador está usando (comprada ou escolhida ao embarcar) · null = arte padrão
+const wearLvl = c => { const id = packOf(c), w = (ST.wear || {})[id]; return w != null ? w : (ST.cls || {})[id] != null ? ST.cls[id] : null; };
+// sufixo da arte: t explícito (null = padrão) ou, sem t, a classe do próprio jogador quando o personagem é o dele
+const tierSfx = (c, t) => { if (t === undefined) t = c === ST.crew ? wearLvl(c) : null; return t != null && TIER_ART[c] > t ? '_' + CLS[t].k : ''; };
+const photo = (crew, g, t) => crew === 'nenhum' ? A + 'ui/avatar_empty.webp' : `${A}photo/${crew}_${g}${tierSfx(crew, t)}.webp`;
 
 /* ---------- jogos ---------- */
 // ordem da linha de jogos do lobby: Cacheta · Truco · Buraco · Poker · Sinuca (Tranca saiu do protótipo em 30/10)
@@ -84,7 +92,7 @@ const PEOPLE = [['dutra77', 'comandante', 'ele'], ['amanda.s', 'engenheiro', 'el
 const ST = {
   onboarded: false, nick: 'betinh4', phone: '', saldo: 1250, bonus: 35,
   game: 'truco', variant: 'Mineiro', trucoMode: '2x2', stake: 1,
-  crew: 'gamer', g: 'ele', owned: {nobru: true, magia: false, reis: false, estelar: false, laje: false, portaria: false, live: false, feira: false, navalha: false, varzea: false, oficina: false, posto: false, fliper: false, grau: false, palpite: false, assalto: false}, pack: 'nobru',
+  crew: 'gamer', g: 'ele', owned: {nobru: true, magia: false, reis: false, estelar: false, laje: false, portaria: false, live: false, feira: false, navalha: false, varzea: false, oficina: false, posto: false, fliper: false, grau: false, palpite: false, assalto: false}, pack: 'nobru', cls: {}, wear: {},
   mesaChoice: 'vermelha', mesaPaulista: 'azul', mesaPicked: false, deck: 'estrela', mic: false,
   fid: {ready: 12, week: 0}, // Bônus Fidelidade: o que está pronto pra resgatar e o que está juntando nesta semana (5% da taxa das mesas, limite R$ 50)
   unread: 2, reward: null, rewardsWon: 18, tourney: null, tPrev: null, training: false, room: null,

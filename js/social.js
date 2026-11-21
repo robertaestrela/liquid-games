@@ -163,7 +163,7 @@ Object.assign(ACT, {
   loja: () => { HIST = []; go('loja', {}, {noHist: true}); },
   changeSkin: () => openPicker(packOf(ST.crew), 'profile'),
   logout: () => {
-    Object.assign(ST, {onboarded: false, crew: 'nenhum', g: 'ela', owned: Object.fromEntries(Object.keys(PACKS).map(k => [k, false])), saldo: 1250, bonus: 35, reward: null, tourney: null, tPrev: null});
+    Object.assign(ST, {onboarded: false, crew: 'nenhum', g: 'ela', owned: Object.fromEntries(Object.keys(PACKS).map(k => [k, false])), cls: {}, wear: {}, saldo: 1250, bonus: 35, reward: null, tourney: null, tPrev: null});
     HIST = []; go('ob1', {}, {noHist: true}); toast('Você saiu da conta');
   }
 });

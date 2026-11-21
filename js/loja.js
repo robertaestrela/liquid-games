@@ -18,7 +18,7 @@ const inLoja = id => id === LOJA_HERO || LOJA_GRID.includes(id);
 const packPrice = id => id === FREE_PACK ? 0 : PACK_PRICE;
 /* promoção (Figma Loja › 8 · tags do DS ☰ Type=Super promoção / Promoção): o destaque vira o card especial (−x%, contador, preço riscado)
    e o grid mostra a tag + o selo com o preço riscado · sup = Super promoção (−x% no degradê da estrela) · sem sup = tag "Promoção" */
-const PROMO = {portaria: {pct: 15, sup: true}, magia: {pct: 15, sup: true}};
+const PROMO = {}; // Loja por classe (Figma Loja › 9): a promoção (portaria e magia −15%) fica guardada · para voltar: {portaria: {pct: 15, sup: true}}
 const PROMO_END = Date.now() + 24 * 36e5 - 48e3; // protótipo: a promoção termina 24 h depois de abrir o app
 const promoOf = id => (PROMO[id] && !ST.owned[id] && packPrice(id)) ? PROMO[id] : null;
 const priceNow = id => { const pr = promoOf(id), v = packPrice(id); return pr ? Math.round(Math.round(v * 100) * (100 - pr.pct) / 100) / 100 : v; };
@@ -46,6 +46,51 @@ function packCardS(id) {
     <span class="tx"><b>${p.name}</b><small>${p.skins} skin${p.skins > 1 ? 's' : ''}</small></span></div>`;
 }
 const soonCard = (n, k) => `<div class="spk S blocked t${k}" aria-label="${n} · em breve"><span class="art">${tag('Em breve')}${ic('lock', 'lock')}</span><span class="tx"><b>Em breve</b><small>Novos personagens</small></span></div>`;
+/* ---------- Loja por classe (Figma Loja › 9 · CL01–CL08 / DCL01–DCL08) ----------
+   cada família vem em 3 classes (Comum · Rara · Mística; 4 com a Lendária) · a compra vale para a família toda (Ele + Ela)
+   já tem uma classe? subir paga só a diferença · o pacote grátis já vem com a Comum */
+const LENDARIA = ['assalto']; // famílias com a 4ª classe
+const nCls = id => LENDARIA.includes(id) ? 4 : 3;
+const famName = id => PACKS[id].family || PACKS[id].name;
+const famOn = id => id !== 'estelar' && (inLoja(id) || id === FREE_PACK);
+const ownLvl = id => ST.cls[id] != null ? ST.cls[id] : (id === FREE_PACK || ST.owned[id]) ? 0 : -1;
+const clsPrice = (id, l) => { const o = ownLvl(id); return o >= 0 ? +(CLS[l].p - CLS[o].p).toFixed(2) : CLS[l].p; };
+const clsTag = (l, t) => `<span class="tag cls ${CLS[l].k}">${t || CLS[l].n}</span>`;
+const maisEscolhida = () => `<span class="tag destaque">${ic('fire')}Mais escolhida</span>`;
+// o que vem em cada classe (tiles · action-tile ◇ Glass) · min = 1ª classe que libera · v = valor por classe
+const BEN = [
+  {i: 'user', n: 'Skins', v: () => 'Ele e Ela', min: 0}, {i: 'truco', n: 'Chamada', v: () => 'no Truco', min: 0}, {i: 'cacheta', n: 'Baralho', v: () => 'da família', min: 0},
+  {i: 'fire', n: 'Efeitos', v: () => 'mesa e baralho', min: 1}, {i: 'board', n: 'Mesas', v: () => 'Truco e Poker', min: 1}, {i: 'sinuca', n: 'Taco', v: () => 'da sinuca', min: 1},
+  {i: 'star', n: 'XP 2x', full: 'XP em dobro', v: k => k >= 2 ? '7 dias' : '2 dias', min: 1, val: true}, {i: 'timebank', n: 'Timebank', v: k => k >= 2 ? '10 dias' : '2 dias', min: 1, val: true},
+  {i: 'microphone', n: 'Voz', v: () => 'do personagem', min: 2}, {i: 'chat', n: 'Emojis', v: () => 'da família', min: 2}, {i: 'bolt', n: 'Sinuca', v: () => 'efeitos na mesa', min: 3}
+];
+const benOf = id => BEN.filter(b => b.min < nCls(id));
+const ovSub = (id, l) => {
+  const n = nCls(id); if (l >= n - 1) return n === 4 ? 'Tudo aceso + efeitos na mesa de sinuca' : 'Tudo aceso · a classe mais completa';
+  const up = CLS.slice(l + 1, n).map(c => c.n); return `Acende o que é seu · o resto vem ${up.length > 2 ? 'nas classes acima' : 'na ' + up.join(' e na ')}`;
+};
+// destaques da Loja em carrossel (3, rola para o lado, estilo Netflix) · lvl abre a família direto naquela classe
+const LOJA_CAR = [
+  {id: 'portaria', tag: 'Em destaque'},
+  {id: 'magia', lvl: 2, tag: 'Mística chegou', cap: 'Rei e Rainha do bar com o poder do giz'},
+  {id: 'live', tag: 'Novo'}
+];
+function carCard(c) {
+  const p = PACKS[c.id], r = p.roles[0], lv = c.lvl, tier = lv != null && TIER_ART[r] > lv;
+  const bg = tier ? `background-image:url(${stagePoster(r, 'ele', lv)});background-position:center 18%` : `background-image:url(${A}art/${p.artL}.webp);background-position:${p.posL}`;
+  const tg = packActive(c.id) ? tag('Ativo', 'success') : lv != null ? clsTag(lv, c.tag) : tag(c.tag, 'danger');
+  const cta = btn(lv != null ? `Ver ${CLS[lv].n}` : 'Ver classes', 'pri', 's', `data-a="famOpen:${c.id}${lv != null ? ':' + lv : ''}"`);
+  return `<div class="spk L carc" role="button" tabindex="0" data-fam="${c.id}${lv != null ? ':' + lv : ''}" style="${bg}">
+    <span class="top">${tg}</span><span class="info"><span class="tx"><b>${famName(c.id)}</b><small>${c.cap || `${nCls(c.id)} classes · a partir de ${fmt2(CLS[0].p)}`}</small></span>${cta}</span></div>`;
+}
+function famCardS(id) {
+  const p = PACKS[id], act = packActive(id), o = ownLvl(id), n = nCls(id), free = id === FREE_PACK && ST.cls[id] == null;
+  const bg = p.duo ? `background-image:url(${A}art/${p.artS}.webp),url(${A}art/${p.artL}.webp);background-size:50% auto,50% auto;background-position:left 12%,right 12%;background-repeat:no-repeat` : `background-image:url(${A}art/${p.artS}.webp);background-position:${p.posS}`;
+  const tg = act ? tag('Ativo', 'success') : o >= 0 ? tag('Seu', 'success') : tag('Novo', 'danger');
+  const price = free ? '<span class="price">Grátis</span>' : o >= 0 ? `<span class="price cls ${CLS[o].k}">${CLS[o].n}</span>` : `<span class="price">${fmt2(CLS[0].p)}</span>`;
+  return `<div role="button" tabindex="0" class="spk S" data-fam="${id}"><span class="art" style="${bg}">${tg}${price}</span>
+    <span class="tx"><b>${famName(id)}</b><small>${free ? `Comum grátis · ${n} classes` : n === 4 ? '4 classes · com a Lendária' : `${n} classes`}</small></span></div>`;
+}
 const LOJA_CATS = [['skins', 'user', 'Skins'], ['baralhos', 'truco', 'Baralhos'], ['molduras', 'crown', 'Molduras'], ['efeitos', 'fire', 'Efeitos'], ['ofertas', 'gift', 'Ofertas']];
 SCREENS.loja = {cls: 'loja', render: () => {
   const cats = `<div class="hscroll chips">${LOJA_CATS.map(([k, i, l]) => `<button class="chip ${LOJA.cat === k ? 'on' : ''}" data-cat="${k}">${ic(i)}${l}</button>`).join('')}</div>`;
@@ -54,21 +99,28 @@ SCREENS.loja = {cls: 'loja', render: () => {
     body = `<div class="packs">${stitle('Baralhos', 'Ative o verso que quiser · vale em todos os jogos')}
       <div class="decks">${DECKS.map(([k, l]) => `<div role="button" tabindex="0" class="deckc ${ST.deck === k ? 'on' : ''}" data-deck="${k}"><span class="dk">${deckBack(k, 'L')}</span><b>${l}</b>${ST.deck === k ? tag('Ativo', 'success') : tag('Seu', 'neutral')}</div>`).join('')}</div></div>`;
   } else {
-    // destaque (card especial quando está em promoção) · famílias da página Skins · Em breve
-    body = `${packCardL(LOJA_HERO)}
-      <div class="packs">${stitle('Pacotes de skins', 'Ganhe jogando ou compre')}
-        <div class="pgrid">${LOJA_GRID.filter(k => k !== LOJA_HERO).map(packCardS).join('')}${[0, 1, 2].map(k => soonCard('Novos personagens', k)).join('')}</div>
-        <p class="note">Ao desbloquear, todos os personagens do pacote ficam seus. Você escolhe com qual jogar e pode trocar quando quiser.</p></div>`;
+    // destaques em carrossel · famílias da página Skins (nome da família no card) · Em breve
+    body = `<div class="carw"><div class="hscroll car" id="lojaCar">${LOJA_CAR.filter(c => PACKS[c.id]).map(carCard).join('')}</div><div class="dots">${LOJA_CAR.map((_, i) => `<i class="${i ? '' : 'on'}"></i>`).join('')}</div></div>
+      <div class="packs">${stitle('Pacotes de skins', 'Cada família em 3 classes: Comum, Rara e Mística')}
+        <div class="pgrid">${LOJA_GRID.map(famCardS).join('')}${[0, 1, 2].map(k => soonCard('Novos personagens', k)).join('')}</div>
+        <p class="note">Cada classe vale para a família toda (Ele e Ela). Já tem uma classe? Para subir, você paga só a diferença.</p></div>`;
   }
   return `<div class="pg-top">${header()}${ptop('Loja', null, 'home')}</div><div class="scroll"><div class="content">${cats}${body}</div></div>`;
+}, after: () => {
+  const c = $('#lojaCar'); if (!c || !c.firstElementChild) return;
+  const sync = () => { const i = Math.round(c.scrollLeft / (c.firstElementChild.offsetWidth + 8)); $$('.carw .dots i').forEach((d, k) => d.classList.toggle('on', k === i)); };
+  c.addEventListener('scroll', sync, {passive: true}); sync();
 }, click: e => {
   const c = e.target.closest('[data-cat]'); if (c) { if (c.dataset.cat === 'skins' || c.dataset.cat === 'baralhos') { LOJA.cat = c.dataset.cat; rerender(); } else toast(`${c.textContent.trim()} · em breve na Loja`); return; }
   const d = e.target.closest('[data-deck]'); if (d) { ST.deck = d.dataset.deck; rerender(); toast(`Baralho ${DECKS.find(x => x[0] === ST.deck)[1]} ativado`); return; }
+  const f = e.target.closest('[data-fam]'); if (f) { ACT.famOpen(f.dataset.fam); return; }
   const p = e.target.closest('[data-pack]'); if (p) openPack(p.dataset.pack);
 }};
 // pacote → personagem (LJ03): o mesmo palco do picker, com Agora não | Comprar · R$ 9,90 (ou o preço da promoção)
 function openPack(id) { ST.pack = id; openPicker(id); }
 ACT.packAct = id => { ST.pack = id; if (CUR === 'picker' && !ST.owned[id]) buyPack(id); else openPicker(id); };
+// família da Loja → tela da família na classe pedida (ou na Rara, a mais escolhida; ou na que você já tem)
+ACT.famOpen = arg => { const [id, l] = String(arg).split(':'); ST.pack = id; openPicker(id, null, l != null ? +l : undefined); };
 
 /* ---------- página do pacote (M02 · M09 · M15 · M21) ---------- */
 function includedHTML(id) {
@@ -124,13 +176,18 @@ Object.assign(ACT, {
   unlockChoose: id => { closeSheet(); if (CUR === 'picker' && PICK.pack === id) rerender(); else openPicker(id); }
 });
 
-/* ---------- escolher personagem (character-picker · Ele | Ela, Ela rosa; vídeo top-center) ---------- */
-const PICK = {pack: 'laje', c: 'laje', g: 'ela', back: 'loja'};
-function openPicker(id, back) {
+/* ---------- escolher personagem (character-picker · Ele | Ela, Ela rosa; vídeo top-center) ----------
+   famílias da Loja = tela da família por classe (Figma Loja › 9 · CL02–CL08): palco · Escolha a classe · O que vem na X · Comparar | Comprar */
+const PICK = {pack: 'laje', c: 'laje', g: 'ela', back: 'loja', l: 1};
+const tierOf = (c, l) => TIER_ART[c] > l ? l : null;
+function openPicker(id, back, lvl) {
   PICK.pack = id; PICK.back = back || CUR;
   if (packActive(id)) { PICK.c = ST.crew; PICK.g = ST.g; }
   else if (ST.reward && ST.reward.pack === id && ST.reward.taken) { PICK.c = ST.reward.c; PICK.g = ST.reward.g; }
   else [PICK.c, PICK.g] = PACKS[id].def;
+  // classe aberta: a pedida (destaque) · sem classe = Rara (a mais escolhida) · com classe = a que você usa
+  const o = famOn(id) ? ownLvl(id) : -1, w = (ST.wear || {})[id];
+  PICK.l = lvl != null ? Math.min(lvl, nCls(id) - 1) : o < 0 ? 1 : w != null ? w : o;
   warmPack(id);
   go('picker');
 }
@@ -138,32 +195,84 @@ function openPicker(id, back) {
 function warmPack(id) {
   const p = PACKS[id];
   const list = id === 'estelar' ? p.roles.flatMap(r => [[r, 'ele'], [r, 'ela']]) : p.solo ? p.roles.map(r => [r, 'ele']) : [[p.roles[0], 'ele'], [p.roles[0], 'ela']];
-  list.forEach(([c, g]) => { new Image().src = stagePoster(c, g); fetch(stageVid(c, g)).catch(() => {}); });
+  list.forEach(([c, g]) => { const t = famOn(id) ? tierOf(c, PICK.l) : undefined; new Image().src = stagePoster(c, g, t); fetch(stageVid(c, g, t)).catch(() => {}); });
+}
+// classes + o que vem + Comparar | Comprar (ou Subir para X, ou Embarcar quando a classe já é sua)
+function famBody(crew) {
+  const id = PICK.pack, p = PACKS[id], n = nCls(id), l = PICK.l, o = ownLvl(id);
+  const duo = crew.slice(0, 2);
+  const pair = k => `<span class="pr2${duo.length < 2 ? ' one' : ''}">${duo.map(([c, g]) => `<span><img src="${photo(c, g, tierOf(c, k))}" alt=""></span>`).join('')}</span>`;
+  const opt = k => {
+    const own = k <= o, pr = own ? '<small class="ok">✓ Sua</small>' : `<small>${o >= 0 ? '+ ' + fmt2(clsPrice(id, k)) : fmt2(CLS[k].p)}</small>`;
+    return `<div role="button" tabindex="0" class="copt ${CLS[k].k}${k === l ? ' on' : ''}${own ? ' own' : ''}" data-cl="${k}" aria-label="Classe ${CLS[k].n}">${k === 1 ? maisEscolhida() : ''}${pair(k)}<span class="tx"><b>${CLS[k].n}</b>${pr}</span></div>`;
+  };
+  const lab = o >= 0 && o < n - 1 ? `Você já tem a ${CLS[o].n} · paga só a diferença` : `Escolha a classe · vale para ${p.incl}`;
+  const tiles = benOf(id).map(b => { const on = b.min <= l; return `<div class="ctile${on ? '' : ' off'}">${ic(b.i)}<b>${b.n}</b><small>${on ? b.v(l) : 'na ' + CLS[b.min].n}</small></div>`; }).join('');
+  const cta = l <= o ? btn('Embarcar', 'pri', 'l', 'data-a="embark"') : o >= 0 ? btn(`Subir para ${CLS[l].n}`, 'pri', 'l', `data-a="buyCls:${id}:${l}"`) : btn(`Comprar · ${fmt2(CLS[l].p)}`, 'pri', 'l', `data-a="buyCls:${id}:${l}"`);
+  return `<p class="clab">${lab}</p>
+      <div class="clsr n${n}">${Array.from({length: n}, (_, k) => opt(k)).join('')}</div>
+      <div class="ovem"><b>O que vem na ${CLS[l].n}</b><small>${ovSub(id, l)}</small></div>
+      <div class="tiles">${tiles}</div>
+      <div class="acts">${btn('Comparar', 'sec', 'l', 'data-a="famCompare"', 'cmpb')}${cta}</div>`;
 }
 SCREENS.picker = {cls: 'picker-scr', render: () => {
   const p = PACKS[PICK.pack], estelar = PICK.pack === 'estelar', cc = crewColor(PICK.c, PICK.g);
   const crew = estelar ? p.roles.map(r => [r, PICK.g]) : p.solo ? p.roles.map(r => [r, 'ele']) : [[p.roles[0], 'ele'], [p.roles[0], 'ela']];
-  const own = ST.owned[PICK.pack], pr = promoOf(PICK.pack);
-  return `<div class="pg-top">${header()}${ptop(own ? p.page : p.name, null, 'pickBack')}</div>
-    <div class="scr picker" style="position:relative;inset:auto;flex:1;min-height:0">
+  const own = ST.owned[PICK.pack], pr = promoOf(PICK.pack), fam = famOn(PICK.pack), t = fam ? tierOf(PICK.c, PICK.l) : undefined;
+  return `<div class="pg-top">${header()}${ptop(fam ? famName(PICK.pack) : own ? p.page : p.name, null, 'pickBack')}</div>
+    <div class="scr picker${fam ? ' fam' : ''}" style="position:relative;inset:auto;flex:1;min-height:0">
       ${p.solo ? '' : tabs([['ele', 'Ele'], ['ela', 'Ela']], PICK.g, PICK.g === 'ela' ? 'rosa' : '', 'pg')}
-      <div class="stg" style="--cc:${cc}"><video src="${stageVid(PICK.c, PICK.g)}" autoplay muted loop playsinline preload="auto" poster="${stagePoster(PICK.c, PICK.g)}"></video>
+      <div class="stg" style="--cc:${cc}"><video src="${stageVid(PICK.c, PICK.g, t)}" autoplay muted loop playsinline preload="auto" poster="${stagePoster(PICK.c, PICK.g, t)}"></video>
         <button class="arrow p" data-a="pickStep:-1" aria-label="Anterior">${svg('i-chev-l-light')}</button><button class="arrow n" data-a="pickStep:1" aria-label="Próximo">${svg('i-chev-r-light')}</button>
-        <div class="ident"><b>${crewName(PICK.c, PICK.g)}</b><small><i></i>${ROLE_SUB[PICK.c]}</small></div></div>
-      <div class="crew">${crew.map(([c, g]) => `<button class="${c === PICK.c && g === PICK.g ? 'on' : ''}" style="--cc:${crewColor(c, g)}" data-pc="${c}|${g}" aria-label="${crewName(c, g)}"><img src="${photo(c, g)}" alt=""></button>`).join('')}</div>
+        <div class="ident">${fam ? clsTag(PICK.l) : ''}<b>${crewName(PICK.c, PICK.g)}</b><small><i></i>${ROLE_SUB[PICK.c]}</small></div></div>
+      ${fam ? famBody(crew) : `<div class="crew">${crew.map(([c, g]) => `<button class="${c === PICK.c && g === PICK.g ? 'on' : ''}" style="--cc:${crewColor(c, g)}" data-pc="${c}|${g}" aria-label="${crewName(c, g)}"><img src="${photo(c, g)}" alt=""></button>`).join('')}</div>
       ${pr ? `<div class="pbar"><span class="of">${promoTag(PICK.pack)}${timerPill('flat')}</span>${oldPrice(packPrice(PICK.pack))}</div>` : ''}
-      <div class="acts">${btn('Agora não', 'sec', 'l', 'data-a="pickBack"')}${own ? btn('Embarcar', 'pri', 'l', 'data-a="embark"') : btn(`Comprar · ${fmt2(priceNow(PICK.pack))}`, 'pri', 'l', `data-a="buyPack:${PICK.pack}"`)}</div>
+      <div class="acts">${btn('Agora não', 'sec', 'l', 'data-a="pickBack"')}${own ? btn('Embarcar', 'pri', 'l', 'data-a="embark"') : btn(`Comprar · ${fmt2(priceNow(PICK.pack))}`, 'pri', 'l', `data-a="buyPack:${PICK.pack}"`)}</div>`}
     </div>`;
 }, click: e => {
+  const k = e.target.closest('[data-cl]'); if (k) { PICK.l = +k.dataset.cl; rerender(); return; }
   const t = e.target.closest('[data-pg],[data-pc]'); if (!t) return;
   if (t.dataset.pg) PICK.g = t.dataset.pg; else [PICK.c, PICK.g] = t.dataset.pc.split('|');
   rerender();
 }};
+// compra da classe: a família toda (Ele + Ela) · já tem uma classe? paga só a diferença
+function buyCls(id, l) {
+  const v = clsPrice(id, l);
+  if (ST.saldo < v) { toast(`Saldo insuficiente para ${famName(id)} ${CLS[l].n} · compre fichas`); ACT.buyChips(); return; }
+  ST.saldo = +(ST.saldo - v).toFixed(2); ST.owned[id] = true; ST.cls[id] = l; ST.wear[id] = l; ST.pack = id; PICK.l = l;
+  rerender(); clsUnlocked(id, l, v);
+}
+// sheet "X Rara é sua!" (CL06): o casal da família na classe comprada
+function clsUnlocked(id, l, paid) {
+  const p = PACKS[id], r = p.roles[0], tk = tierOf(r, l);
+  const hero = TIER_ART[r] && !p.solo ? `<span class="av xl" style="left:calc(50% - 56px);top:44px"><img src="${photo(r, 'ele', tk)}" alt=""></span><span class="av xl" style="left:calc(50% + 56px);top:44px"><img src="${photo(r, 'ela', tk)}" alt=""></span>` : heroAvatars(id);
+  const txt = [`${p.incl} na Comum, a chamada do Truco e o baralho da família já estão com você.`,
+    `${p.incl} Raros, mesas, taco, efeitos e a chamada do Truco já estão com você. XP em dobro e Timebank valem por 2 dias.`,
+    `${p.incl} Místicos, com voz e emojis da família, já estão com você. XP em dobro por 7 dias e Timebank por 10 dias.`,
+    `${p.incl} Lendários e os efeitos na mesa de sinuca já estão com você. XP em dobro por 7 dias e Timebank por 10 dias.`][l];
+  openSheet(`<div class="hero">${hero}</div><div class="tgs">${clsTag(l)}${tag(`−${fmt2(paid)} · saldo ${fmt2(ST.saldo)}`)}</div><h2>${famName(id)} ${CLS[l].n} é sua!</h2>
+    <p>${txt}</p>
+    <div class="row">${btn('Agora não', 'sec', 'm m44', 'data-a="unlockLater"')}${btn('Escolher personagem', 'pri', 'm m44', `data-a="unlockChoose:${id}"`)}</div>`, {cls: 'unlock'});
+}
+// Comparar classes (CL05): o que vem em cada classe e o preço (ou a diferença, se você já tem uma)
+function compareSheet(id) {
+  const n = nCls(id), ks = Array.from({length: n}, (_, k) => k), o = ownLvl(id);
+  const head = `<tr><th></th>${ks.map(k => `<th>${clsTag(k)}</th>`).join('')}</tr>`;
+  const rows = benOf(id).map(b => `<tr><td><span class="bl">${ic(b.i)}${b.full || b.n}</span></td>${ks.map(k => `<td>${k < b.min ? '<i class="no">–</i>' : b.val ? `<b>${b.v(k)}</b>` : '<i class="ok">✓</i>'}</td>`).join('')}</tr>`).join('');
+  const price = `<tr class="pr"><td>Preço</td>${ks.map(k => `<td>${k <= o ? '<i class="ok">✓ Sua</i>' : `<b>${o >= 0 ? '+ ' + fmt2(clsPrice(id, k)) : fmt2(CLS[k].p)}</b>`}</td>`).join('')}</tr>`;
+  openSheet(`<h2>Compare as classes</h2><p>Tudo vale para a família toda: ${PACKS[id].incl}.</p>
+    <div class="cmpw"><table class="cmp n${n}">${head}${rows}${price}</table></div>
+    <div class="row">${btn('Fechar', 'sec', 'm m44', 'data-a="closeSheet"')}${btn(`Escolher ${CLS[PICK.l].n}`, 'pri', 'm m44', `data-a="famPick:${PICK.l}"`)}</div>`, {cls: 'unlock cmpsh'});
+}
 Object.assign(ACT, {
   pickStep: d => { const p = PACKS[PICK.pack]; if (p.solo) { PICK.g = 'ele'; if (p.roles.length > 1) { const i = p.roles.indexOf(PICK.c); PICK.c = p.roles[(i + +d + p.roles.length) % p.roles.length]; rerender(); } return; } if (p.roles.length === 1) PICK.g = PICK.g === 'ele' ? 'ela' : 'ele'; else { const i = p.roles.indexOf(PICK.c); PICK.c = p.roles[(i + +d + p.roles.length) % p.roles.length]; } rerender(); },
   pickBack: () => back(),
+  famCompare: () => compareSheet(PICK.pack),
+  famPick: l => { closeSheet(); PICK.l = +l; rerender(); },
+  buyCls: arg => { const [id, l] = String(arg).split(':'); buyCls(id, +l); },
   embark: () => {
     ST.crew = PICK.c; ST.g = PICK.g; ST.owned[PICK.pack] = true;
+    if (famOn(PICK.pack) && PICK.l <= ownLvl(PICK.pack)) ST.wear[PICK.pack] = PICK.l;
     const m = PACKS[PICK.pack].mesa; if (m) { ST.mesaChoice = m; }
     if (ST.reward && ST.reward.pack === PICK.pack) ST.reward = null;
     HIST = []; go('jogos', {}, {noHist: true});

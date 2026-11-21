@@ -214,9 +214,9 @@ Object.assign(ACT, {
 /* ======================================================================
    HOME COM SKIN (aba Jogos) · palco com o vídeo do personagem
    ====================================================================== */
-const stageVid = (c = ST.crew, g = ST.g) => `${A}video/stage/${c}_${g}.mp4`;
+const stageVid = (c = ST.crew, g = ST.g, t) => `${A}video/stage/${c}_${g}${tierSfx(c, t)}.mp4`;
 // imagem de espera = primeiro quadro do próprio vídeo (egames-tools/make_posters.py), nunca a foto de perfil
-const stagePoster = (c = ST.crew, g = ST.g) => `${A}video/stage/${c}_${g}.webp`;
+const stagePoster = (c = ST.crew, g = ST.g, t) => `${A}video/stage/${c}_${g}${tierSfx(c, t)}.webp`;
 SCREENS.jogos = {cls: 'home', render: () => {
   if (!hasSkin()) return SCREENS.lobby.render();
   const g = game();
