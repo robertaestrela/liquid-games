@@ -97,7 +97,7 @@ SCREENS.loja = {cls: 'loja', render: () => {
   let body;
   if (LOJA.cat === 'baralhos') {
     body = `<div class="packs">${stitle('Baralhos', 'Ative o verso que quiser · vale em todos os jogos')}
-      <div class="decks">${DECKS.map(([k, l]) => `<div role="button" tabindex="0" class="deckc ${ST.deck === k ? 'on' : ''}" data-deck="${k}"><span class="dk">${deckBack(k, 'L')}</span><b>${l}</b>${ST.deck === k ? tag('Ativo', 'success') : tag('Seu', 'neutral')}</div>`).join('')}</div></div>`;
+      <div class="decks">${decksOwned().map(([k, l]) => `<div role="button" tabindex="0" class="deckc ${ST.deck === k ? 'on' : ''}" data-deck="${k}"><span class="dk">${deckBack(k, 'L')}</span><b>${l}</b>${ST.deck === k ? tag('Ativo', 'success') : tag('Seu', 'neutral')}</div>`).join('')}</div></div>`;
   } else {
     // destaques em carrossel · famílias da página Skins (nome da família no card) · Em breve
     body = `<div class="carw"><div class="hscroll car" id="lojaCar">${LOJA_CAR.filter(c => PACKS[c.id]).map(carCard).join('')}</div><div class="dots">${LOJA_CAR.map((_, i) => `<i class="${i ? '' : 'on'}"></i>`).join('')}</div></div>
@@ -207,7 +207,7 @@ function famBody(crew) {
     return `<div role="button" tabindex="0" class="copt ${CLS[k].k}${k === l ? ' on' : ''}${own ? ' own' : ''}" data-cl="${k}" aria-label="Classe ${CLS[k].n}">${k === 1 ? maisEscolhida() : ''}${pair(k)}<span class="tx"><b>${CLS[k].n}</b>${pr}</span></div>`;
   };
   const lab = o >= 0 && o < n - 1 ? `Você já tem a ${CLS[o].n} · paga só a diferença` : `Escolha a classe · vale para ${p.incl}`;
-  const tiles = benOf(id).map(b => { const on = b.min <= l; return `<div class="ctile${on ? '' : ' off'}">${ic(b.i)}<b>${b.n}</b><small>${on ? b.v(l) : 'na ' + CLS[b.min].n}</small></div>`; }).join('');
+  const tiles = benOf(id).map(b => { const on = b.min <= l; return `<div class="btile${on ? '' : ' off'}">${ic(b.i)}<b>${b.n}</b><small>${on ? b.v(l) : 'na ' + CLS[b.min].n}</small></div>`; }).join('');
   const cta = l <= o ? btn('Embarcar', 'pri', 'l', 'data-a="embark"') : o >= 0 ? btn(`Subir para ${CLS[l].n}`, 'pri', 'l', `data-a="buyCls:${id}:${l}"`) : btn(`Comprar · ${fmt2(CLS[l].p)}`, 'pri', 'l', `data-a="buyCls:${id}:${l}"`);
   return `<p class="clab">${lab}</p>
       <div class="clsr n${n}">${Array.from({length: n}, (_, k) => opt(k)).join('')}</div>
@@ -274,6 +274,7 @@ Object.assign(ACT, {
     ST.crew = PICK.c; ST.g = PICK.g; ST.owned[PICK.pack] = true;
     if (famOn(PICK.pack) && PICK.l <= ownLvl(PICK.pack)) ST.wear[PICK.pack] = PICK.l;
     const m = PACKS[PICK.pack].mesa; if (m) { ST.mesaChoice = m; }
+    const dk = PACKS[PICK.pack].deck; if (dk) ST.deck = dk;
     if (ST.reward && ST.reward.pack === PICK.pack) ST.reward = null;
     HIST = []; go('jogos', {}, {noHist: true});
     toast(`Skin ${crewName(ST.crew, ST.g)} ativada · a aba Jogos é sua Home`);

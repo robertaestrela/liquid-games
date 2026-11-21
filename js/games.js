@@ -12,7 +12,7 @@ function syncNick() {
   PK_PEOPLE[0] = [ST.nick, null, null]; PK_PEOPLE[1] = [OPP.n, OPP.c, OPP.g];
 }
 // mesas: Truco usa o tampo quadrado (truco-*); os outros jogos usam a cápsula da cor do jogo ou a skin especial escolhida
-const SPECIAL_MESAS = ['bar', 'reis', 'gamer', 'laje', 'live', 'portaria'];
+const SPECIAL_MESAS = ['bar', 'reis', 'gamer', 'laje', 'live', 'portaria', 'assalto'];
 const capsuleMesa = def => SPECIAL_MESAS.includes(ST.mesaChoice) ? ST.mesaChoice : def;
 // Truco: abre sempre na mesa do bar até a pessoa escolher outra mesa em Personalizar
 const trucoMesa = paulista => ST.mesaPicked ? (paulista ? ST.mesaPaulista || 'azul' : ST.mesaChoice || 'vermelha') : 'bar';
@@ -1519,11 +1519,13 @@ ACT.leaveGo = () => {
   endAllGames(); $('#overlay').innerHTML = '';
   if (tor) { tor.l++; tExit(); go('torneios', {}, {noHist: true, reset: true}); toast(`Você saiu da partida · conta como derrota no ${tor.name}`); } else leaveGame();
 };
-const DECKS = [['estrela', 'Liquid']]; // só o verso Estrela (o Tradicional vermelho saiu em 28/10, como no Figma)
+const DECKS = [['estrela', 'Liquid']];
+DECKS.push(['assalto', 'O Grande Assalto', 'assalto']); // verso da família (pôr do sol com tacos cruzados) · aparece para quem tem a O Grande Assalto
+const decksOwned = () => DECKS.filter(([k, l, need]) => !need || ST.owned[need]); // só o verso Estrela (o Tradicional vermelho saiu em 28/10, como no Figma)
 function deckBack(k, size = 'S') { const cur = ST.deck; ST.deck = k; const h = cardHTML(null, size, true); ST.deck = cur; return h; }
 function refreshBacks() { document.querySelectorAll('.card.back').forEach(el => { [...el.classList].filter(c => c.startsWith('dk-')).forEach(c => el.classList.remove(c)); if (ST.deck !== 'estrela') el.classList.add('dk-' + ST.deck); }); }
 /* ---------- customize-sheet · Personalizar (avatar · mesa · baralho) · muda na hora ---------- */
-const MESAS = [['azul', 'Azul', null], ['vermelha', 'Vermelha', null], ['bar', 'Bar', null], ['reis', 'Reis do baralho', 'reis'], ['laje', 'Resenha da Laje', 'laje'], ['portaria', 'Plantão da Portaria', 'portaria'], ['live', 'Live do Baralho', 'live']];
+const MESAS = [['azul', 'Azul', null], ['vermelha', 'Vermelha', null], ['bar', 'Bar', null], ['reis', 'Reis do baralho', 'reis'], ['laje', 'Resenha da Laje', 'laje'], ['portaria', 'Plantão da Portaria', 'portaria'], ['live', 'Live do Baralho', 'live'], ['assalto', 'O Grande Assalto', 'assalto']];
 function personalizar() {
   const tile = (on, locked, inner, label, data) => `<div role="button" tabindex="0" class="ctile ${on ? 'on' : ''} ${locked ? 'locked' : ''}" ${data}><span class="mini">${inner}${locked ? tag('Loja') : ''}</span><span class="lb">${label}</span></div>`;
   const avs = [['nenhum', 'ela', null]];
@@ -1533,7 +1535,7 @@ function personalizar() {
   const inner = `${sheetHead('gear', 'Personalizar', 'Toque para escolher · muda na hora')}
     <div class="cgrp"><b>Avatar</b><div class="hscroll copts">${avs.map(([c, g, lock]) => tile(!lock && ST.crew === c && (c === 'nenhum' || ST.g === g), lock, c === 'nenhum' ? hex('nenhum', 'ela', 'm', 0, false) : hex(c, g, 'm', 0, false), crewName(c, g), lock ? `data-lock="${lock}"` : `data-av="${c}|${g}"`)).join('')}</div></div>
     <div class="cgrp"><b>Mesa</b><div class="hscroll copts">${MESAS.filter(([k, l, need]) => !need || ST.owned[need] || inLoja(need)).map(([k, l, need]) => { const lock = need && !ST.owned[need]; return tile(!lock && curMesa === k, lock, `<img class="tb" src="${A}mesa/truco-${k}.webp" alt="">`, l, lock ? `data-lock="${need}"` : `data-mesa="${k}"`); }).join('')}</div></div>
-    <div class="cgrp"><b>Baralho</b><div class="hscroll copts">${DECKS.map(([k, l]) => tile(ST.deck === k, false, `<span style="position:relative;width:40px;height:56px">${deckBack(k)}</span>`, l, `data-deck="${k}"`)).join('')}</div></div>`;
+    <div class="cgrp"><b>Baralho</b><div class="hscroll copts">${decksOwned().map(([k, l]) => tile(ST.deck === k, false, `<span style="position:relative;width:40px;height:56px">${deckBack(k)}</span>`, l, `data-deck="${k}"`)).join('')}</div></div>`;
   const open = $('#veil .bsheet.custom');
   if (open) { const sc = [...open.querySelectorAll('.copts')].map(x => x.scrollLeft); open.innerHTML = '<span class="handle"></span>' + inner; open.querySelectorAll('.copts').forEach((x, k) => { x.scrollLeft = sc[k] || 0; }); return; }
   openSheet(inner, {cls: 'g16 custom'});

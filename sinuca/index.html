@@ -298,6 +298,8 @@ if (EMBED) {
   if (EP.stake > 0) ST.stake = EP.stake;
   if (EP.opp) BOT.name = EP.opp.slice(0, 16);
 }
+// pano por família na Sinuca (pedido da Roberta, 20/nov): só a O Grande Assalto por enquanto
+const FELT = {assalto: {stops: [[0, '#45197a'], [.5, '#b02f78'], [1, '#d8662b']], sheen: 0xff9ac8, cushion: 0x3b1663}};
 const ME = {nick: (EP.nick || 'betinh4').slice(0, 16), crew: CREW[EP.crew] ? EP.crew : 'nenhum', g: EP.g === 'ela' ? 'ela' : 'ele'};
 const notify = (type, data = {}) => { if (EMBED && window.parent !== window) window.parent.postMessage({source: 'sinuca', type, stake: ST.stake, ...data}, '*'); };
 
@@ -930,7 +932,9 @@ function noiseFill(g, w, h, amp) { const id = g.getImageData(0, 0, w, h), d = id
 function feltTexture() {
   const cw = 1024, ch = 2048, px = x => (x + IX) / (2 * IX) * cw, py = z => (z + IZ) / (2 * IZ) * ch;
   const tex = canvasTex(cw, ch, g => {
-    g.fillStyle = '#207f9b'; g.fillRect(0, 0, cw, ch);
+    // pano da família (O Grande Assalto: degradê de pôr do sol roxo → rosa → laranja, do fundo da mesa para perto de você) · as outras famílias usam o azul Estrela
+    const ft = FELT[ME.crew]; if (ft) { const gr = g.createLinearGradient(0, 0, 0, ch); ft.stops.forEach(([o, c]) => gr.addColorStop(o, c)); g.fillStyle = gr; } else g.fillStyle = '#1b3f7a';
+    g.fillRect(0, 0, cw, ch);
     for (let i = 0; i < 110; i++) { // soft mottling of real cloth
       const x = Math.random() * cw, y = Math.random() * ch, r = rnd(60, 240), gr = g.createRadialGradient(x, y, 0, x, y, r), l = Math.random() < .5;
       gr.addColorStop(0, l ? 'rgba(255,255,255,.03)' : 'rgba(0,0,0,.05)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(x - r, y - r, 2 * r, 2 * r);
@@ -981,9 +985,9 @@ function buildTable() {
   const T = new THREE.Group(); scene.add(T);
   // CC0 textures (Poly Haven): stretch_poplin weave for the cloth, dark_wood for rails and legs
   const tl = new THREE.TextureLoader(), tx = (f, r, color) => { const t = tl.load(A + 'tex/' + f); if (color) t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(r[0], r[1]); t.anisotropy = 8; return t; };
-  const cloth = {roughness: 1, sheen: 1, sheenRoughness: .5, sheenColor: new THREE.Color(0x7fa6ff), envMapIntensity: .3, normalScale: new THREE.Vector2(.55, .55)};
+  const ft = FELT[ME.crew], cloth = {roughness: 1, sheen: 1, sheenRoughness: .5, sheenColor: new THREE.Color(ft ? ft.sheen : 0x7fa6ff), envMapIntensity: .3, normalScale: new THREE.Vector2(.55, .55)};
   const felt = mat({...cloth, map: feltTexture(), normalMap: tx('poplin_nor.jpg', [9, 18]), roughnessMap: tx('poplin_rough.jpg', [9, 18])});
-  const cushionMat = mat({...cloth, color: 0x18396f, normalMap: tx('poplin_nor.jpg', [7, 7]), roughnessMap: tx('poplin_rough.jpg', [7, 7])});
+  const cushionMat = mat({...cloth, color: ft ? ft.cushion : 0x18396f, normalMap: tx('poplin_nor.jpg', [7, 7]), roughnessMap: tx('poplin_rough.jpg', [7, 7])});
   // dark navy leather on rails, apron and legs
   const leather = (color, r) => { const b = leatherGrain().clone(); repeatTex(b, r, r); return mat({color, roughness: .6, bumpMap: b, bumpScale: 1.4, sheen: .4, sheenRoughness: .55, sheenColor: new THREE.Color(0x5fc8eb), clearcoat: .22, clearcoatRoughness: .45, envMapIntensity: .55}); };
   const railMat = leather(0x16213d, 6);
@@ -1088,16 +1092,18 @@ function buildBalls() {
     const s = new THREE.Mesh(sgeo, smat); s.renderOrder = 1; shadowMeshes.push(s); scene.add(s);
   }
 }
+// taco por família (pedido da Roberta, 20/nov) · O Grande Assalto: ponta ciano acesa, haste clara, anel dourado, cabo cobre e LED rosa
+const CUE = {assalto: {tip: 0x5cc8ff, glow: true, fer: 0xf6f1e6, shaft: 0xedd7b2, ring: 0xf2c25a, butt: 0xc95f38, led: 0xff4fa3, bump: 0x1a0e08}};
 function makeCue() {
-  const cue = new THREE.Group();
+  const cue = new THREE.Group(), K = CUE[ME.crew];
   const part = (len, r0, r1, z0, m) => { const g = new THREE.CylinderGeometry(r1, r0, len, 24); g.rotateX(Math.PI / 2); g.translate(0, 0, z0 + len / 2); const p = new THREE.Mesh(g, m); p.castShadow = true; cue.add(p); };
-  part(.012, .0062, .0063, 0, mat({color: 0x3b74f5, roughness: .8}));
-  part(.024, .0063, .0065, .012, mat({color: 0xf3f1ea, roughness: .35, clearcoat: .5}));
-  part(.7, .0065, .0098, .036, mat({color: 0x1b1f26, roughness: .3, metalness: .1, clearcoat: .8, clearcoatRoughness: .2}));
-  part(.012, .0099, .0100, .736, mat({color: 0xffc841, roughness: .25, metalness: .9}));
-  part(.66, .0100, .0142, .748, mat({color: 0x101216, roughness: .22, metalness: .15, clearcoat: 1, clearcoatRoughness: .1}));
-  part(.008, .0142, .0143, 1.2, new THREE.MeshBasicMaterial({color: 0x5e95ff}));
-  part(.012, .0143, .0138, 1.408, mat({color: 0x07080a, roughness: .9}));
+  part(.012, .0062, .0063, 0, K && K.glow ? new THREE.MeshBasicMaterial({color: K.tip}) : mat({color: K ? K.tip : 0x3b74f5, roughness: .8}));
+  part(.024, .0063, .0065, .012, mat({color: K ? K.fer : 0xf3f1ea, roughness: .35, clearcoat: .5}));
+  part(.7, .0065, .0098, .036, mat({color: K ? K.shaft : 0x1b1f26, roughness: .3, metalness: .1, clearcoat: .8, clearcoatRoughness: .2}));
+  part(.012, .0099, .0100, .736, mat({color: K ? K.ring : 0xffc841, roughness: .25, metalness: .9}));
+  part(.66, .0100, .0142, .748, mat({color: K ? K.butt : 0x101216, roughness: .22, metalness: .15, clearcoat: 1, clearcoatRoughness: .1}));
+  part(.008, .0142, .0143, 1.2, new THREE.MeshBasicMaterial({color: K ? K.led : 0x5e95ff}));
+  part(.012, .0143, .0138, 1.408, mat({color: K ? K.bump : 0x07080a, roughness: .9}));
   return cue;
 }
 function buildCue() { cueGroup = makeCue(); scene.add(cueGroup); }

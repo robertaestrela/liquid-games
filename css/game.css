@@ -516,6 +516,10 @@
 #board .energia{position:absolute;z-index:6;pointer-events:none}
 #board .energia svg{width:100%;height:100%;overflow:visible;display:block}
 
+/* verso da família O Grande Assalto (Skins › 4 · Baralho especial, vetor) */
+.card.back.dk-assalto{background:url(../assets/deck/assalto.svg) center/100% 100% no-repeat}
+.card.back.dk-assalto .logo,.card.back.dk-assalto::before{display:none}
+
 /* Liquid: logo da marca no centro do pano de todas as mesas */
 .board .mesa::after{content:"";position:absolute;left:50%;top:47%;width:132px;height:132px;transform:translate(-50%,-50%);background:url(../assets/ui/logo-mark.svg) center/contain no-repeat;filter:brightness(0) invert(1);opacity:.1;pointer-events:none}
 .board .mesa[style*="mesa/truco-"]::after{top:41%}
