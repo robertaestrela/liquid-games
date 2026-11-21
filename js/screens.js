@@ -70,7 +70,7 @@ function obFrame(step, total, title, sub, form, foot) {
     <div class="obc"><div style="display:flex;flex-direction:column;gap:24px"><div class="obtx"><h1>${title}</h1><p>${sub}</p></div><div class="form">${form}</div></div><div class="obft">${foot}</div></div>`;
 }
 SCREENS.ob1 = {cls: 'ob1', render: () => `
-  <div class="hero"><video src="${A}video/hero-boas-vindas.mp4" autoplay muted loop playsinline preload="auto" poster="${A}video/hero-boas-vindas.webp"></video></div>
+  <div class="hero"><video src="${A}video/hero-boas-vindas.mp4?v=20261120g" autoplay muted loop playsinline preload="auto" poster="${A}video/hero-boas-vindas.webp?v=20261120g"></video></div>
   <div class="bottom">
     <div class="copy"><div class="hscroll" style="gap:8px">${GAMES.map(g => gameBlock(g, false, 'data-a="obSignup"')).join('')}</div></div>
     <div class="acts"><div>${btn('Já tenho conta', 'sec', 'm m44', 'data-a="obLogin"')}</div><div>${btn('Criar conta', 'pri', 'm m44', 'data-a="obSignup"')}</div></div>
