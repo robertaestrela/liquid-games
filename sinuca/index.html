@@ -299,6 +299,8 @@ if (EMBED) {
   if (EP.opp) BOT.name = EP.opp.slice(0, 16);
 }
 // pano por família na Sinuca (pedido da Roberta, 20/nov): só a O Grande Assalto por enquanto
+// ambiente 360° da família (Skins › 14 · O Grande Assalto › 9 · Ambiente da sinuca): balada roxa com neon rosa e azul · as outras usam o lounge da marca
+const LOUNGE = {assalto: 'lounge_assalto.jpg'};
 const FELT = {assalto: {stops: [[0, '#45197a'], [.5, '#b02f78'], [1, '#d8662b']], sheen: 0xff9ac8, cushion: 0x3b1663}};
 const ME = {nick: (EP.nick || 'betinh4').slice(0, 16), crew: CREW[EP.crew] ? EP.crew : 'nenhum', g: EP.g === 'ela' ? 'ela' : 'ele'};
 const notify = (type, data = {}) => { if (EMBED && window.parent !== window) window.parent.postMessage({source: 'sinuca', type, stake: ST.stake, ...data}, '*'); };
@@ -888,7 +890,7 @@ function init3d() {
   ray = new THREE.Raycaster();
   const pm = new THREE.PMREMGenerator(renderer); scene.environment = pm.fromScene(new RoomEnvironment(renderer), .04).texture; scene.environmentIntensity = .4;
   // dark blue gaming lounge: 360° generated in Higgsfield (Nano Banana Pro) as backdrop + reflections; #fundo2 = second take
-  new THREE.TextureLoader().load(A + 'tex/' + (location.hash === '#fundo2' ? 'lounge_2.jpg' : 'lounge_1.jpg'), tex => {
+  new THREE.TextureLoader().load(A + 'tex/' + (location.hash === '#fundo2' ? 'lounge_2.jpg' : LOUNGE[ME.crew] || 'lounge_1.jpg'), tex => {
     tex.mapping = THREE.EquirectangularReflectionMapping; tex.colorSpace = THREE.SRGBColorSpace;
     scene.environment = tex; scene.environmentIntensity = 1; scene.environmentRotation.y = ENV_ROT;
     scene.background = tex; scene.backgroundBlurriness = .04; scene.backgroundIntensity = 1; scene.backgroundRotation.y = ENV_ROT;
