@@ -69,15 +69,16 @@ const ovSub = (id, l) => {
   const n = nCls(id); if (l >= n - 1) return n === 4 ? 'Tudo aceso + efeitos na mesa de sinuca' : 'Tudo aceso · a classe mais completa';
   const up = CLS.slice(l + 1, n).map(c => c.n); return `Acende o que é seu · o resto vem ${up.length > 2 ? 'nas classes acima' : 'na ' + up.join(' e na ')}`;
 };
-// destaques da Loja em carrossel (3, rola para o lado, estilo Netflix) · lvl abre a família direto naquela classe
+// destaques da Loja em carrossel (rola para o lado, estilo Netflix) · lvl abre a família direto naquela classe · art = arte própria do banner (assets/art)
 const LOJA_CAR = [
+  {id: 'assalto', tag: 'Nova família', cap: 'Jeff e Lúcia · com a Lendária', art: 'car-assalto'},
   {id: 'portaria', tag: 'Em destaque'},
   {id: 'magia', lvl: 2, tag: 'Mística chegou', cap: 'Rei e Rainha do bar com o poder do giz'},
   {id: 'live', tag: 'Novo'}
 ];
 function carCard(c) {
   const p = PACKS[c.id], r = p.roles[0], lv = c.lvl, tier = lv != null && TIER_ART[r] > lv;
-  const bg = tier ? `background-image:url(${stagePoster(r, 'ele', lv)});background-position:center 18%` : `background-image:url(${A}art/${p.artL}.webp);background-position:${p.posL}`;
+  const bg = c.art ? `background-image:url(${A}art/${c.art}.webp);background-position:center` : tier ? `background-image:url(${stagePoster(r, 'ele', lv)});background-position:center 18%` : `background-image:url(${A}art/${p.artL}.webp);background-position:${p.posL}`;
   const tg = packActive(c.id) ? tag('Ativo', 'success') : lv != null ? clsTag(lv, c.tag) : tag(c.tag, 'danger');
   const cta = btn(lv != null ? `Ver ${CLS[lv].n}` : 'Ver classes', 'pri', 's', `data-a="famOpen:${c.id}${lv != null ? ':' + lv : ''}"`);
   return `<div class="spk L carc" role="button" tabindex="0" data-fam="${c.id}${lv != null ? ':' + lv : ''}" style="${bg}">
