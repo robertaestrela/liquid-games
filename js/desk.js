@@ -44,7 +44,7 @@ function dkHeader() {
 }
 
 /* ---------- menu da esquerda ---------- */
-const DK_ACCOUNT = [['profile', 'user', 'Perfil'], ['wallet', 'coins', 'Fichas'], ['history', 'timer', 'Histórico'], ['ranking', 'trophy', 'Ranking'], ['settings', 'gear', 'Ajustes']]; // Ranking = troféu (como no menu do Figma)
+const DK_ACCOUNT = [['profile', 'user', 'Perfil'], ['inventario', 'star', 'Inventário'], ['wallet', 'coins', 'Fichas'], ['history', 'timer', 'Histórico'], ['ranking', 'trophy', 'Ranking'], ['settings', 'gear', 'Ajustes']]; // Ranking = troféu (como no menu do Figma)
 function dkActive() {
   const c = CUR;
   if (c === 'pacote' || c === 'picker' || c === 'diamantes') return 'loja';

@@ -152,7 +152,7 @@ SCREENS.profile = {cls: 'prof', render: () => {
     ${rw ? `<div role="button" tabindex="0" class="uopt owned" data-a="rewardNow">${ic('gift')}<span class="tx"><b>Recompensa guardada</b><small>${crewName(ST.reward.c, ST.reward.g)} · toque para ativar</small></span>${svg('i-chev-r')}</div>` : ''}
     <div class="gcard stats"><div class="r">${stat('gamepad', '1.280', 'partidas')}${stat('trophy', '742', 'vitórias')}</div><div class="r">${stat('coins', '58%', 'taxa de vitória')}${stat('crown', '312', 'vezes em 1º')}</div></div>
     <div class="grp"><div class="gcard">
-      ${li('wallet', 'coins', 'Fichas', '', fmt2(ST.saldo))}${li('go:history', 'timer', 'Histórico de partidas')}${li('go:ranking', 'podium', 'Ranking')}${li('go:settings', 'gear', 'Ajustes')}${li('toast:Ajuda e suporte · fale com a gente pelo chat', 'headset', 'Ajuda e suporte')}
+      ${li('wallet', 'coins', 'Fichas', '', fmt2(ST.saldo))}${li('go:inventario', 'star', 'Inventário', 'Skins, baralhos e tacos')}${li('go:history', 'timer', 'Histórico de partidas')}${li('go:ranking', 'podium', 'Ranking')}${li('go:settings', 'gear', 'Ajustes')}${li('toast:Ajuda e suporte · fale com a gente pelo chat', 'headset', 'Ajuda e suporte')}
     </div><button class="logout" data-a="logout">Sair da conta</button></div>
   </div></div>${navbar(homeTab())}`;
 }};
@@ -167,6 +167,45 @@ Object.assign(ACT, {
     HIST = []; go('ob1', {}, {noHist: true}); toast('Você saiu da conta');
   }
 });
+/* ======================================================================
+   INVENTÁRIO (Figma ↳ Inventário · M01 / M01b): tiles do Personalizar (72) em grade de 4
+   Skins: um card por família com a classe mais alta que a pessoa tem + "Ver todos os níveis" (abre os níveis, card na largura toda)
+   Baralhos · Baralhos das famílias · Tacos. Tocar num tile usa na hora (borda azul + check); o taco Padrão tira o taco da família.
+   ====================================================================== */
+const INVT = {open: {}};
+// taco em uso: escolhido no Inventário ou, sem escolha, o da família que está usando (Rara pra cima traz o taco)
+const tacoNow = () => ST.taco !== undefined ? ST.taco : (ownLvl(packOf(ST.crew)) >= 1 ? packOf(ST.crew) : 'padrao');
+const itile = (on, inner, label, data) => `<div role="button" tabindex="0" class="ctile itl ${on ? 'on' : ''}" ${data}><span class="mini">${inner}${on ? '<i class="ck"></i>' : ''}</span><span class="lb">${label}</span></div>`;
+const invLoja = () => itile(false, ic('loja'), 'Ver na Loja', 'data-a="goLoja"');
+const cueArt = id => `<span class="cues" style="--cc:${id === 'padrao' ? '#1a1716' : crewColor(PACKS[id].roles[0], 'ele')}"><i></i><i></i></span>`;
+SCREENS.inventario = {cls: 'prof inv', render: () => {
+  const fams = PACK_ORDER.filter(id => ownLvl(id) >= 0);
+  const famCard = id => {
+    const r = PACKS[id].roles[0], top = ownLvl(id), open = INVT.open[id] && top > 0;
+    const worn = wearLvl(r) != null ? wearLvl(r) : top;
+    const pair = l => `<div class="pair">${['ele', 'ela'].map(g => itile(ST.crew === r && ST.g === g && worn === l, `<img class="ph" src="${photo(r, g, l)}" alt="">`, crewName(r, g), `data-inv="skin:${id}:${g}:${l}"`)).join('')}</div>`;
+    const body = open ? `<div class="lvls">${Array.from({length: top + 1}, (_, l) => `<div class="lvl">${clsTag(l)}${pair(l)}</div>`).join('')}</div>` : pair(top);
+    const more = top > 0 ? `<button class="more" data-inv="open:${id}">${open ? 'Ocultar níveis' : 'Ver todos os níveis'}${svg('i-chev-r', open ? 'up' : 'dn')}</button>` : '';
+    return `<div class="fcard ${open ? 'wide' : ''}"><div class="fh"><b>${famName(id)}</b>${clsTag(top)}</div>${body}${more}</div>`;
+  };
+  const decks = decksOwned(), common = decks.filter(d => !d[2]), famDecks = decks.filter(d => d[2]);
+  const deckTile = ([k, l]) => itile(ST.deck === k, `<span style="position:relative;width:40px;height:56px">${deckBack(k)}</span>`, l, `data-inv="deck:${k}"`);
+  const tacos = ['padrao', ...fams.filter(id => ownLvl(id) >= 1)], tn = tacoNow();
+  const sec = (t, inner, cls = 'igrid') => `<div class="isec"><h3>${t}</h3><div class="${cls}">${inner}</div></div>`;
+  return `<div class="pg-top">${header()}${ptop('Inventário')}</div><div class="scroll"><div class="pcontent">
+    ${sec('Skins', fams.map(famCard).join('') + `<div class="fcard"><div class="fh"><b class="sub">Mais famílias</b></div><div class="pair one">${invLoja()}</div></div>`, 'fgrid')}
+    ${sec('Baralhos', common.map(deckTile).join('') + invLoja())}
+    ${sec('Baralhos das famílias', famDecks.map(deckTile).join('') + invLoja())}
+    ${sec('Tacos', tacos.map(id => itile(tn === id, cueArt(id), id === 'padrao' ? 'Padrão' : famName(id), `data-inv="taco:${id}"`)).join('') + invLoja())}
+  </div></div>${navbar(homeTab())}`;
+}, click: e => {
+  const t = e.target.closest('[data-inv]'); if (!t) return;
+  const [k, id, g, l] = t.dataset.inv.split(':');
+  if (k === 'open') { INVT.open[id] = !INVT.open[id]; rerender(); return; }
+  if (k === 'skin') { const r = PACKS[id].roles[0]; Object.assign(ST, {crew: r, g, pack: id}); ST.wear[id] = +l; refreshChrome(); rerender(); toast(`${crewName(r, g)} ${CLS[+l].n} em uso`); return; }
+  if (k === 'deck') { ST.deck = id; rerender(); toast(`Baralho ${DECKS.find(d => d[0] === id)[1]} ativado`); return; }
+  if (k === 'taco') { ST.taco = id; rerender(); toast(id === 'padrao' ? 'Taco padrão de volta na Sinuca' : `Taco ${famName(id)} na Sinuca`); }
+}};
 const SEED_HIST = [
   {day: 'HOJE', game: 'truco', name: 'Truco Paulista', vs: 'dutra77', win: true, delta: 9, at: 'há 12 min'},
   {day: 'HOJE', game: 'cacheta', name: 'Pif-Paf', vs: 'af.dutra', win: false, delta: -5, at: 'há 1 h'},
@@ -236,7 +275,7 @@ const SS = {
   del: k => { try { sessionStorage.removeItem(k); } catch (e) {} }
 };
 // telas que voltam como estavam (as outras dependem de algo em andamento e voltam para o início)
-const RESUME_OK = ['jogos', 'lobby', 'chat', 'loja', 'torneios', 'profile', 'history', 'ranking', 'settings'];
+const RESUME_OK = ['jogos', 'lobby', 'chat', 'loja', 'torneios', 'profile', 'inventario', 'history', 'ranking', 'settings'];
 /* ---------- dropdown do saldo (DS header-game ◉ Expanded + balance-panel + _loyalty-bonus) ---------- */
 // o saldo do header abre o detalhe sem somas: saldo real e saldo de bônus com o mesmo peso (o olho esconde os valores), Bônus Fidelidade e o que dá pra sacar, com Sacar | Comprar
 const BAL = {open: false, hide: false, fidOpen: false};

@@ -681,3 +681,32 @@ s.old::after{content:"";position:absolute;left:0;right:0;top:50%;height:1px;back
 .cmp tr.pr td{color:var(--text-default)}
 .cmp.n4 td,.cmp.n4 th .tag{font-size:11px}
 .unlock .tgs{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+
+/* ---------- Inventário (Figma ↳ Inventário · M01 / M01b): tiles 72 do Personalizar em grade de 4 ---------- */
+.inv .pcontent{gap:24px}
+.inv .isec{display:flex;flex-direction:column;gap:8px}
+.inv .isec>h3{margin:0;font:600 16px/1.2 var(--f-display);letter-spacing:-.01em;color:var(--text-default)}
+.inv .igrid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px 8px;justify-items:center}
+.inv .fgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;align-items:stretch}
+.inv .fcard{display:flex;flex-direction:column;gap:8px;padding:8px;border-radius:16px;background:var(--bga-strong-50);box-shadow:inset 0 0 0 1px var(--border-muted);min-width:0}
+.inv .fcard.wide{grid-column:1/-1}
+.inv .fh{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:4px;min-height:22px;padding-left:4px}
+.inv .fh b{font:500 10px/1.2 var(--f-ui);color:var(--text-default)}
+.inv .fh b.sub{color:var(--text-subtle)}
+.inv .pair{display:grid;grid-template-columns:repeat(2,1fr);gap:4px;justify-items:center}
+.inv .pair.one{grid-template-columns:1fr}
+.inv .lvls{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.inv .lvl{display:flex;flex-direction:column;align-items:flex-start;gap:4px}
+.inv .lvl .pair{align-self:stretch}
+.inv .more{display:flex;align-items:center;justify-content:center;gap:4px;margin-top:auto;padding:4px 0;background:none;border:0;font:500 10px/1.2 var(--f-ui);color:var(--text-link);cursor:pointer}
+.inv .more svg{width:12px;height:12px;fill:currentColor;color:currentColor}
+.inv .more svg.dn{transform:rotate(90deg)}
+.inv .more svg.up{transform:rotate(-90deg)}
+.ctile.itl{cursor:pointer}
+.ctile.itl .mini img.ph{width:100%;height:100%;object-fit:cover}
+.ctile.itl .mini>.ic{width:40px;height:40px}
+.ctile.itl .mini .ck{position:absolute;right:4px;top:4px;width:16px;height:16px;border-radius:50%;z-index:2;background:var(--btn-secondary-border) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 6.2l2.2 2.2 4.8-4.9' fill='none' stroke='%23fff' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/10px no-repeat}
+.cues{position:relative;width:72px;height:72px}
+.cues i{position:absolute;left:-14px;top:34px;width:100px;height:4px;border-radius:2px;background:linear-gradient(90deg,#3d7bff 0 3%,#f4f2ea 3% 7%,#f0d9a6 7% 52%,#c9ced6 52% 55%,var(--cc) 55% 100%);box-shadow:0 1px 2px #0008}
+.cues i:first-child{transform:rotate(135deg)}
+.cues i:last-child{transform:rotate(45deg)}

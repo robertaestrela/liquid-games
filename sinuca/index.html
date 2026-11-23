@@ -1097,7 +1097,7 @@ function buildBalls() {
 // taco por família (pedido da Roberta, 20/nov) · O Grande Assalto: ponta ciano acesa, haste clara, anel dourado, cabo cobre e LED rosa
 const CUE = {assalto: {tip: 0x5cc8ff, glow: true, fer: 0xf6f1e6, shaft: 0xedd7b2, ring: 0xf2c25a, butt: 0xc95f38, led: 0xff4fa3, bump: 0x1a0e08}};
 function makeCue() {
-  const cue = new THREE.Group(), K = CUE[ME.crew];
+  const cue = new THREE.Group(), K = CUE[EP.taco ? (EP.taco === 'padrao' ? '' : EP.taco) : ME.crew]; // taco escolhido no Inventário do app (padrao = taco padrão)
   const part = (len, r0, r1, z0, m) => { const g = new THREE.CylinderGeometry(r1, r0, len, 24); g.rotateX(Math.PI / 2); g.translate(0, 0, z0 + len / 2); const p = new THREE.Mesh(g, m); p.castShadow = true; cue.add(p); };
   part(.012, .0062, .0063, 0, K && K.glow ? new THREE.MeshBasicMaterial({color: K.tip}) : mat({color: K ? K.tip : 0x3b74f5, roughness: .8}));
   part(.024, .0063, .0065, .012, mat({color: K ? K.fer : 0xf3f1ea, roughness: .35, clearcoat: .5}));
