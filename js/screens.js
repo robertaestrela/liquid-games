@@ -333,7 +333,7 @@ function showResult(r) {
     <div class="cveil"><i class="sw a"></i><i class="sw b"></i></div>${conf}
     <div class="rcol">
       ${r.ctx ? `<span class="pill rctx">${esc(r.ctx)}</span>` : ''}
-      ${st.html}
+      ${st.html}<i class="crt"></i>
       <div class="cword">${kind === 'der' ? '' : `<span class="w">${letters(word)}</span>`}</div>
       ${r.sub ? `<p class="rsub">${r.sub}</p>` : ''}
       <div class="rval ${prize ? 'prize' : 'muted'}">${money ? `<img src="${A}icons/fichas.webp" alt="">` : ''}<b>${r.value}</b></div>

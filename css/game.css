@@ -73,6 +73,7 @@
 .rval b{font:800 40px/1 var(--f-display);letter-spacing:-.02em;color:#ffc841;font-variant-numeric:tabular-nums}
 .rval img{width:36px;height:36px}
 .rval.muted b{color:#c9ced3;font-size:32px} .rval.muted img{width:28px;height:28px;filter:grayscale(1)}
+.call.res.der .rval.muted b{color:#ff6b6e} .call.res.der .rval.muted img{filter:none}
 .rval.pop{animation:rvPop .35s cubic-bezier(.3,1.6,.5,1)}
 @keyframes rvIn{from{opacity:0;transform:scale(.6)}}
 @keyframes rvPop{50%{transform:scale(1.12)}}
@@ -343,14 +344,20 @@
 .call.fam .pill.pos{background:var(--sysa-success-25);box-shadow:inset 0 0 0 1px var(--border-muted);color:var(--text-success)}
 .call.fam .resp{animation-delay:1.05s}
 .call.fam .btn.raise{height:48px;width:220px;border-radius:24px;background:var(--bga-strong-75);box-shadow:inset 0 0 0 1px var(--hl);color:#fff;font:600 16px/1.2 var(--f-display);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
-/* respostas · aceitaram: clarão e o shape acena · correram: a cor apaga pra cinza, o shape afunda, as letras caem */
+/* respostas · aceitaram: clarão e o shape acena · correram: a cor apaga pro vermelho, o shape afunda, as letras caem */
 .call.fam.acc .cveil::after{animation:cfFlash .5s ease-out}
 @keyframes cfFlash{from{opacity:.45}to{opacity:0}}
 .call.fam.acc .cf-shape .cf-body.in{animation:cfNod .55s cubic-bezier(.3,1.6,.5,1)}
 @keyframes cfNod{30%{transform:translateY(-14px) scale(1.07)}}
 .call.fam.acc .cf-shape{--spd:.55}
-.call.fam.run .cveil::before{filter:grayscale(1) brightness(.5)}
-.call.fam.run .cf-shape{filter:grayscale(1) brightness(.8);transition:filter .6s}
+.call.fam.run .cveil::before{filter:brightness(.55)}
+.call.fam.run .cf-shape{filter:brightness(.62);transition:filter .6s}
+/* vermelho no lugar do cinza (DS: apaga .45 + avermelha em modo Cor, system-error #ef4452): pinta o fundo e o shape, os textos ficam por cima */
+.call.fam .crt{position:absolute;left:-100vw;right:-100vw;top:-100vh;bottom:-100vh;background:#ef4452;mix-blend-mode:color;opacity:0;pointer-events:none;transition:opacity .7s}
+.call.res .crt{inset:0}
+.call.fam.run .crt{opacity:1}
+.call.fam .ccol>:not(.cf-shape):not(.crt),.call.res.der .rcol>:not(.cf-shape):not(.crt){position:relative;z-index:1}
+.call.res.der .rcol{z-index:auto}
 .call.fam.run .cf-win video,.call.fam.run .cf-win img{filter:brightness(.9)}
 .call.fam.run .cf-shape .cf-body.in{animation:cfSink .7s cubic-bezier(.4,0,.3,1) forwards}
 @keyframes cfSink{to{transform:translateY(22px) rotate(-5deg) scale(.94)}}
@@ -360,7 +367,7 @@
 @keyframes cfFallK{to{transform:translate(-40px,320px) rotate(-70deg);opacity:0}}
 .call.fam .cf-shape.dead .cf-fxb,.call.fam .cf-shape.dead .cf-fxf{opacity:0;transition:opacity .5s}
 .call.fam .cf-shape.dead>.cf-pole,.call.fam .cf-shape.dead>.cf-net,.call.fam .cf-shape.dead>.cf-stripes{opacity:.2;transition:opacity .5s} .call.fam .cf-shape.dead.off>.cf-stripes,.call.fam .cf-shape.dead.fall>*:not(.cf-body){opacity:0}
-.call.fam.run .cword .w{color:#c9ced3}
+.call.fam.run .cword .w{color:#ff6b6e}
 .call.fam.run .cword i{--sy:10px;--sr:6deg;animation:cfDropL .5s calc(var(--i) * .06s) cubic-bezier(.3,1.5,.5,1) backwards,cfSag .9s calc(.7s + var(--i) * .05s) ease-in-out forwards}
 .call.fam.run .cword i:nth-child(odd){--sy:7px;--sr:-8deg} .call.fam.run .cword i:nth-child(3n){--sy:14px;--sr:11deg}
 @keyframes cfDropL{from{transform:translateY(-60px);opacity:0}}

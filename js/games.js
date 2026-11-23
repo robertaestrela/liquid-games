@@ -482,7 +482,7 @@ function callFit(c) {
 }
 function callShell(st, lvl, cls, who, word, vale, valePos, tail) {
   $('#overlay').innerHTML = `<div class="call fam lvl${lvl}${cls}" id="call" style="${st.pal}"><div class="cveil"><i class="sw a"></i><i class="sw b"></i></div>
-    <div class="ccol">${st.html}<span class="pill cwho">${esc(who)}</span><div class="cword">${word ? `<span class="w">${letters(word)}</span>` : ''}</div><span class="pill cvale${valePos ? ' pos' : ''}">${esc(vale)}</span></div>${tail || ''}</div>`;
+    <div class="ccol">${st.html}<i class="crt"></i><span class="pill cwho">${esc(who)}</span><div class="cword">${word ? `<span class="w">${letters(word)}</span>` : ''}</div><span class="pill cvale${valePos ? ' pos' : ''}">${esc(vale)}</span></div>${tail || ''}</div>`;
   const c = $('#call'); callFit(c); return c;
 }
 function callShake(c, word, d0) { setTimeout(() => { const w = c.querySelector('.cword .w'); if (w && document.body.contains(w)) w.classList.add('shake'); }, (d0 + word.length * .05 + .3) * 1000); }
@@ -502,7 +502,7 @@ function showCall(p, idx, youRespond) {
   });
 }
 function hideCall() { const c = $('#call'); if (c) { c.style.transition = 'opacity .25s'; c.style.opacity = '0'; setTimeout(() => { if ($('#call') === c) $('#overlay').innerHTML = ''; }, 260); } }
-// resposta: o shape passa a ser de quem respondeu · aceitaram = clarão e o personagem acena · correram = a cor apaga pra cinza, o shape afunda e as letras caem; os pontos voam para o placar
+// resposta: o shape passa a ser de quem respondeu · aceitaram = clarão e o personagem acena · correram = a cor apaga pro vermelho, o shape afunda e as letras caem; os pontos voam para o placar
 function showAnswer(kind, team, pts, rp) {
   return new Promise(res => {
     const acc = kind === 'acc', one = G.one, R = G.players[rp] || G.players[0];
