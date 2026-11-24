@@ -469,8 +469,10 @@ function callStage(pl, lvl) {
   const pal = `--fc:${col};--r1:${cmix(col, 0, .28 + dk)};--r2:${cmix(col, 0, .58 + dk * .7)};--r3:${cmix(col, 0, .86 + dk * .3)};--sa:${cmix(col, 255, .3)};--sb:${cmix(col, 0, .65)}`;
   const media = !pl.crew || pl.crew === 'nenhum' ? `<img class="empty" src="${A}ui/avatar_empty.webp" alt="">` : `<video src="${A}video/call/${pl.crew}_${pl.g}${callSfx(pl)}.mp4" autoplay muted loop playsinline preload="auto" poster="${A}video/call/${pl.crew}_${pl.g}${callSfx(pl)}.webp"></video>`;
   const d = callDeco(k, col);
+  // skin Lendária (DS truco-call ◇ Style=Lendária): o vídeo 9:16 do personagem ocupa a tela toda, com escurecido por aumento, degradê e brilho rosa → violeta por cima
+  const sf = callSfx(pl), lend = sf === '_lendaria' ? `<div class="lv"><video src="${A}video/full/${pl.crew}_${pl.g}${sf}.mp4" autoplay muted loop playsinline preload="auto" poster="${A}video/full/${pl.crew}_${pl.g}${sf}.webp"></video></div><i class="ldk"></i><i class="lgrad"></i><i class="lglow"></i>` : '';
   const plates = k === 'feira' ? '<div class="cf-rot"><div class="cf-plate"></div><div class="cf-plate2"></div></div>' : '<div class="cf-plate"></div><div class="cf-plate2"></div>';
-  return {pal, die: f ? f[2] : '', html: `<div class="cf-shape cf-${k}" id="cfShape">${d.before || ''}<div class="cf-fxb">${d.fxb || ''}</div><div class="cf-body in">${plates}<div class="cf-win">${media}</div>${d.body || ''}</div>${d.after || ''}<div class="cf-fxf">${d.fxf || ''}</div></div>`};
+  return {pal, die: f ? f[2] : '', lend, html: `<div class="cf-shape cf-${k}" id="cfShape">${d.before || ''}<div class="cf-fxb">${d.fxb || ''}</div><div class="cf-body in">${plates}<div class="cf-win">${media}</div>${d.body || ''}</div>${d.after || ''}<div class="cf-fxf">${d.fxf || ''}</div></div>`};
 }
 // a palavra cabe na largura da tela (ACEITARAM! diminui) e o shape encolhe em telas baixas
 function callFit(c) {
@@ -481,8 +483,9 @@ function callFit(c) {
   if (sw > max) { const fs = Math.floor(72 * max / sw); w.style.setProperty('--fs', fs + 'px'); w.style.setProperty('--st', Math.max(6, Math.round(fs / 8)) + 'px'); }
 }
 function callShell(st, lvl, cls, who, word, vale, valePos, tail) {
-  $('#overlay').innerHTML = `<div class="call fam lvl${lvl}${cls}" id="call" style="${st.pal}"><div class="cveil"><i class="sw a"></i><i class="sw b"></i></div>
-    <div class="ccol">${st.html}<i class="crt"></i><span class="pill cwho">${esc(who)}</span><div class="cword">${word ? `<span class="w">${letters(word)}</span>` : ''}</div><span class="pill cvale${valePos ? ' pos' : ''}">${esc(vale)}</span></div>${tail || ''}</div>`;
+  const L = st.lend;
+  $('#overlay').innerHTML = `<div class="call fam${L ? ' lend' : ''} lvl${lvl}${cls}" id="call" style="${st.pal}"><div class="cveil">${L || ''}<i class="sw a"></i><i class="sw b"></i></div>
+    <div class="ccol">${L ? '<span class="tag cls lendaria ltag">Lendária</span>' : st.html}<i class="crt"></i><span class="pill cwho">${esc(who)}</span><div class="cword">${word ? `<span class="w">${letters(word)}</span>` : ''}</div><span class="pill cvale${valePos ? ' pos' : ''}">${esc(vale)}</span></div>${tail || ''}</div>`;
   const c = $('#call'); callFit(c); return c;
 }
 function callShake(c, word, d0) { setTimeout(() => { const w = c.querySelector('.cword .w'); if (w && document.body.contains(w)) w.classList.add('shake'); }, (d0 + word.length * .05 + .3) * 1000); }
@@ -517,7 +520,7 @@ function showAnswer(kind, team, pts, rp) {
       const wd = c.querySelector('.cword'); wd.innerHTML = `<span class="w">${letters(word)}</span>`; wd.style.setProperty('--d0', '0s'); callFit(c);
       if (acc) callShake(c, word, 0);
       else {
-        const sh = $('#cfShape'); sh.classList.add('dead'); if (st.die) sh.classList.add(st.die);
+        const sh = $('#cfShape'); if (sh) { sh.classList.add('dead'); if (st.die) sh.classList.add(st.die); }
         const vp = c.querySelector('.cvale'), r = vp.getBoundingClientRect(), a = c.getBoundingClientRect(), s = a.width / c.offsetWidth || 1;
         flyPoints(c, {offsetLeft: (r.left - a.left) / s, offsetTop: (r.top - a.top) / s, offsetWidth: r.width / s, offsetHeight: r.height / s}, good, pts);
       }

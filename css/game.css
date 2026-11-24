@@ -370,6 +370,34 @@
 .call.fam.run .cword .w{color:#ff6b6e}
 .call.fam.run .cword i{--sy:10px;--sr:6deg;animation:cfDropL .5s calc(var(--i) * .06s) cubic-bezier(.3,1.5,.5,1) backwards,cfSag .9s calc(.7s + var(--i) * .05s) ease-in-out forwards}
 .call.fam.run .cword i:nth-child(odd){--sy:7px;--sr:-8deg} .call.fam.run .cword i:nth-child(3n){--sy:14px;--sr:11deg}
+/* ---------- chamada com a skin Lendária (DS truco-call ◇ Style=Lendária) · o vídeo 9:16 de quem fala ocupa a tela toda (sem shape) e por cima vêm degradê, selo Lendária, palavra, valor e botões ---------- */
+.call.lend .cveil::before{display:none}
+.call.lend .lv{position:absolute;inset:0;overflow:hidden;background:#120a1e;animation:cfWipe .46s .1s cubic-bezier(.65,0,.25,1) backwards}
+.call.lend .lv video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 0;transform:scale(var(--z,1));transform-origin:50% 28%;animation:lvIn .8s .12s cubic-bezier(.2,.9,.3,1) backwards;transition:transform .7s cubic-bezier(.3,.8,.3,1),filter .7s}
+@keyframes lvIn{from{transform:scale(1.22);filter:brightness(2) saturate(.5)}}
+/* cada aumento chega mais perto e escurece um pouco */
+.call.lend.lvl2{--z:1.05;--dk:.1} .call.lend.lvl3{--z:1.1;--dk:.18} .call.lend.lvl4{--z:1.15;--dk:.26}
+.call.lend .ldk,.call.lend .lgrad,.call.lend .lglow{position:absolute;pointer-events:none}
+.call.lend .ldk{inset:0;background:#000;opacity:var(--dk,0)}
+.call.lend .lgrad{inset:0;background:linear-gradient(180deg,rgba(9,6,20,.6) 0%,rgba(9,6,20,0) 15%),linear-gradient(0deg,rgba(9,6,20,.95) 0%,rgba(16,8,32,.82) 28%,rgba(22,8,38,.38) 48%,rgba(22,8,38,0) 64%);animation:cfFade .4s .3s backwards}
+.call.lend .lglow{left:0;right:0;bottom:0;height:52%;background:radial-gradient(90% 62% at 50% 100%,rgba(255,79,163,.42),rgba(142,92,255,.2) 48%,transparent 74%);mix-blend-mode:screen;animation:cfFade .5s .45s backwards;transition:opacity .7s}
+.call.lend.lvl4 .lglow{animation:cfFade .5s .45s backwards,lBeat .55s .9s ease-in-out infinite alternate}
+@keyframes lBeat{to{opacity:.55}}
+.call.lend .sw.a{background:#ff4fa3} .call.lend .sw.b{background:#8e5cff}
+/* conteúdo embaixo, sobre a parte escura do degradê (acima dos botões) */
+.call.lend .ccol{top:auto;bottom:calc(236px + env(safe-area-inset-bottom,0px))}
+.call.lend.ans .ccol{bottom:calc(140px + env(safe-area-inset-bottom,0px))}
+.call.lend .ltag{box-shadow:0 4px 12px #8e5cff73;animation:lTag .35s .45s cubic-bezier(.3,1.6,.5,1) backwards}
+@keyframes lTag{from{transform:scale(.4);opacity:0}}
+.call.lend .cwho{margin-top:8px}
+/* respostas entram sem varrida (a mesa já estava coberta) · aceitaram: clarão e o vídeo dá um tranco pra frente · correram: apaga pro vermelho */
+.call.lend.ans{--z:1.06}
+.call.lend.ans .lv{animation:cfFade .15s backwards} .call.lend.ans .lv video,.call.lend.ans .lgrad,.call.lend.ans .lglow,.call.lend.ans .ltag{animation:none}
+.call.lend.acc .lv video{animation:lNod .55s cubic-bezier(.3,1.6,.5,1)}
+@keyframes lNod{35%{transform:scale(calc(var(--z,1) + .06))}}
+.call.lend.run .lv video{--z:1;filter:brightness(.6)}
+.call.lend.run .lglow{opacity:.6}
+@media (prefers-reduced-motion:reduce){.call.lend .lv,.call.lend .lv video,.call.lend .ltag{animation:none!important}}
 @keyframes cfDropL{from{transform:translateY(-60px);opacity:0}}
 @keyframes cfSag{to{transform:translateY(var(--sy)) rotate(var(--sr))}}
 /* shape: .cf-body entra do jeito da família · efeitos atrás (.cf-fxb) e na frente (.cf-fxf) */
