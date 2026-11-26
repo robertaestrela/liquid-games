@@ -55,7 +55,8 @@ function dkActive() {
 function dkMenu() {
   const on = dkActive();
   const items = NAV_ITEMS.filter(([k]) => (k !== 'jogos' || hasSkin()) && (k !== 'chat' || !DK.chat));
-  const it = (k, i, l, attr) => `<button class="it ${k === on ? 'on' : ''}" ${attr} ${k === on ? 'aria-current="page"' : ''}>${ic(i)}<span>${l}</span></button>`;
+  // Missões (Figma 26/nov): logo abaixo da Loja, com o selo do que dá pra resgatar
+  const it = (k, i, l, attr) => `<button class="it ${k === on ? 'on' : ''}" ${attr} ${k === on ? 'aria-current="page"' : ''}>${ic(i)}<span>${l}</span>${k === 'missoes' && k !== on && typeof misCount === 'function' && misCount() ? tag(String(misCount()), 'danger') : ''}</button>`;
   return `<div class="busy"><i></i><span>Partida em andamento · saia pelo Voltar do jogo</span></div>
     ${items.map(([k, i, l]) => it(k, i, l, `data-nav="${k}"`)).join('')}
     <hr><span class="lb">Sua conta</span>
