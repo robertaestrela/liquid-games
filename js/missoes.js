@@ -6,7 +6,7 @@
 const H_ = 36e5;
 // patente do jogador (pontos da Fidelidade). Iniciante 1 → Iniciante 2 em 6.250 pontos, como na tela da Fidelidade
 const MIS = {
-  pts: 2494, goal: 6250, lvl: 'Iniciante 1', next: 'Iniciante 2', pat: 'iniciante', color: '#8fa3b8',
+  pts: 2494, goal: 6250, lvl: 'Iniciante 1', next: 'Iniciante 2', pat: 'iniciante', n: 1, color: '#8fa3b8',
   login: {day: 2, claimed: false, streak: 1, vals: [30, 60, 90, 120, 150, 200, 500]},
   newAt: Date.now() + (4 * 3600 + 12 * 60 + 33) * 1e3,
   fresh: false, // missões novas chegaram (botão da Home com fogo)
@@ -30,8 +30,10 @@ const hms = ms => { const t = Math.max(0, Math.floor(ms / 1e3)); return `${misP2
 // o que dá pra resgatar agora (selo do botão da Home e do menu do computador)
 const misCount = () => MIS.list.filter(m => m.st === 'ready').length + (MIS.login.claimed ? 0 : 1);
 const misLeft = () => MIS.goal - MIS.pts;
-// patente (DS patent-badge): insígnia inteira (Default) e só o hexágono 44:48 (Small, 32 px ou menos)
-const patBadge = () => I('patente-' + MIS.pat), patHex = () => `<img class="ic hex" src="${I('patente-hex-' + MIS.pat)}" alt="">`;
+// patente (DS patent-badge): insígnia inteira (Default) e só o hexágono 44:48 (Small, 32 px ou menos), as duas com o número do nível
+// número do nível dentro da patente (1 a 9) · Diamante é nível único, sem número
+const patKey = () => MIS.pat + (MIS.pat === 'diamante' ? '' : '-' + MIS.n);
+const patBadge = () => I('patente-' + patKey()), patHex = () => `<img class="ic hex" src="${I('patente-hex-' + patKey())}" alt="">`;
 
 /* ---------- botão da Home (DS missions-button): círculo com anel contador, rótulo e selo · Novas missões = anel no degradê da estrela + chama ---------- */
 function misButton() {
@@ -122,7 +124,7 @@ function flyPat(from, n = 1) {
   const a = from.getBoundingClientRect(), b = to.getBoundingClientRect();
   const jobs = [];
   for (let k = 0; k < n; k++) {
-    const g = document.createElement('img'); g.src = I('patente-hex-' + MIS.pat); g.className = 'fly-pat';
+    const g = document.createElement('img'); g.src = I('patente-hex-' + patKey()); g.className = 'fly-pat';
     const s = Math.max(24, a.height), w = Math.round(s * 44 / 48); g.style.cssText = `left:${a.left + a.width / 2 - w / 2}px;top:${a.top + a.height / 2 - s / 2}px;width:${w}px;height:${s}px`;
     document.body.appendChild(g);
     const dx = b.left + b.width / 2 - (a.left + a.width / 2), dy = b.top + b.height / 2 - (a.top + a.height / 2);
